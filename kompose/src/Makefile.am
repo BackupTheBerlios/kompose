@@ -31,7 +31,7 @@ kompose_SOURCES = main.cpp kompose.cpp komposetaskmanager.cpp komposetask.cpp \
 	komposetaskvisualizer.cpp komposeviewmanager.cpp komposedcopiface.skel
 #kompose_LDFLAGS = $(KDE_RPATH) $(all_libraries) -lX11 -lXext -lm `pkg-config xft xrender xcomposite xdamage xfixes --libs` `imlib2-config --libs`
 kompose_LDFLAGS = $(KDE_RPATH) $(all_libraries) -lX11 -lXext -lm `imlib2-config --libs`
-kompose_LDADD = $(LIB_KDEUI) $(LIB_XRENDER)
+kompose_LDADD = $(LIB_KDEUI) $(LIB_XCOMPOSITE) $(LIB_XDAMAGE)
 
 # this is where the desktop file will go 
 shelldesktopdir = $(kde_appsdir)/Utilities

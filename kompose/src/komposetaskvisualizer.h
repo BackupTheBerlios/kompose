@@ -27,6 +27,8 @@
 #include <X11/extensions/Xrender.h>
 #endif
 
+enum ImageEffect { IEFFECT_NONE, IEFFECT_TITLE, IEFFECT_MINIMIZED, IEFFECT_MINIMIZED_AND_TITLE, IEFFECT_HIGHLIGHT };
+
 class QPixmap;
 class QSize;
 
@@ -40,10 +42,11 @@ public:
   KomposeTaskVisualizer(KomposeTask *parent, const char *name = 0);
   ~KomposeTaskVisualizer();
 
-  void renderOnPixmap(QPixmap* pix);
+  void renderOnPixmap( QPixmap* pix, int effect );
 
 protected:
   void initXComposite();
+  void applyEffect();
 
 protected slots:
   void captureScreenshot_GrabWindow();
@@ -65,6 +68,10 @@ private:
   bool scaledScreenshotDirty;
   bool screenshotSuspended;   // suspend pasv screenshots for this task
   bool screenshotBlocked;   // dis/enable pasv screenshots for this task
+  
+  
+  Imlib_Color_Modifier cmHighlight, cmMinimized;
+  int lasteffect; // the effect that has been applied to scaledScreenshot
   
 #ifdef COMPOSITE
   Pixmap windowBackingPix;

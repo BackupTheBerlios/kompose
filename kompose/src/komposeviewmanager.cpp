@@ -219,7 +219,7 @@ void KomposeViewManager::closeCurrentView()
   KWin::setCurrentDesktop( deskBeforeSnaps );
 
   // A short delay until we allow screenshots again (would cause overlapping else
-  QTimer::singleShot( 500, this, SLOT( toggleBlockScreenshots() ) );
+  QTimer::singleShot( 400, this, SLOT( toggleBlockScreenshots() ) );
 }
 
 void KomposeViewManager::toggleBlockScreenshots()

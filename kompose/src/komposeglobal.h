@@ -27,7 +27,7 @@ class KAction;
 #include <config.h>
 #endif
 
-#if defined(Q_WS_X11) && defined(HAVE_XRENDER) && QT_VERSION >= 0x030300
+#if defined(Q_WS_X11) && defined(HAVE_XCOMPOSITE) && defined(HAVE_XDAMAGE) && QT_VERSION >= 0x030300
 # define COMPOSITE
 #endif
 

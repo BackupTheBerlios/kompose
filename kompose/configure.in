@@ -61,19 +61,90 @@ dnl PACKAGE set before
 AC_C_BIGENDIAN
 AC_CHECK_KDEMAXPATHLEN
 
-dnl -----------------------------------------------------
-dnl XRender check
-dnl -----------------------------------------------------
-KDE_CHECK_HEADER(X11/extensions/Xcomposite.h, [xrender_h=yes], [xrender_h=no])
-if test "$xrender_h" = yes; then
-#  KDE_CHECK_LIB(Xrender, [
-    LIB_XRENDER="-lXrender -lXext -lXcomposite -lXdamage -lXfixes"
-    AC_DEFINE_UNQUOTED(HAVE_XRENDER, 1, [Defined if your system has XRender support])
-#  ], [], -lXext -lX11 $X_EXTRA_LIBS)
-#else
-#  LIB_XRENDER=
+AC_PREREQ(2.52)
+
+X_LIBS="$X_PRE_LIBS $X_LIBS -lXext -lX11 $X_EXTRA_LIBS"
+
+dnl --- XDamage check
+AC_CHECK_HEADER(X11/extensions/Xdamage.h, [
+    AC_CHECK_LIB(Xdamage, XDamageQueryExtension, [
+      AC_DEFINE(HAVE_XDAMAGE, 1, [Define if you have the XDamage extens
+ion])
+      LIB_XDAMAGE="-lXdamage -lXfixes"],, [ -L/usr/X11R6/lib $X_PRE_LIBS $X_LIBS -lXext -lX11 $X_EXTRA_LIBS ])
+  ],, [#include <X11/Xlib.h>])
+AC_SUBST(LIB_XDAMAGE)
+
+dnl --- XComposite check
+AC_CHECK_HEADER(X11/extensions/Xcomposite.h, [
+    AC_CHECK_LIB(Xcomposite, XCompositeQueryExtension, [
+      AC_DEFINE(HAVE_XCOMPOSITE, 1, [Define if you have the XComposite extens
+ion])
+      LIB_XCOMPOSITE="-lXcomposite"],, [ -L/usr/X11R6/lib $X_PRE_LIBS $X_LIBS -lXext -lX11 $X_EXTRA_LIBS ])
+  ],, [#include <X11/Xlib.h>])
+AC_SUBST(LIB_XCOMPOSITE)
+
+
+# modified kuickshow imlib search
+#
+# checking for Imlib2...
+dnl --- Imlib2 check
+
+AC_DEFUN([KDE_FIND_IMLIB2_CONFIG],
+   [AC_MSG_CHECKING([for imlib2-config])
+
+imlib2_config_given=NO
+ac_imlib2_config=""
+
+AC_ARG_WITH(imlib2-config,
+AC_HELP_STRING([--with-imlib2-config=DIR],[directory where "imlib2-config" is located]),
+[  ac_imlib2_config="$withval/imlib2-config"
+   imlib2_config_given=yes
+])
+
+if test "$imlib2_config_given" = "yes"; then
+  if test ! -r $ac_imlib2_config; then
+    AC_MSG_RESULT(wrong file specified)
+    ac_imlib2_config=""
+  else
+    AC_MSG_RESULT($ac_imlib2_config)
+    LIB_IMLIB2=`$ac_imlib2_config --libs`
+    AC_SUBST(LIB_IMLIB2)
+  fi
+else
+  ac_imlib2_config=`which imlib2-config 2>/dev/null`
+  if test -z "$ac_imlib2_config"; then
+    AC_MSG_RESULT(no)
+  else
+    dummy=`echo "$ac_imlib2_config" | grep '/imlib2-config'`
+    if test -z "$dummy"; then
+      AC_MSG_RESULT(no)
+      ac_imlib2_config=""
+    else
+      LIB_IMLIB2=`$ac_imlib2_config --libs`
+      IMLIB2_CFLAGS=`$ac_imlib2_config --cflags`
+      imlib2_config=`echo "$LIB_IMLIB2" | grep lImlib2`
+      if test -z "$imlib2_config"; then
+        AC_MSG_RESULT(no)
+        ac_imlib2_config=""
+      else
+        AC_SUBST(LIB_IMLIB2)
+        AC_SUBST(IMLIB2_CFLAGS)
+        AC_MSG_RESULT($ac_imlib2_config)
+      fi
+    fi
+  fi
 fi
-AC_SUBST(LIB_XRENDER)
+
+])
+
+dnl Check if Imlib2 is installed properly
+KDE_FIND_IMLIB2_CONFIG
+ 
+if test -z "$ac_imlib2_config"; then
+dnl  AC_MSG_ERROR([You need to install Imlib2 1.x from http://www.enlightenment.org/pages/imlib2.html if your distributor doesn't have a package])
+ echo imlib2-config not found
+ #DO_NOT_COMPILE="$DO_NOT_COMPILE kompose" # maybe one day we'll be in KDE, so I'll leave this here :)
+fi
 KDE_CREATE_SUBDIRSLIST
 AC_CONFIG_FILES([ Makefile ])
 AC_CONFIG_FILES([ doc/Makefile ])

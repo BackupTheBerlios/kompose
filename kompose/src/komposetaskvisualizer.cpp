@@ -31,16 +31,27 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
     task(parent),
     scaledScreenshotDirty(false),
     screenshotSuspended(false),
-    screenshotBlocked(false)
+    screenshotBlocked(false),
+    lasteffect( IEFFECT_NONE )
 {
 #ifdef COMPOSITE
   validBackingPix = false;
 #endif
-//   screenshot = new QPixmap();
-//   scaledScreenshot = new QPixmap();
+
   screenshot.setOptimization( QPixmap::BestOptim );
   scaledScreenshot.setOptimization( QPixmap::BestOptim );
 
+  // Create highlight color modifier
+  cmHighlight = imlib_create_color_modifier();
+  imlib_context_set_color_modifier(cmHighlight);
+  imlib_modify_color_modifier_brightness(0.13);
+
+  cmMinimized = imlib_create_color_modifier();
+  imlib_context_set_color_modifier(cmMinimized);
+  imlib_modify_color_modifier_brightness(-0.13);
+  imlib_context_set_color_modifier(0);
+
+  // clear cached pixmaps on viewclose
   connect( KomposeViewManager::instance(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
 
 #ifdef COMPOSITE
@@ -66,11 +77,15 @@ KomposeTaskVisualizer::~KomposeTaskVisualizer()
  * Called from outside to retrieve a screenshot
  * @param pix The pixmap the screenshot will be rendered onto
  */
-void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix)
+void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix, int effect)
 {
-  if ( scaledScreenshotDirty || scaledScreenshot.isNull() || scaledScreenshot.size() != pix->size() )
+  if ( scaledScreenshotDirty || scaledScreenshot.isNull() || scaledScreenshot.size() != pix->size() ||
+       KomposeSettings::instance()->getImageEffects() && (lasteffect != effect ) )
+  {
+    lasteffect = effect;
     renderScaledScreenshot( pix->size() );
-    
+  }
+
   copyBlt ( pix, 0, 0, &scaledScreenshot, 0, 0, pix->width(), pix->height() );
 
   //   QPainter p( pix );
@@ -155,6 +170,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
   Imlib_Image img = imlib_create_cropped_scaled_image(0, 0, screenshot.width(), screenshot.height(), newSize.width(), newSize.height());
   imlib_free_image();
   imlib_context_set_image( img );
+  applyEffect();
   imlib_context_set_drawable( scaledScreenshot.handle() );
   imlib_render_image_on_drawable_at_size(0, 0, newSize.width(), newSize.height());
   imlib_free_image();
@@ -178,8 +194,8 @@ void KomposeTaskVisualizer::slotTaskActivated()
   {
     // Retry 1 sec later
     screenshotSuspended = true;
-    QTimer::singleShot( 1000, this, SLOT( slotTaskActivated() ) );
-  } 
+    QTimer::singleShot( 500, this, SLOT( slotTaskActivated() ) );
+  }
   screenshotSuspended = false;
 
   // Grab a Passive Screenshot
@@ -189,7 +205,7 @@ void KomposeTaskVisualizer::slotTaskActivated()
   {
     qDebug("KomposeTaskVisualizer::slotTaskActivated() (WId %d) - Screenshot already exists, but passive mode on - Grabbing new one.", task->window());
     // Use a timer to make task switching feel more responsive
-    QTimer::singleShot( 700, this, SLOT( captureScreenshot_GrabWindow() ) );
+    QTimer::singleShot( 300, this, SLOT( captureScreenshot_GrabWindow() ) );
     //captureScreenshot_GrabWindow();
   }
 }
@@ -226,21 +242,21 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
     }
 
     qDebug("KomposeTaskVisualizer::slotUpdateScreenshot() (WId %d) - Forcing activation (no screenshot exists)", task->window());
-    
+
     task->activate();
     QApplication::flushX();
     QApplication::syncX();
-        
+
     // Wait until window is fully redrawn
     struct timespec req, rem;
     req.tv_sec = 0;
     req.tv_nsec = KomposeSettings::instance()->getScreenshotGrabDelay();
     while(nanosleep(&req, &rem))
       req = rem;
-      
+
     QApplication::flushX();
-      //task->refresh();
-      
+    //task->refresh();
+
     // Finally capture!
     screenshot = QPixmap::grabWindow( task->window() );
     //captureScreenshot_GrabWindow();
@@ -328,9 +344,9 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
   // We've just grabbed a screenshot and don't want this to happen again in the next 3?! seconds
   screenshotBlocked = true;
   QTimer::singleShot( 3000, this, SLOT( enablePasvScreenshots() ) );
-    
+
   qDebug("KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId %d) - Grabbed screenshot.", task->window());
-      
+
   // Code to create a screenshot directly as an Imlib image
 
   //     QRect geom = windowInfo.geometry();
@@ -373,5 +389,45 @@ void KomposeTaskVisualizer::clearCached()
   scaledScreenshot.resize(0,0);
 }
 
+
+void KomposeTaskVisualizer::applyEffect()
+{
+  imlib_context_set_color_modifier(0);
+
+  if ( lasteffect == IEFFECT_MINIMIZED || lasteffect == IEFFECT_MINIMIZED_AND_TITLE )
+  {
+    //FIXME: maybe there is a faster tint filter?!
+    imlib_context_set_color_modifier(cmMinimized);
+  }
+
+  if ( lasteffect == IEFFECT_HIGHLIGHT )
+  {
+    //FIXME: maybe there is a faster tint filter?!
+    imlib_context_set_color_modifier(cmHighlight);
+  }
+
+  if ( lasteffect == IEFFECT_TITLE || lasteffect == IEFFECT_MINIMIZED_AND_TITLE )
+  {
+    /* we can blend stuff now */
+    imlib_context_set_blend(1);
+    /* our color range */
+    Imlib_Color_Range range;
+
+    /* draw a gradient on top of things at the top left of the window */
+    /* create a range */
+    range = imlib_create_color_range();
+    imlib_context_set_color_range(range);
+    imlib_context_set_color(255, 255, 255, 0);
+    imlib_add_color_to_color_range(0);
+    imlib_context_set_color(255, 255, 255, 255);
+    imlib_add_color_to_color_range(1000);
+    /* draw the range */
+    //imlib_context_set_image(myIm);
+    imlib_image_fill_color_range_rectangle(0, 0, scaledScreenshot.width(), KomposeSettings::instance()->getWindowTitleFontAscent() * 3, -180.0);
+    /* free it */
+    imlib_free_color_range();
+  }
+
+}
 
 #include "komposetaskvisualizer.moc"

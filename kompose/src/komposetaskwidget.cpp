@@ -127,23 +127,19 @@ void KomposeTaskWidget::drawWidget()
   pm_dbBackground.fill(white);
 
   QPainter p( &pm_dbBackground );
-//   int xpos = 0;
-//   int ypos = 0;
-// 
-//   int effect = IEFFECT_NONE;
-// 
-//   if ( KomposeSettings::instance()->getShowWindowTitles() && !task->isIconified() )
-//     effect = IEFFECT_TITLE;
-//   if ( KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
-//     effect = IEFFECT_MINIMIZED_AND_TITLE;
-//   if ( !KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
-//     effect = IEFFECT_MINIMIZED;
-//   //   if ( highlight )               // I hate it, so I disable it!
-//   //     effect = IEFFECT_HIGHLIGHT;
-// 
-//   p.drawPixmap(xpos,ypos, *(task->getScreenshot()->qpixmap( effect )) );
   
-  task->getVisualizer()->renderOnPixmap(&pm_dbBackground);
+  int effect = IEFFECT_NONE;
+
+  if ( KomposeSettings::instance()->getShowWindowTitles() && !task->isIconified() )
+    effect = IEFFECT_TITLE;
+  if ( KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
+    effect = IEFFECT_MINIMIZED_AND_TITLE;
+  if ( !KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
+    effect = IEFFECT_MINIMIZED;
+  //   if ( highlight )               // I hate it, so I disable it!
+  //     effect = IEFFECT_HIGHLIGHT;
+
+  task->getVisualizer()->renderOnPixmap(&pm_dbBackground, effect);
 
   // Icon
   QPoint titleTextPos( 6, KomposeSettings::instance()->getWindowTitleFontHeight() + 1);
