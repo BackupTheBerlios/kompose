@@ -65,6 +65,8 @@ KomposeTaskVisualizer::~KomposeTaskVisualizer()
   if ( compositeInit )
     XDamageDestroy( dpy, damage);
 #endif
+  scaledScreenshot.resize(0,0);
+  screenshot.resize(0,0);
 }
 
 
@@ -95,7 +97,7 @@ void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix, int effect)
  */
 void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 {
-  qDebug("KomposeTaskVisualizer::renderScaledScreenshot() (%d)", task->window());
+  qDebug("KomposeTaskVisualizer::renderScaledScreenshot() (%d) %dx%d", task->window(), newSize.width(), newSize.height());
 
   scaledScreenshot.resize( newSize );
 
@@ -121,8 +123,10 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
                       picture,
                       None,
                       screenshot.x11RenderHandle(),
+                      task->getGeometry().x() - task->getFrameGeometry().x(),
+                      task->getGeometry().y() - task->getFrameGeometry().y(),
                       0, 0, 0, 0,
-                      0, 0, screenshot.width(), screenshot.height() );
+                      screenshot.width(), screenshot.height() );
     XRenderFreePicture (dpy, picture);
 #endif
 
@@ -320,7 +324,6 @@ void KomposeTaskVisualizer::initXComposite()
     compositeInit = true;
     updateXCompositeNamedPixmap();
 
-    //FIXME: make this usable
     qDebug("KomposeTaskVisualizer::initXComposite() (WId %d) - Setting up Damage extension", task->window());
     // Create a damage handle for the window, and specify that we want an event whenever the
     // damage state changes from not damaged to damaged.

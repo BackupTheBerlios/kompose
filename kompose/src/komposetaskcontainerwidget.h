@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -43,7 +43,7 @@ public slots:
   
 protected slots:
   void createTaskWidgets();
-  void createTaskWidget( KomposeTask* task);
+  void createTaskWidget( KomposeTask* task, bool manualShow=true );
   void reparentTaskWidget( KomposeTask* task, int fromDesktop, int toDesktop );
   bool focusNeighbourChild( int direction );
   

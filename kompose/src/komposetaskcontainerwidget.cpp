@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -35,14 +35,14 @@ KomposeTaskContainerWidget::~KomposeTaskContainerWidget()
 
 void KomposeTaskContainerWidget::reparentTaskWidget( KomposeTask* task, int fromDesktop, int toDesktop )
 {
-  // Ignore to all desktops
-  if (toDesktop==-1)
+  // noops
+  if ( (fromDesktop==-1 && ((toDesktop==-1) || desktop == toDesktop-1)) || desktop==-2)
     return;
   
   qDebug("KomposeTaskContainerWidget::reparentTaskWidget()");
   
   // Delete from current
-  if ( desktop == fromDesktop -1 )
+  if ( (toDesktop!= -1) && (desktop == fromDesktop-1 || fromDesktop==-1) )
   {
     KomposeTaskWidget *child;
     QPtrListIterator<KomposeWidget> it( *(layout->getManagedWidgets()));
@@ -55,17 +55,16 @@ void KomposeTaskContainerWidget::reparentTaskWidget( KomposeTask* task, int from
         layout->remove(child);
         //child->deleteLater();
         child->close(true);
-        //QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
         return;
       }
     }
   }
   
-  // Delete from current
-  if ( desktop == toDesktop -1 )
+  // Add to new
+  if ( desktop == toDesktop -1 || (toDesktop == -1 && fromDesktop-1!=desktop) )
   {
-    createTaskWidget( task );
-    QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
+    createTaskWidget( task, true );
+    //QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
 //        layout->arrangeLayout();
   }
 }
@@ -206,14 +205,15 @@ void KomposeTaskContainerWidget::createTaskWidgets()
 }
 
 
-void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task )
+void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task, bool manualShow )
 {
   if ( desktop == -1 || desktop == task->onDesktop()-1 || task->onDesktop()==-1)
   {
     qDebug("KomposeTaskContainerWidget::createTaskWidget() (Container: %s, WId: %d, onDesktop: %d)",
      this->className(), task->window(), task->onDesktop() );
     KomposeTaskWidget *taskwidget = new KomposeTaskWidget( task, this );
-    taskwidget->show();
+    if (manualShow)
+      taskwidget->show();
     connect( taskwidget, SIGNAL(requestRemoval(KomposeWidget*)), SLOT(requestRemoval(KomposeWidget*)) );
   }
 }

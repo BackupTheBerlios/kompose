@@ -148,6 +148,7 @@ void KomposeViewManager::createView( int type )
     viewWidget->setType( type );
 
   KWin::forceActiveWindow( viewWidget->winId() );
+  
   activeView = true;
 }
 
@@ -156,7 +157,7 @@ void KomposeViewManager::closeCurrentView()
 {
   if ( !activeView )
     return;
-
+  
   blockScreenshots = true;
   activeView = false;
 

@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -48,7 +48,7 @@ protected:
   void mousePressEvent (QMouseEvent *);
   void keyReleaseEvent ( QKeyEvent * e );
   void paintEvent ( QPaintEvent * );
-  
+
   void destroyChildWidgets();
 //   virtual void closeEvent ( QCloseEvent * e );
  

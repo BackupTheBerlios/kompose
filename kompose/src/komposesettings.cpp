@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -22,7 +22,6 @@
 #include <kconfig.h>
 #include <kglobal.h>
 #include <kiconloader.h>
-#include <kpixmapio.h>
 
 static KomposeSettings* settingsInstance = 0;
 
@@ -42,7 +41,8 @@ KomposeSettings* KomposeSettings::instance()
 
 
 KomposeSettings::KomposeSettings(QObject *parent, const char *name)
-    : QObject(parent, name)
+    : QObject(parent, name),
+    windowTitleFontMetrics(0)
 {
   
   // Init global shortcut object
@@ -67,18 +67,13 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
   // read Settings from cfg file
   readConfig();
   
-  // Init our Pixmap converter powered by MIT-SHM shared memory extension. great stuff, KDE people :)
-  pixmapIO = new KPixmapIO();
-  pixmapIO->setShmPolicy( KPixmapIO::ShmKeepAndGrow );
-  pixmapIO->preAllocShm( 1024000 );
-  
   settingsInstance = this;
 }
 
 
 KomposeSettings::~KomposeSettings()
 {
-  delete pixmapIO;
+  delete globalAccel;
   delete settingsInstance;
 }
 
@@ -110,9 +105,6 @@ void KomposeSettings::readConfig()
   
   showWindowTitles = kapp->config()->readBoolEntry("showWindowTitles", true );
   windowTitleFont = kapp->config()->readFontEntry("windowTitleFont", new QFont( "arial", 11, QFont::Bold ) );
-  windowTitleFontMetrics = new QFontMetrics( windowTitleFont );
-  windowTitleFontAscent = windowTitleFontMetrics->ascent();
-  windowTitleFontHeight = windowTitleFontMetrics->height();
   windowTitleFontColor = kapp->config()->readColorEntry("windowTitleFontColor", new QColor(Qt::black) );
   showWindowTitleShadow = kapp->config()->readBoolEntry("showWindowTitleShadow", true );
   windowTitleFontShadowColor = kapp->config()->readColorEntry("windowTitleFontShadowColor", new QColor(Qt::lightGray) );
@@ -121,7 +113,7 @@ void KomposeSettings::readConfig()
   desktopTitleFontColor = kapp->config()->readColorEntry("desktopTitleFontColor", new QColor(Qt::gray) );
   desktopTitleFontHighlightColor = kapp->config()->readColorEntry("desktopTitleFontHighlightColor", new QColor(Qt::black) );
 
-  cacheScaledPixmaps = kapp->config()->readBoolEntry("cacheScaledPixmaps", false);
+  cacheScaledPixmaps = kapp->config()->readBoolEntry("cacheScaledPixmaps", true);
     
   activateOnTopLeftCorner = kapp->config()->readBoolEntry("activateOnTopLeftCorner", false );
   activateOnTopRightCorner = kapp->config()->readBoolEntry("activateOnTopRightCorner", false );
@@ -129,6 +121,7 @@ void KomposeSettings::readConfig()
   activateOnBottomRightCorner = kapp->config()->readBoolEntry("activateOnBottomRightCorner", false );
   autoLockDelay = kapp->config()->readNumEntry("autoLockDelay", 1000);
   
+  calcFontMetrics();
   emit settingsChanged();
 }
 
@@ -160,7 +153,6 @@ void KomposeSettings::writeConfig()
   
   kapp->config()->writeEntry("showWindowTitles", showWindowTitles);
   kapp->config()->writeEntry("windowTitleFont", windowTitleFont);
-  windowTitleFontMetrics = new QFontMetrics( windowTitleFont );
   kapp->config()->writeEntry("windowTitleFontColor", windowTitleFontColor);
   kapp->config()->writeEntry("showWindowTitleShadow", showWindowTitleShadow);
   kapp->config()->writeEntry("windowTitleFontShadowColor", windowTitleFontShadowColor);
@@ -181,6 +173,7 @@ void KomposeSettings::writeConfig()
 
   qDebug("KomposeSettings::writeConfig() - Settings saved to cfg file");
 
+  calcFontMetrics();
   emit settingsChanged();
 }
 
@@ -208,6 +201,16 @@ int KomposeSettings::getIconSizePixels()
     case 3:
       return -1;
   }
+  return 32;
+}
+
+void KomposeSettings::calcFontMetrics()
+{
+  if (windowTitleFontMetrics != 0)
+    delete windowTitleFontMetrics;
+  windowTitleFontMetrics = new QFontMetrics( windowTitleFont );
+  windowTitleFontAscent = windowTitleFontMetrics->ascent();
+  windowTitleFontHeight = windowTitleFontMetrics->height();
 }
 
 #include "komposesettings.moc"

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -72,6 +72,7 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   //connect( t, SIGNAL( destroyed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
+  connect( t, SIGNAL( stateChanged() ), this, SLOT( reInitMenu() ) );
 
 #ifdef COMPOSITE
   if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
@@ -96,6 +97,12 @@ KomposeTaskWidget::~KomposeTaskWidget()
   delete taskActionCollection;
 }
 
+void KomposeTaskWidget::reInitMenu()
+{
+  delete menu;
+  initMenu();
+}
+
 void KomposeTaskWidget::initFonts()
 {
   titleFont = KomposeSettings::instance()->getWindowTitleFont();
@@ -114,7 +121,7 @@ void KomposeTaskWidget::resizeEvent ( QResizeEvent * e )
   if ( e->oldSize() != e->size())
   {
     prefWidget->move(width() - prefWidget->width() - 3, 3);
-    drawWidget();
+    drawWidgetAndRepaint();
   }
   KomposeWidget::resizeEvent( e );
 }
@@ -122,6 +129,9 @@ void KomposeTaskWidget::resizeEvent ( QResizeEvent * e )
 
 void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
 {
+  if (size().height() < 40 )  // small hack that will prevent drawing on init
+    return;
+    
   if ( pm_dbBackground.isNull() )
     drawWidget();
   bitBlt( this, 0, 0, &pm_dbBackground, 0, 0, width(), height() );
@@ -129,6 +139,9 @@ void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
 
 void KomposeTaskWidget::drawWidgetAndRepaint()
 {
+  if (size().height() < 40 )  // small hack that will prevent drawing on init
+    return;
+  
   drawWidget();
   repaint();
 }
@@ -137,7 +150,7 @@ void KomposeTaskWidget::drawWidget()
 {
   if ( !KomposeViewManager::instance()->hasActiveView() || !isShown() )
     return;
-
+  
   pm_dbBackground.resize( width(), height() );
   //pm_dbBackground.fill(white);
 
@@ -232,8 +245,9 @@ void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
   if ( e->key() == Qt::Key_Return || e->key() == Qt::Key_Space )
   {
     qDebug("KomposeTaskWidget::keyReleaseEvent - activating Task!");
-    KomposeViewManager::instance()->activateTask( task );
     e->accept();
+    KomposeViewManager::instance()->activateTask( task );
+    return;
   }
   else if ( e->key() == Qt::Key_C )
   {
@@ -259,7 +273,7 @@ void KomposeTaskWidget::leaveEvent ( QEvent * e )
 {
   highlight = false;
   unsetCursor();
-  drawWidgetAndRepaint();
+//   drawWidgetAndRepaint();
 
   prefWidget->hide();
   if ( parentWidget() )
@@ -271,7 +285,7 @@ void KomposeTaskWidget::enterEvent ( QEvent * e )
   setFocus();
   setCursor( KCursor::handCursor() );
   highlight = true;
-  drawWidgetAndRepaint();
+//   drawWidgetAndRepaint();
 
   prefWidget->show();
 }

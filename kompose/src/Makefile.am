@@ -12,7 +12,7 @@ noinst_HEADERS = kompose.h komposetaskmanager.h komposetask.h komposewidget.h \
 METASOURCES = AUTO
 
 messages: rc.cpp
-	$(XGETTEXT) *.cpp -o $(podir)/kompose.pot
+	$(XGETTEXT) *.cpp --language=C --from-code=UTF-8 -o $(podir)/kompose.pot
 
 KDE_ICON = kompose
 
@@ -42,3 +42,5 @@ shellrcdir = $(kde_datadir)/kompose
 shellrc_DATA = komposeui.rc
 
 kde_icon_KDEICON = hi32-app-kompose.png hi16-app-kompose.png
+
+

@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -35,7 +35,7 @@
 #include <kfontdialog.h>
 
 KomposePreferences::KomposePreferences()
-    : KDialogBase(IconList, i18n(QString::fromUtf8("Komposé Preferences").utf8()), Ok|Apply|Cancel, Ok)
+    : KDialogBase(IconList, i18n("Komposé Preferences"), Ok|Apply|Cancel, Ok)
 {
   // FIXME: this is the biggest constructor I've EVER written!
   // How about Qt Designer?!
@@ -70,7 +70,7 @@ KomposePreferences::KomposePreferences()
   QGroupBox *screenshotsGroupBox = new QGroupBox( 4, Vertical, i18n("Screenshots"), page1 );
 
   useComposite = new QCheckBox(i18n("Use XComposite if available"), screenshotsGroupBox);
-  QString useCompositeHelp = i18n(QString::fromUtf8("Making use of the Composite extension of newer X Servers makes the grabbing of screenshots obsolete.\nThe contents of all windows are drawn in back buffers that will be accessed by Komposé.\nNote that the Composite implementation of even modern graphic card drivers is still very slow and may make your system pretty unusable.").utf8());
+  QString useCompositeHelp = i18n("Making use of the Composite extension of newer X Servers makes the grabbing of screenshots obsolete.\nThe contents of all windows are drawn in back buffers that will be accessed by Komposé\nNote that the Composite implementation of even modern graphic card drivers is still very slow and may make your system pretty unusable.");
   QWhatsThis::add( useComposite, useCompositeHelp );
   QToolTip::add( useComposite, useCompositeHelp );
   connect( useComposite, SIGNAL(toggled(bool)), SLOT(setUseCompositeToggled(bool)) );
@@ -79,7 +79,7 @@ KomposePreferences::KomposePreferences()
 #endif  
   
   passiveScreenshots = new QCheckBox(i18n("Passive screenshots"), screenshotsGroupBox);
-  QString passiveScreenshotsHelp = i18n(QString::fromUtf8("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.").utf8());
+  QString passiveScreenshotsHelp = i18n("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.");
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
   QToolTip::add( passiveScreenshots, passiveScreenshotsHelp );
 
@@ -145,7 +145,7 @@ KomposePreferences::KomposePreferences()
   QHBox *hBoxWindowTitles = new QHBox(windowTitleGroupBox);
   showWindowTitles = new QCheckBox(i18n("Show window titles"), hBoxWindowTitles);
   windowTitleFontBtn = new QPushButton(i18n("Select Font..."), hBoxWindowTitles);
-  QString showWindowTitlesHelp = i18n( QString::fromUtf8("Display the name of every window in Komposé") );
+  QString showWindowTitlesHelp = i18n( "Display the name of every window in Komposé" );
   QWhatsThis::add( showWindowTitles, showWindowTitlesHelp );
   QToolTip::add( showWindowTitles, showWindowTitlesHelp );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontBtn, SLOT(setEnabled(bool)) );

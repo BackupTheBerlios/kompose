@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -148,15 +148,15 @@ void KomposeGlobal::initActions()
 
   // Actions
   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection );
-  actShowWorldView = new KAction(i18n(QString::fromUtf8("Komposé (ungrouped)").utf8()), "kompose",
+  actShowWorldView = new KAction(i18n("Komposé (ungrouped)"), "kompose",
                                  0,
                                  KomposeViewManager::instance(), SLOT(createWorldView()),
                                  actionCollection, "showWorldView");
-  actShowVirtualDesktopView = new KAction(i18n(QString::fromUtf8("Komposé (grouped by virtual desktops)").utf8()), "kompose",
+  actShowVirtualDesktopView = new KAction(i18n("Komposé (grouped by virtual desktops)"), "kompose",
                                           0,
                                           KomposeViewManager::instance(), SLOT(createVirtualDesktopView()),
                                           actionCollection, "showVirtualDesktopView");
-  actShowCurrentDesktopView = new KAction(i18n(QString::fromUtf8("Komposé (current virtual desktop)").utf8()), "kompose",
+  actShowCurrentDesktopView = new KAction(i18n("Komposé (current virtual desktop)"), "kompose",
                                           0,
                                           KomposeViewManager::instance(), SLOT(createCurrentDesktopView()),
                                           actionCollection, "showCurrentDesktopView");
@@ -166,7 +166,7 @@ void KomposeGlobal::initActions()
   actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
                               actionCollection, "options_configure_global_keybinding");
   actConfigGlobalShortcuts->setText(i18n("Configure &Global Shortcuts..."));
-  actAboutDlg      = new KAction(i18n(QString::fromUtf8("About Komposé").utf8()), "kompose",
+  actAboutDlg      = new KAction(i18n("About Komposé"), "kompose",
                                  0,
                                  this, SLOT(showAboutDlg()),
                                  actionCollection, "showAboutDlg");

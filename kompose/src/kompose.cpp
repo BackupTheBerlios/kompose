@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -38,7 +38,6 @@
 
 Kompose::Kompose()
 {
-  KomposeGlobal::instance()->initGui();
 }
 
 Kompose::~Kompose()
@@ -46,9 +45,6 @@ Kompose::~Kompose()
 
 bool Kompose::x11EventFilter (XEvent *event)
 {
-if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
-    
-    qDebug("HUILFEEEEEEEEEEEEEEEEEEEEEEEE");
 #ifdef COMPOSITE
   if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {

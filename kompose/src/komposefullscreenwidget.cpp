@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -107,6 +107,7 @@ void KomposeFullscreenWidget::initView()
   {
     disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
     layout->setType( TLAYOUT_TASKCONTAINERS );
+    setDesktop( -2 );
     createDesktopWidgets();
   }
   else if ( type == KOMPOSEDISPLAY_WORLD )

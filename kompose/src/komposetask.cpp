@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -279,7 +279,8 @@ void KomposeTask::toggleShaded()
  */
 void KomposeTask::refresh()
 {
-  qDebug("KomposeTask::refresh() (WId %d) - Window parameters have changed or initial refresh", windowID);
+  //qDebug("KomposeTask::refresh() (WId %d) - Window parameters have changed or initial refresh", windowID);
+  
   windowInfo = KWin::windowInfo(windowID);
 
   if ( !windowInfo.valid() )

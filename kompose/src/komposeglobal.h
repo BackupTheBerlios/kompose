@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -23,8 +23,6 @@ class KAction;
 class KSharedPixmap;
 class KWinModule;
 
-// Check for Composite extension
-// FIXME: Am I doing this right? I don't know anything about automake & co
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif

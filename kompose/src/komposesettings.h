@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
+// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -21,7 +21,6 @@
 enum KomposeDisplay { KOMPOSEDISPLAY_WORLD, KOMPOSEDISPLAY_VIRTUALDESKS, KOMPOSEDISPLAY_CURRENTDESK };
 
 class KGlobalAccel;
-class KPixmapIO;
 class QFontMetrics;
 
 
@@ -42,7 +41,6 @@ public:
   void writeConfig();
   
   KGlobalAccel *getGlobalAccel() const { return globalAccel; }
-  KPixmapIO *getPixmapIO() { return pixmapIO; }
   
   bool getUseComposite() const { return useComposite; }
   void setUseComposite( bool b ) { useComposite = b; }
@@ -108,12 +106,14 @@ public:
 public slots:
   void showPreferencesDlg();
 
+protected slots:
+  void calcFontMetrics();
+
 signals:
   void settingsChanged();
 
 private:
   KGlobalAccel *globalAccel;
-  KPixmapIO *pixmapIO;
   
   bool useComposite;
   bool passiveScreenshots;

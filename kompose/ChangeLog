@@ -1,1 +1,65 @@
- 
+ 0.5:
+-Composite support to take screenshots without raising windows
+-Damage support for live-updates of windows
+-major refactoring for a cleaner design
+-new View Type (current desktop)
+-activate when mouse moves in one of the screen's corners
+-added popup menu for windows
+-added a small screenshot delay for passive screenshots. This should make switching between tasks seem more responsive (redraws occur before taking screenshots) and help on most of the "overlapping windows" problems
+-fixed flashing background when activating Komposé
+-Switched to themable KDE cursors
+-Window title changes are now updated properly
+-Correct handling of windows that are on all desktops
+-additionally using hjkl(vi) keys for moving and c/m keys for close/minimize/restore
+-Imlib2, Composite and Damage autodetected through configure
+-some minor bugs and various smaller performance improvements
+
+0.4.2:
+-Switching between views on the fly works again
+-Hopefully fixed unreproducable auto-Raising & -Minimizing ow Windows
+-Fixed highlighting of Virtual Desktops on mouseover
+-Config options for Virtual Desktop fonts&colors
+-Virtual Desktop Layout introduced in 0.4 now configurable
+-French translation by Sébastien Renard included (although some words are still english, sorry!)
+
+0.4.1:
+-Fixed a compile bug - sorry guys!
+-Esc key works again
+
+0.4:
+-faster image scaling speedups thanks to Imlib2 which is now required
+-Layout wastes less space (e.g. empty virtual desktops are smaller)
+-Show task icons and titles in Komposé (configruable through preferences)
+-Added --nosystray and --singleshot command line options
+-Added dcop support
+-Icon submitted by Philipp Droessler
+-Arrow keys can be used to traverse through tasks
+-Annoying Raise-bug fixed (no more raising of windows after komposé)
+-Images aren't scaled bigger than they actually are
+-the usual minor bugfixes
+
+0.3:
+-Speedups in image processing
+-Overworked Preferences Dialog with some new options
+-view mode (that doesn't seperate between desktops)
+-Switching between view modes on-the-fly with right mouse popup menu
+-Rudimentary keyboard movement (Tab and Space/enter keys)
+-Added desktop tooltips
+-Kompose cannot be launched multiple times
+-Memory leak fixed
+-Added about dialog (should now be GPL compatible :) )
+
+0.2.1:
+maintenance release, fixed some bugs that caused crashes
+
+0.2:
+-Komposé now stays in system tray
+-You can assign a global shortcut to Komposé
+-Default behaviour is to create screenshots while you work. This can be changed in the preferences, but it's less annoying than the "pop up all windows before Komposé is started" thing.
+-Mouseover toolbar to minimize/raise/close windows
+-Graying out minimized windows
+-Drag & drop should work correctly now
+-Many bugfixes and huge Refactoring. The application structure should now allow a GL implementation of Komposé, I'll look at this in the next days
+
+0.1:
+Initial Release

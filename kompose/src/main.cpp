@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -31,7 +31,7 @@
 static const char description[] = 
   I18N_NOOP("A fullscreen task manager for KDE");
 
-static const char version[] = "0.4.2";
+static const char version[] = "0.5";
 
 static KCmdLineOptions options[] =
   {
@@ -62,26 +62,28 @@ int main(int argc, char **argv)
 //   qInstallMsgHandler( myMessageOutput );
   
   KAboutData about("kompose", I18N_NOOP("Kompose"), version, description,
-                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "", "http://developer.berlios.de/projects/kompose", "oisch@sourceforge.net");
+                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "", "http://developer.berlios.de/projects/kompose", "oisch@users.berlios.de");
   about.addAuthor( "Hans Oischinger", 0, "oisch@users.berlios.de" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
 
-  Kompose *app = 0;
+  Kompose *app = new Kompose();
 
   // no session.. just start up normally
   KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
   
-  new Kompose();
-
   if ( !args->isSet("systray") )
+  {
     KomposeGlobal::instance()->setHideSystray(true);
+  }
   if ( args->isSet("singleshot") )
   {
     KomposeGlobal::instance()->setHideSystray(true);
     KomposeGlobal::instance()->setSingleShot(true);
   }
 
+  KomposeGlobal::instance()->initGui();
+  
   //app.setMainWidget( mainWin );
 
   args->clear();

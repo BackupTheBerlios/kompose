@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -23,7 +23,6 @@
 #include <qobject.h>
 #include <qrect.h>
 #include <kwin.h>
-//typedef unsigned long Drawable; //FIXME!!!
 
 class KWinModule;
 class KomposeTaskVisualizer;
@@ -59,6 +58,7 @@ public:
   QString visibleName() const { return windowInfo.visibleName(); }
   QString visibleNameWithState() const { return windowInfo.visibleNameWithState(); }
   QRect getGeometry() const { return windowInfo.geometry(); }
+  QRect getFrameGeometry() const { return windowInfo.frameGeometry(); }
   
   QPixmap getIcon( int size );
   double getAspectRatio();

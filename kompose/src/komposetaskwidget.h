@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -77,6 +77,7 @@ protected slots:
   void drawWidgetAndRepaint();
   void initFonts();
   void setGeometry( const QRect &rect );
+  void reInitMenu();
   
   void slotMinimizeRestoreToggled();
   void setActionIcons( bool inverse=false );

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@sourceforge.net                                                 *
+ *   oisch@users.berlios.de                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -92,17 +92,31 @@ KomposeTaskManager::KomposeTaskManager()
 }
 
 KomposeTaskManager::~KomposeTaskManager()
-{}
+{
+  delete kwin_module;
+}
 
+/**
+ * Redirect or unredirect all root windows to offscreen buffers
+ */
 void KomposeTaskManager::callCompositeRedirect()
 {
 #ifdef COMPOSITE
-  // Redirect all root windows to offscreen buffers
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() )
   {
     Display *dpy = QPaintDevice::x11AppDisplay();
-    for ( int i = 0; i < ScreenCount( dpy ); i++ )
-      XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
+    if ( KomposeSettings::instance()->getUseComposite() )
+    {
+      // Redirect
+      for ( int i = 0; i < ScreenCount( dpy ); i++ )
+        XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
+    }
+    else if ( !KomposeSettings::instance()->getUseComposite() )
+    {
+      // Unredirect
+      for ( int i = 0; i < ScreenCount( dpy ); i++ )
+        XCompositeUnredirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
+    }
   }
 #endif
 }
@@ -145,7 +159,7 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
         slotWindowAdded( w );
     }
   }
-  
+
   // check if any state we are interested in is marked dirty
   if(!(dirty & (NET::WMVisibleName|NET::WMVisibleIconName|NET::WMName|NET::WMState|NET::WMIcon|NET::XAWMState|NET::WMDesktop)) )
     return;
@@ -158,8 +172,8 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
   // TODO: Instead of one refresh() method we could implement specific method for names and geometry, etc...
   // checked like this: if(dirty & (NET::WMDesktop|NET::WMState|NET::XAWMState))
   t->refresh();
-
-  // Finally check if the window has been moved to a different virtual desktop  
+  
+  // Finally check if the window has been moved to a different virtual desktop
   if( (dirty & NET::WMDesktop ) && ( oldTaskDesktop != t->onDesktop() ) )
     emit taskDesktopChanged( t, oldTaskDesktop, t->onDesktop() );
 }
@@ -181,18 +195,18 @@ void KomposeTaskManager::slotWindowAdded(WId w )
   // ignore myself
   if ( QWidget::find(w) != 0 )
     return;
-//   if ( KomposeViewManager::instance()->hasActiveView() && w == KomposeViewManager::instance()->getViewWidget()->winId() )
-//   {
-//     return;
-//   }
+  //   if ( KomposeViewManager::instance()->hasActiveView() && w == KomposeViewManager::instance()->getViewWidget()->winId() )
+  //   {
+  //     return;
+  //   }
 
   KWin::WindowInfo info = KWin::windowInfo(w);
 
   // ignore NET::Tool and other special window types
-  if (info.windowType(NET::AllTypesMask) != NET::Normal
-      && info.windowType(NET::AllTypesMask) != NET::Override
-      && info.windowType(NET::AllTypesMask) != NET::Unknown
-      && info.windowType(NET::AllTypesMask) != NET::Dialog)
+  NET::WindowType mytype = info.windowType(NET::NormalMask | NET::DesktopMask | NET::DockMask |
+                           NET::ToolbarMask | NET::MenuMask | NET::DialogMask | NET::OverrideMask
+                           | NET::TopMenuMask | NET::UtilityMask | NET::SplashMask);
+  if (mytype != NET::Normal && mytype != NET::Override && mytype != NET::Unknown && mytype != NET::Dialog)
     return;
 
   // ignore windows that want to be ignored by the taskbar
@@ -213,7 +227,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
 
 
 /**
- * Called when Komposé requires screenshots of all tasks
+ * Called when KomposÃ© requires screenshots of all tasks
  */
 void KomposeTaskManager::slotUpdateScreenshots( bool switchDesktops )
 {
@@ -228,7 +242,7 @@ void KomposeTaskManager::slotUpdateScreenshots( bool switchDesktops )
     // Desk == 0 should not be possible, however -1 means on all desks
     if (desk==0 || ( !switchDesktops && desk != KomposeViewManager::instance()->getDesktopBeforeSnaps()+1 ) )
       continue;
-      
+
     it.toFirst();
     while ( (task = it.current()) != 0 )
     {
@@ -309,17 +323,13 @@ QString KomposeTaskManager::getDesktopName(int desk) const
  */
 bool KomposeTaskManager::processX11Event( XEvent *event )
 {
-if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
-    {
-      qDebug("         KEIN WAKiiiiiiiiiiiiiiiiiiiiiiiiiiiii!");
-}
 #ifdef COMPOSITE
   if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     if ( event->type == ConfigureNotify )
     {
       XConfigureEvent *e = &event->xconfigure;
-      
+
       KomposeTask* t = findTask( e->window, true );
       if (!t)
         return false;
@@ -328,7 +338,6 @@ if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify 
     }
     else if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
     {
-      qDebug("         KEIN WAK!");
       XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
       // e->drawable is the window ID of the damaged window
       // e->geometry is the geometry of the damaged window
@@ -339,7 +348,7 @@ if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify 
       XDamageSubtract( QPaintDevice::x11AppDisplay(), e->damage, None, None );
       if ( !KomposeViewManager::instance()->hasActiveView() )
         return true;
-      qDebug("WAKAWAKA");
+
       // FIXME: too many damage events are called. block findTask here...
       // FIXME: Don't try XDamage with KAsteroids! Do something to avoid 100% cpu usage
       KomposeTask* t = findTask( e->drawable );
