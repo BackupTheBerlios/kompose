@@ -34,6 +34,9 @@ protected:
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
 
+protected slots:
+  void showAbutDlg();
+  
 public slots:
   void showGlobalShortcutsSettingsDialog();
   

@@ -26,9 +26,7 @@ struct KomposeWidgetInterface
 //   virtual ~KomposeWidgetInterface();
 //   
   virtual KomposeWidgetInterface* getParentWidget() const = 0;
-  
-  virtual void removeChildWidget( KomposeWidgetInterface* obj ) = 0;
-  
+    
   virtual void setGeom( const QRect & ) = 0;
   virtual void setGeom( const QSize & ) = 0;
 
@@ -38,6 +36,7 @@ struct KomposeWidgetInterface
   virtual int getHeightForWidth( int w ) const = 0;
   virtual int getWidthForHeight( int h ) const = 0;
   virtual double getAspectRatio() = 0;
+
 };
 
 #endif

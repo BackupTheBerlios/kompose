@@ -30,6 +30,7 @@ class KWinModule;
 class KomposeLayout;
 class QWidget;
 class KomposeDesktopWidget;
+class KomposeTaskManager;
 
 typedef QPtrList<KomposeTask> TaskList;
 
@@ -76,6 +77,7 @@ protected slots:
   
 signals:
   void newTask( KomposeTask* task );
+  void viewClosed();
 
 protected:
   KomposeTask* findTask(WId w);

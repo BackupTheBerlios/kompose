@@ -29,7 +29,7 @@ Q_OBJECT
 public:
   KomposeFullscreenWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
 
-  ~KomposeFullscreenWidget();
+  virtual ~KomposeFullscreenWidget();
 
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
@@ -44,6 +44,9 @@ protected:
 
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
+  
+  void destroyChildWidgets();
+//   virtual void closeEvent ( QCloseEvent * e );
  
 private:
   KRootPixmap *rootpix;

@@ -53,6 +53,9 @@ protected:
   void leaveEvent ( QEvent * );
   void enterEvent ( QEvent * );
   void resizeEvent ( QResizeEvent * );
+  void focusInEvent ( QFocusEvent * );
+  void focusOutEvent ( QFocusEvent * );
+  void keyReleaseEvent ( QKeyEvent * e );
 
   void startDrag();
   void initToolbar();

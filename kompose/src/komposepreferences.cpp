@@ -28,7 +28,7 @@
 #include <kcolorbutton.h>
 
 KomposePreferences::KomposePreferences()
-    : KDialogBase(IconList, i18n("Komposé Preferences"), Ok|Apply|Cancel, Ok)
+    : KDialogBase(IconList, QString("Komposé Preferences"), Ok|Apply|Cancel, Ok)
 {
   QFrame *page1 = addPage( i18n("Behaviour"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
@@ -40,8 +40,8 @@ KomposePreferences::KomposePreferences()
   QString defaultViewBtnGroupHelp = i18n("Determines which View should be started by default (e.g. when you click on the systray icon).");
   QWhatsThis::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
   QToolTip::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
-  defaultViewWorld = new QCheckBox(i18n("Exposé-style View"), defaultViewBtnGroup );
-  QString defaultViewWorldHelp = i18n("Fullscreen View that shows all tasks in the way Apple's Exposé does it.");
+  defaultViewWorld = new QCheckBox(QString("Exposé-style View"), defaultViewBtnGroup );
+  QString defaultViewWorldHelp = QString("Fullscreen View that shows all tasks in the way Apple's Exposé does it.");
   QWhatsThis::add( defaultViewWorld, defaultViewWorldHelp );
   QToolTip::add( defaultViewWorld, defaultViewWorldHelp );
   defaultViewVirtualDesks = new QCheckBox(i18n("Arranged by Virtual Desktops"), defaultViewBtnGroup );
@@ -54,7 +54,7 @@ KomposePreferences::KomposePreferences()
   QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, "Screenshots", page1 );
   
   passiveScreenshots = new QCheckBox(i18n("Passive Screenshots"), screenshotsGroupBox);
-  QString passiveScreenshotsHelp = i18n("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.");
+  QString passiveScreenshotsHelp = QString("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.");
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
   QToolTip::add( passiveScreenshots, passiveScreenshotsHelp );
 

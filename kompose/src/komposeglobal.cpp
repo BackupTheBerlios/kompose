@@ -1,7 +1,7 @@
 //
 // C++ Implementation: komposeglobal
 //
-// Description: 
+// Description:
 //
 //
 // Author: Hans Oischinger <oisch@sourceforge.net>, (C) 2004
@@ -35,10 +35,10 @@ KomposeGlobal* KomposeGlobal::instance()
 
 
 KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
- : QObject(parent, name)
+    : QObject(parent, name)
 {
   globalInstance = this;
-  
+
   // Initialise the Singleton instances
   KomposeSettings::instance();
   KomposeTaskManager::instance();
@@ -52,8 +52,7 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
 
 
 KomposeGlobal::~KomposeGlobal()
-{
-}
+{}
 
 
 #include "komposeglobal.moc"

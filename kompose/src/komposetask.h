@@ -92,6 +92,7 @@ public slots:
 
   void refresh();
   void updateScreenshot();
+  void emptyImageCache();
 
 private:
   KWinModule* kwinmodule;

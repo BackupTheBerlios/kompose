@@ -28,9 +28,9 @@
 #include <kuniqueapplication.h>
 
 static const char description[] =
-  I18N_NOOP("A KDE KPart Application");
+  I18N_NOOP("A KDE Fullscreen TaskManager");
 
-static const char version[] = "0.2";
+static const char version[] = "0.3";
 
 static KCmdLineOptions options[] =
   {
@@ -41,8 +41,8 @@ static KCmdLineOptions options[] =
 
 int main(int argc, char **argv)
 {
-  KAboutData about("kompose", I18N_NOOP("kompose"), version, description,
-                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", 0, 0, "oisch@sourceforge.net");
+  KAboutData about("kompose", I18N_NOOP("Kompose"), version, description,
+                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "This software is still in a very early stage of development, so be patient :)", "http://developer.berlios.de/projects/kompose", "oisch@sourceforge.net");
   about.addAuthor( "Hans Oischinger", 0, "oisch@sourceforge.net" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );

@@ -39,7 +39,6 @@ public:
 
   // KomposeWidgetInterface:
   virtual KomposeWidgetInterface* getParentWidget() const;
-  virtual void removeChildWidget( KomposeWidgetInterface* obj );
   virtual void setGeom( const QRect & );
   virtual void setGeom( const QSize & );
   virtual QSize getSize() const;
@@ -47,7 +46,7 @@ public:
   virtual int getHeightForWidth( int w ) const = 0;
   virtual int getWidthForHeight( int h ) const = 0;
   virtual double getAspectRatio() = 0;
-
+  
 protected:
   void childEvent( QChildEvent * ce);
   void resizeEvent ( QResizeEvent * e );

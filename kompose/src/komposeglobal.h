@@ -15,6 +15,7 @@
 #include "komposesystray.h"
 
 #include <qobject.h>
+#include <qstring.h>
 
 
 /**

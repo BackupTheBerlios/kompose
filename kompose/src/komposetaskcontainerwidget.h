@@ -30,7 +30,7 @@ class KomposeTaskContainerWidget : public KomposeWidget
 public:
   KomposeTaskContainerWidget( int desk = 0, QWidget *parent = 0, KomposeLayout *l = 0, const char *name = 0);
 
-  ~KomposeTaskContainerWidget();
+  virtual ~KomposeTaskContainerWidget();
 
   virtual int getHeightForWidth( int w ) const;
   virtual int getWidthForHeight( int h ) const;

@@ -42,26 +42,42 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
   initView();
 }
 
-
-void KomposeFullscreenWidget::initView()
+KomposeFullscreenWidget::~KomposeFullscreenWidget()
 {
-  setCursor( Qt::WaitCursor );
-  
+//   KomposeTaskContainerWidget::destroy();
+}
+
+// void KomposeFullscreenWidget::closeEvent ( QCloseEvent * e )
+// {
+//   destroyChildWidgets();
+//   KomposeTaskContainerWidget::closeEvent( e );
+// }
+
+void KomposeFullscreenWidget::destroyChildWidgets()
+{
   setUpdatesEnabled( false );
+//   blockSignals(true);
   KomposeWidgetInterface *child;
   QPtrListIterator<KomposeWidgetInterface> it( *(layout->getManagedWidgets()));
   while ( (child = it.current()) != 0 )
   {
     ++it;
-    qDebug("KomposeFullscreenWidget::initView() - Removing widget");
-    removeChildWidget( child );
+    layout->remove(child);
+    dynamic_cast<QWidget*>(child)->deleteLater();
   }
   setUpdatesEnabled( true );
+}
 
+void KomposeFullscreenWidget::initView()
+{
+  setCursor( Qt::WaitCursor );
+  
+  destroyChildWidgets();
 
   if ( type == KOMPOSEDISPLAY_VIRTUALDESKS )
   {
     createDesktopWidgets();
+    disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
   else if ( type == KOMPOSEDISPLAY_WORLD )
   {
@@ -83,13 +99,10 @@ void KomposeFullscreenWidget::createDesktopWidgets()
     int row = i / 2;
     int col = i % 2;
     //qDebug("rc %d %d", row, col);
-    KomposeDesktopWidget *desktop = new KomposeDesktopWidget(i, this);
+    KomposeDesktopWidget *desktop = new KomposeDesktopWidget(i, this );
     desktop->show();
   }
 }
-
-KomposeFullscreenWidget::~KomposeFullscreenWidget()
-{}
 
 void KomposeFullscreenWidget::mouseReleaseEvent (QMouseEvent * e)
 {}

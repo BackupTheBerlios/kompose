@@ -34,7 +34,7 @@ KomposeSettings* KomposeSettings::instance()
   if ( !settingsInstance )
   {
     qDebug("KomposeSettings::instance() - Creating Singleton instance");
-    KomposeSettings *settingsInstance = new KomposeSettings();
+    settingsInstance = new KomposeSettings();
   }
   return settingsInstance;
 }
@@ -43,8 +43,7 @@ KomposeSettings* KomposeSettings::instance()
 KomposeSettings::KomposeSettings(QObject *parent, const char *name)
     : QObject(parent, name)
 {
-  settingsInstance = this;
-
+  
   // Init global shortcut object
   globalAccel = new KGlobalAccel( this );
   globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose (Virtual Desktops)"),
@@ -56,15 +55,15 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
                        CTRL+SHIFT+Key_J, KKey::QtWIN+CTRL+SHIFT+Key_J,
                        KomposeTaskManager::instance(), SLOT(createWorldView()) );
 
-
+  // read Settings from cfg file
+  readConfig();
+  
   // Init our Pixmap converter powered by MIT-SHM shared memory extension. great stuff, KDE people :)
   pixmapIO = new KPixmapIO();
   pixmapIO->setShmPolicy( KPixmapIO::ShmKeepAndGrow );
   pixmapIO->preAllocShm( 1024000 );
-
-
-  // read Settings from cfg file
-  readConfig();
+  
+  settingsInstance = this;
 }
 
 
@@ -77,6 +76,7 @@ KomposeSettings::~KomposeSettings()
 
 void KomposeSettings::readConfig()
 {
+  qDebug("KomposeSettings::readConfig()");
   // Read Shortcut Settings from config
   globalAccel->readSettings();
   globalAccel->updateConnections();
@@ -98,6 +98,8 @@ void KomposeSettings::readConfig()
 
 void KomposeSettings::writeConfig()
 {
+  qDebug("KomposeSettings::writeConfig()");
+  
   globalAccel->writeSettings();
   globalAccel->updateConnections();
 

@@ -46,7 +46,7 @@ KomposeTaskManager* KomposeTaskManager::instance()
   if ( !taskManagerInstance )
   {
     qDebug("KomposeTaskManager::instance() - Creating Singleton instance");
-    KomposeTaskManager *taskManagerInstance = new KomposeTaskManager();
+    taskManagerInstance = new KomposeTaskManager();
   }
   return taskManagerInstance;
 }
@@ -58,7 +58,9 @@ KomposeTaskManager::KomposeTaskManager()
     activeView(0)
 {
   taskManagerInstance = this;
-  kwinmodule = new KWinModule();
+  
+  qDebug("KomposeTaskManager::KomposeTaskManager()");
+  kwinmodule = new KWinModule(this, 2);
   numDesks = KWin::numberOfDesktops();
 
   // Added and removed wil alwasy be connected
@@ -75,14 +77,18 @@ KomposeTaskManager::KomposeTaskManager()
     slotWindowAdded(*it);
 
   if (KomposeSettings::instance()->getPassiveScreenshots())
+  {
+    qDebug("KomposeTaskManager::KomposeTaskManager() - Grabbing Screenshots passively");
     connect( kwinmodule, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotUpdateScreenshot(WId)) );
-  else
+  } else {
+    qDebug("KomposeTaskManager::KomposeTaskManager() - Passive Screenshots disabled");
     disconnect( kwinmodule, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotUpdateScreenshot(WId)) );
+  }
 }
 
 KomposeTaskManager::~KomposeTaskManager()
 {
-  delete taskManagerInstance;
+//   delete taskManagerInstance;
 }
 
 
@@ -149,7 +155,7 @@ void KomposeTaskManager::slotWindowRemoved(WId w )
 
   //qDebug("KomposeTaskManager::slotWindowRemoved(WId w ) - Removing task %s", task->visibleNameWithState());
   tasklist.remove( task );
-  delete task;  // FIXME: Always segfaulting when trying to do this :(
+  delete task;
 }
 
 void KomposeTaskManager::slotWindowAdded(WId w )
@@ -190,6 +196,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
  */
 void KomposeTaskManager::slotUpdateScreenshots()
 {
+  qDebug("KomposeTaskManager::slotUpdateScreenshots()");
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -204,6 +211,7 @@ void KomposeTaskManager::slotUpdateScreenshots()
  */
 void KomposeTaskManager::slotUpdateScreenshot(WId winId)
 {
+  qDebug("KomposeTaskManager::slotUpdateScreenshot( %d )", winId);
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -280,11 +288,12 @@ void KomposeTaskManager::closeCurrentView()
     return;
 
   activeView = false;
-
-  viewWidget->hide();
-  viewWidget->close();
-  delete viewWidget;
+  
+  viewWidget->setUpdatesEnabled( false );
+  viewWidget->close(true);
   viewWidget = 0;
+  
+  emit viewClosed();
 }
 
 void KomposeTaskManager::slotDesktopCountChanged(int d)

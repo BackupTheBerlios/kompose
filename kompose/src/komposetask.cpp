@@ -47,6 +47,9 @@ KomposeTask::KomposeTask(WId win, KWinModule *kwinmod, QObject *parent, const ch
     imageNeedsUpdate(true)
 {
   windowInfo = KWin::info(windowID);
+  
+  // This will empty our image cache after the view has been closed (saves a lot of ram)
+  connect( KomposeTaskManager::instance(), SIGNAL(viewClosed()), this, SLOT(emptyImageCache()) );
 }
 
 
@@ -327,6 +330,7 @@ double KomposeTask::getAspectRatio()
 
 QImage& KomposeTask::getScreenshotImg()
 {
+  //TODO: Make a config option to choose between storing images or dropping them (later is default, cause it uses less memory (pixmaps are much better compressed than images)
   if ( pm_screenshot.isNull() )
     return img_screenshot;
 
@@ -336,6 +340,12 @@ QImage& KomposeTask::getScreenshotImg()
     img_screenshot = KomposeSettings::instance()->getPixmapIO()->convertToImage( pm_screenshot );
   }
   return img_screenshot;
+}
+
+void KomposeTask::emptyImageCache()
+{
+   if ( !pm_screenshot.isNull() )
+    img_screenshot.reset();
 }
 
 #include "komposetask.moc"

@@ -30,9 +30,11 @@
 #include <qapplication.h>
 #include <qdragobject.h>
 #include <qcursor.h>
+#include <qtooltip.h>
 
 #include <krootpixmap.h>
 #include <kwin.h>
+#include <kwinmodule.h> 
 
 
 KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, KomposeLayout *l, const char *name)
@@ -43,6 +45,10 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 //   deskRect = deskwidget->screenGeometry();
 //   delete deskwidget;
 
+  KWinModule kwinmodule( this, 1 );
+
+  QToolTip::add( this, QString("Desktop %1 - %2").arg(desktop).arg(kwinmodule.desktopName(desktop+1)) );
+  
   rootpix = new KRootPixmap (this);
   if ( KomposeSettings::instance()->getTintVirtDesks() )
     rootpix->setFadeEffect( 0.05, KomposeSettings::instance()->getTintVirtDesksColor() );
@@ -58,7 +64,8 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
 
 KomposeDesktopWidget::~KomposeDesktopWidget()
-{}
+{
+}
 
 // int KomposeDesktopWidget::getHeightForWidth( int w ) const
 // {
@@ -87,18 +94,23 @@ void KomposeDesktopWidget::leaveEvent ( QEvent * e )
 
 void KomposeDesktopWidget::enterEvent ( QEvent * e )
 {
+  setFocus();
   setCursor( Qt::PointingHandCursor );
   repaint();
 }
 
 void KomposeDesktopWidget::mouseReleaseEvent ( QMouseEvent * e )
 {
+  if ( !rect().contains( e->pos() ) )
+    return;
   KomposeTaskManager::instance()->setCurrentDesktop(desktop);
 }
 
 
 void KomposeDesktopWidget::mouseDoubleClickEvent ( QMouseEvent * e )
 {
+  if ( !rect().contains( e->pos() ) )
+    return;
   KomposeTaskManager::instance()->setCurrentDesktop(desktop);
 }
 

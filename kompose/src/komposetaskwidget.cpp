@@ -57,12 +57,14 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   //connect( t, SIGNAL( destroyed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( stateChanged() ), this, SLOT( repaint() ) );
+
+  setFocusPolicy(QWidget::StrongFocus);
 }
 
 
 KomposeTaskWidget::~KomposeTaskWidget()
-{}
-
+{
+}
 
 void KomposeTaskWidget::slotTaskDestroyed()
 {
@@ -70,10 +72,10 @@ void KomposeTaskWidget::slotTaskDestroyed()
   disconnect( task, SIGNAL( stateChanged() ), this, SLOT( repaint() ) );
   if (KomposeTaskManager::instance()->hasActiveView())
   {
-    //delete task;
-    hide();
-    //close();
-    this->parent()->removeChild( this );
+//     prefWidget->close();
+    close();
+    //     Q_CHECK_PTR(parent());
+    //     parent()->removeChild( this );
   }
 }
 
@@ -123,6 +125,7 @@ void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
 
   //QWidget::paintEvent(e);
   QPainter p;
+
   int xpos = ( width() - scaledScreenshot.width() ) / 2;
   int ypos = ( height() - scaledScreenshot.height() ) / 2;
 
@@ -145,16 +148,25 @@ void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
       p.drawImage( xpos,ypos, scaledScreenshot);
     }
   }
-  if (!hasMouse())
-    p.setPen( QColor(gray));
+  if (!highlight)
+  {
+    QPen     pen( gray, 1, Qt::SolidLine );
+    p.setPen( pen );
+    p.drawRect(rect());
+  }
   else
-    p.setPen( QColor(black));
-  p.drawRect(rect());
+  {
+    QPen     pen( black, 2, Qt::DotLine );
+    p.setPen( pen );
+    p.drawRect( QRect( 1, 1, rect().width()-1, rect().height()-1 ) );
+  }
   p.end();
 }
 
 void KomposeTaskWidget::mouseReleaseEvent ( QMouseEvent * e )
 {
+  if ( !rect().contains( e->pos() ) )
+    return;
   KomposeTaskManager::instance()->activateTask( task );
 }
 
@@ -166,7 +178,37 @@ void KomposeTaskWidget::mouseMoveEvent ( QMouseEvent * e )
 
 void KomposeTaskWidget::mouseDoubleClickEvent ( QMouseEvent * e )
 {
+  if ( !rect().contains( e->pos() ) )
+    return;
   KomposeTaskManager::instance()->activateTask( task );
+}
+
+void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
+{
+  if ( e->key() == Qt::Key_Return || e->key() == Qt::Key_Space )
+  {
+    qDebug("KomposeTaskWidget::keyReleaseEvent - activating Task!");
+    KomposeTaskManager::instance()->activateTask( task );
+    e->accept();
+  }
+  else if ( e->key() == Qt::Key_C )
+  {
+    qDebug("KomposeTaskWidget::keyReleaseEvent - closing Task!");
+    KomposeTaskManager::instance()->activateTask( task );
+    e->accept();
+  }
+  else if ( e->key() == Qt::Key_M )
+  {
+    qDebug("KomposeTaskWidget::keyReleaseEvent - toggling state!");
+    KomposeTaskManager::instance()->activateTask( task );
+    e->accept();
+  }
+  else
+  {
+    qDebug("KomposeTaskWidget::keyReleaseEvent - ignored...");
+    e->ignore();
+  }
+
 }
 
 void KomposeTaskWidget::leaveEvent ( QEvent * e )
@@ -181,11 +223,24 @@ void KomposeTaskWidget::leaveEvent ( QEvent * e )
 
 void KomposeTaskWidget::enterEvent ( QEvent * e )
 {
+  setFocus();
   setCursor( Qt::PointingHandCursor );
   highlight = true;
   repaint();
 
   prefWidget->show();
+}
+
+void KomposeTaskWidget::focusInEvent ( QFocusEvent * e)
+{
+  highlight = true;
+  repaint();
+}
+
+void KomposeTaskWidget::focusOutEvent ( QFocusEvent * e)
+{
+  highlight = false;
+  repaint();
 }
 
 int KomposeTaskWidget::getHeightForWidth ( int w ) const
