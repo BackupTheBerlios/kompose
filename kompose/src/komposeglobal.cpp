@@ -26,6 +26,7 @@
 #include <kaccel.h>
 #include <kkeydialog.h>
 #include <kaboutapplication.h>
+#include <ksharedpixmap.h>
 
 #include <dcopclient.h>
 
@@ -66,6 +67,7 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
 
   initCompositeExt();
   initImlib();
+  initSharedPixmaps();
 }
 
 /**
@@ -133,8 +135,23 @@ void KomposeGlobal::initActions()
                                  actionCollection, "showAboutDlg");
 }
 
+void KomposeGlobal::initSharedPixmaps()
+{
+  QString pattern = QString("DESKTOP%1");
+  int screen_number = DefaultScreen(qt_xdisplay());
+  if (screen_number)
+  {
+    pattern = QString("SCREEN%1-DESKTOP").arg(screen_number) + "%1";
+  }
+  //return pattern.arg( desk );
+  desktopBgPixmap = new KSharedPixmap;
+  desktopBgPixmap->loadFromShared(pattern.arg( 1 ));
+}
+
 KomposeGlobal::~KomposeGlobal()
-{}
+{
+  delete desktopBgPixmap;
+}
 
 /**
  * Show Global Shortcuts Dialog for Kompose

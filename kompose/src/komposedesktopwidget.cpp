@@ -24,6 +24,7 @@
 #include "komposeviewmanager.h"
 #include "komposetaskmanager.h"
 #include "komposesettings.h"
+#include "komposeglobal.h"
 
 #include <qdesktopwidget.h>
 #include <qcolor.h>
@@ -36,6 +37,7 @@
 #include <klocale.h>
 #include <krootpixmap.h>
 #include <kwin.h>
+#include <ksharedpixmap.h>
 #include <kwinmodule.h>
 
 
@@ -49,6 +51,11 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
   //   delete deskwidget;
   initFonts();
 
+  // Set Desktop background as our background
+  setBackgroundMode( Qt::NoBackground );/*
+  setBackgroundMode( Qt::FixedPixmap );
+  setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));*/
+
   KWinModule kwinmodule( this, 1 );
   deskName = kwinmodule.desktopName(desktop+1);
 
@@ -60,13 +67,14 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
   setAcceptDrops(TRUE);
 
+  rootpix->start();
+  
   createTaskWidgets();
 
   connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
 
   setFocusPolicy(QWidget::ClickFocus);
 
-  rootpix->start();
 }
 
 
@@ -147,6 +155,8 @@ void KomposeDesktopWidget::paintEvent ( QPaintEvent * e )
 
   QPainter p;
   p.begin( this );
+  
+  //p.drawPixmap(rect(), *(KomposeGlobal::instance()->getDesktopBgPixmap()));
 
   p.setFont(titleFont);
 

@@ -20,6 +20,7 @@ class KomposeSysTray;
 class KPopupMenu;
 class KActionCollection;
 class KAction;
+class KSharedPixmap;
 
 // Check for Composite extension
 // FIXME: Am I doing this right? I don't know anything about automake & co
@@ -61,8 +62,11 @@ public:
   KAction *getActAboutDlg() { return actAboutDlg; }
   KAction *getActQuit() { return actQuit; }
 
+  const KSharedPixmap *getDesktopBgPixmap() const { return desktopBgPixmap; }
+  
 protected:
   void initActions();
+  void initSharedPixmaps();
   void initImlib();
   void initCompositeExt();
 
@@ -76,6 +80,7 @@ private:
   bool xcomposite;
   int damageEvent, damageError;
   
+  KSharedPixmap *desktopBgPixmap;
   KomposeSysTray* systray;
   KActionCollection* actionCollection;
 

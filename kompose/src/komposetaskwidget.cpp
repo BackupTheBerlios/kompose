@@ -52,7 +52,9 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   QToolTip::add( this, task->visibleNameWithState() );
 
   pm_dbBackground.setOptimization( QPixmap::BestOptim );
-
+  setBackgroundMode( Qt::NoBackground );
+  //setBackgroundPixmap(pm_dbBackground);
+  
   //   screenshot = new KomposeImage( imIface, task->getScreenshotImage() );
   prefWidget = new KomposeTaskPrefsWidget( this, "Task prefs" );
   prefWidget->hide();
@@ -124,7 +126,7 @@ void KomposeTaskWidget::drawWidget()
     return;
 
   pm_dbBackground.resize( width(), height() );
-  pm_dbBackground.fill(white);
+  //pm_dbBackground.fill(white);
 
   QPainter p( &pm_dbBackground );
   

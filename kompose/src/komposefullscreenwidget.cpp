@@ -21,12 +21,14 @@
 #include <qobjectlist.h>
 #include <qptrlist.h>
 #include <qcursor.h>
+#include <qpainter.h>
 
-#include <krootpixmap.h>
 #include <kwin.h>
 #include <kapplication.h>
 #include <kpopupmenu.h>
 #include <kaction.h>
+#include <ksharedpixmap.h>
+
 
 KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout *l )
     : KomposeTaskContainerWidget( -1, 0, l ),
@@ -35,15 +37,15 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
   //   if ( QT_VERSION < 0x030300 )
 
   /* use showMaximized instead of setWindowState to make it compile on qt 3.1 or whatever */
-//   showMaximized();
-//   KWin::setState( winId(), NET::KeepAbove );
-
+  //   showMaximized();
+  //   KWin::setState( winId(), NET::KeepAbove );
   
-  setUpdatesEnabled( false);
-  rootpix = new KRootPixmap (this);
+  // Set Desktop background as our background
+  setBackgroundMode( Qt::FixedPixmap );
+  setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));
+  
   initMenu();
   initView();
-  setUpdatesEnabled( true );
   showFullScreen();
   KWin::setOnAllDesktops( winId(), true );
 }
@@ -57,7 +59,7 @@ KomposeFullscreenWidget::~KomposeFullscreenWidget()
 void KomposeFullscreenWidget::initMenu()
 {
   menu = new KPopupMenu();
-  
+
   KomposeGlobal::instance()->getActShowWorldView()->plug(menu);
   KomposeGlobal::instance()->getActShowVirtualDesktopView()->plug(menu);
   menu->insertSeparator();
@@ -86,7 +88,7 @@ void KomposeFullscreenWidget::destroyChildWidgets()
 void KomposeFullscreenWidget::initView()
 {
   setCursor( Qt::WaitCursor );
-  rootpix->stop();
+  //rootpix->stop();
 
   destroyChildWidgets();
 
@@ -104,7 +106,7 @@ void KomposeFullscreenWidget::initView()
     connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
 
-  rootpix->start();
+  //rootpix->start();
   unsetCursor();
 }
 
@@ -175,6 +177,13 @@ int KomposeFullscreenWidget::getWidthForHeight ( int h ) const
 double KomposeFullscreenWidget::getAspectRatio()
 {
   return (double)width() / (double)height();
+}
+
+void KomposeFullscreenWidget::paintEvent ( QPaintEvent * e )
+{
+  QPainter p( this );
+  p.drawPixmap(rect(), *(KomposeGlobal::instance()->getDesktopBgPixmap()));
+  p.end();
 }
 
 
