@@ -45,10 +45,10 @@ public:
   void renderOnPixmap( QPixmap* pix, int effect );
 
 protected:
-  void initXComposite();
   void applyEffect();
 
 protected slots:
+  void initXComposite();
   void captureScreenshot_GrabWindow();
   void updateXCompositeNamedPixmap();
   void renderScaledScreenshot( QSize size );

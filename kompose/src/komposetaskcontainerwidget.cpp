@@ -49,10 +49,10 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
     return;
   }
   
-  if ( e->key() == Qt::Key_Right || e->key() == Qt::Key_D ||
-       e->key() == Qt::Key_Left  || e->key() == Qt::Key_A ||
-       e->key() == Qt::Key_Up    || e->key() == Qt::Key_W ||
-       e->key() == Qt::Key_Down  || e->key() == Qt::Key_S )
+  if ( e->key() == Qt::Key_Right || e->key() == Qt::Key_D || e->key() == Qt::Key_H ||
+       e->key() == Qt::Key_Left  || e->key() == Qt::Key_A || e->key() == Qt::Key_J ||
+       e->key() == Qt::Key_Up    || e->key() == Qt::Key_W || e->key() == Qt::Key_K ||
+       e->key() == Qt::Key_Down  || e->key() == Qt::Key_S || e->key() == Qt::Key_L )
   {
     if ( controlHold && desktop != -1 )
     {
@@ -71,10 +71,16 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
     case Qt::Key_D:
       direction = DLAYOUT_RIGHT;
       break;
+    case Qt::Key_L:
+      direction = DLAYOUT_RIGHT;
+      break;
     case Qt::Key_Left:
       direction = DLAYOUT_LEFT;
       break;
     case Qt::Key_A:
+      direction = DLAYOUT_LEFT;
+      break;
+    case Qt::Key_H:
       direction = DLAYOUT_LEFT;
       break;
     case Qt::Key_Up:
@@ -83,11 +89,18 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
     case Qt::Key_W:
       direction = DLAYOUT_TOP;
       break;
+    case Qt::Key_K:
+      direction = DLAYOUT_TOP;
+      break;
     case Qt::Key_Down:
       direction = DLAYOUT_BOTTOM;
       break;
     case Qt::Key_S:
       direction = DLAYOUT_BOTTOM;
+      break;
+    case Qt::Key_J:
+      direction = DLAYOUT_BOTTOM;
+      break;
     }
     
     focusNeighbourChild( direction );
@@ -156,7 +169,7 @@ void KomposeTaskContainerWidget::createTaskWidgets()
 
 void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task )
 {
-  if ( desktop == -1 || desktop == task->onDesktop()-1 )
+  if ( desktop == -1 || desktop == task->onDesktop()-1 || task->onDesktop()==-1)
   {
     qDebug("KomposeTaskContainerWidget::createTaskWidget() (Container: %s, WId: %d, onDesktop: %d)",
      this->className(), task->window(), task->onDesktop() );

@@ -48,7 +48,6 @@ protected:
   void mousePressEvent (QMouseEvent *);
   void keyReleaseEvent ( QKeyEvent * e );
   void paintEvent ( QPaintEvent * );
-//   void showEvent (QShowEvent * e);
   
   void destroyChildWidgets();
 //   virtual void closeEvent ( QCloseEvent * e );

@@ -70,16 +70,7 @@ KomposeTaskManager::KomposeTaskManager()
   kwin_module = new KWinModule();
   numDesks = KWin::numberOfDesktops();
 
-#ifdef COMPOSITE
-  // Redirect all root windows to offscreen buffers
-  if ( KomposeGlobal::instance()->hasXcomposite() )
-  {
-    Display *dpy = QPaintDevice::x11AppDisplay();
-    for ( int i = 0; i < ScreenCount( dpy ); i++ )
-      XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
-  }
-#endif
-
+  callCompositeRedirect();
 
   // Listeners for KWinmodule signals
   connect( kwin_module, SIGNAL(windowAdded(WId)), this, SLOT(slotWindowAdded(WId)) );
@@ -88,6 +79,7 @@ KomposeTaskManager::KomposeTaskManager()
   connect( kwin_module, SIGNAL(currentDesktopChanged(int)), this, SLOT(slotCurrentDesktopChanged(int)) );
 
   connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(slotStartWindowListeners()) );
+  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(callCompositeRedirect()) );
 
   // register existing windows
   const QValueList<WId> windows = kwin_module->windows();
@@ -100,6 +92,19 @@ KomposeTaskManager::KomposeTaskManager()
 
 KomposeTaskManager::~KomposeTaskManager()
 {}
+
+void KomposeTaskManager::callCompositeRedirect()
+{
+#ifdef COMPOSITE
+  // Redirect all root windows to offscreen buffers
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  {
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    for ( int i = 0; i < ScreenCount( dpy ); i++ )
+      XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
+  }
+#endif
+}
 
 /**
  * Helper function that finds a KomposeTask object by it's window id
@@ -210,8 +215,12 @@ void KomposeTaskManager::slotUpdateScreenshots()
   KomposeTask *task;
 
   // Iterate through tasks sorted by desktops (this minimizes desktop switching if necessary)
-  for ( int desk = 1; desk <= numDesks; ++desk )
+  for ( int desk = -1; desk <= numDesks; ++desk )
   {
+    // Desk == 0 should not be possible, however -1 means on all desks
+    if (desk==0)
+      continue;
+      
     it.toFirst();
     while ( (task = it.current()) != 0 )
     {
@@ -288,7 +297,7 @@ bool KomposeTaskManager::isOnTop(const KomposeTask* task)
 bool KomposeTaskManager::processX11Event( XEvent *event )
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     if ( event->type == ConfigureNotify )
     {
@@ -323,7 +332,7 @@ bool KomposeTaskManager::processX11Event( XEvent *event )
 void KomposeTaskManager::slotCurrentDesktopChanged(int d)
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     // Strangely a ConfigureNotify is only sent when I click on a window on the new desktop
     // and not when I cahnge the desktop, although the windows get mapped at this point.

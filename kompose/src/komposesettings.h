@@ -44,6 +44,9 @@ public:
   KGlobalAccel *getGlobalAccel() const { return globalAccel; }
   KPixmapIO *getPixmapIO() { return pixmapIO; }
   
+  bool getUseComposite() const { return useComposite; }
+  void setUseComposite( bool b ) { useComposite = b; }
+  
   bool getPassiveScreenshots() const { return passiveScreenshots; }
   void setPassiveScreenshots( bool b ) { passiveScreenshots = b; }
 //   bool getOnlyOneScreenshot() const { return onlyOneScreenshot; }
@@ -112,6 +115,7 @@ private:
   KGlobalAccel *globalAccel;
   KPixmapIO *pixmapIO;
   
+  bool useComposite;
   bool passiveScreenshots;
   uint screenshotGrabDelay;
   

@@ -17,6 +17,8 @@
 #include "komposesettings.h"
 #include "komposesystray.h"
 
+#include <qtimer.h>
+
 #include <kapplication.h>
 #include <kpopupmenu.h>
 #include <kaction.h>
@@ -65,9 +67,26 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
 {
   globalInstance = this;
 
+  desktopBgPixmap = new KSharedPixmap;
+  connect(desktopBgPixmap, SIGNAL(done(bool)), SLOT(slotDone(bool)));
+  initSharedPixmaps();
   initCompositeExt();
   initImlib();
-  initSharedPixmaps();
+
+  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(initCompositeExt()) );
+}
+
+KomposeGlobal::~KomposeGlobal()
+{
+  delete systray;
+  delete actionCollection;
+  delete actConfigGlobalShortcuts;
+  delete actPreferencesDialog;
+  delete actShowVirtualDesktopView;
+  delete actShowWorldView;
+  delete actAboutDlg;
+  delete actQuit;
+  delete desktopBgPixmap;
 }
 
 /**
@@ -137,20 +156,60 @@ void KomposeGlobal::initActions()
 
 void KomposeGlobal::initSharedPixmaps()
 {
+  // When Kompose is started by session management the bg shared pixmap may not be available yet
+  if (!desktopBgPixmap->isAvailable( pixmapName(1) ))
+  {
+    qDebug("KomposeGlobal::initSharedPixmaps() - Pixmap not available");
+    enablePixmapExports();
+    //QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
+    initSharedPixmaps();
+    return;
+  }
+
+  qDebug("KomposeGlobal::initSharedPixmaps()");
+  // To simplify things we take the background of the first desktop
+  desktopBgPixmap->loadFromShared( pixmapName(1) );
+}
+
+QString KomposeGlobal::pixmapName(int desk)
+{
+  // To simplify things we take the background of the first desktop
   QString pattern = QString("DESKTOP%1");
   int screen_number = DefaultScreen(qt_xdisplay());
   if (screen_number)
   {
     pattern = QString("SCREEN%1-DESKTOP").arg(screen_number) + "%1";
   }
-  //return pattern.arg( desk );
-  desktopBgPixmap = new KSharedPixmap;
-  desktopBgPixmap->loadFromShared(pattern.arg( 1 ));
+  return pattern.arg( desk );
 }
 
-KomposeGlobal::~KomposeGlobal()
+void KomposeGlobal::slotDone(bool success)
 {
-  delete desktopBgPixmap;
+  if (!success)
+  {
+    qDebug("KomposeGlobal::slotDone() - loading of desktop background failed.\n");
+    QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
+  }
+}
+
+void KomposeGlobal::enablePixmapExports()
+{
+#ifdef Q_WS_X11
+    qDebug("KomposeGlobal::enablePixmapExports()");
+    DCOPClient *client = kapp->dcopClient();
+    if (!client->isAttached())
+	client->attach();
+    QByteArray data;
+    QDataStream args( data, IO_WriteOnly );
+    args << 1;
+
+    QCString appname( "kdesktop" );
+    int screen_number = DefaultScreen(qt_xdisplay());
+    if ( screen_number )
+        appname.sprintf("kdesktop-screen-%d", screen_number );
+
+    client->send( appname, "KBackgroundIface", "setExport(int)", data );
+#endif
 }
 
 /**
@@ -202,6 +261,9 @@ void KomposeGlobal::initImlib()
  */
 void KomposeGlobal::initCompositeExt()
 {
+  if ( !(!xcomposite && KomposeSettings::instance()->getUseComposite()) )
+    return;
+
 #ifdef COMPOSITE
   // Check for XComposite
   Display *dpy = QPaintDevice::x11AppDisplay();

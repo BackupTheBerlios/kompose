@@ -47,6 +47,7 @@ protected slots:
   void updateIconSliderDesc( int );
   void showDesktopTitleFontDialog();
   void showWindowTitleFontDialog();
+  void setUseCompositeToggled( bool );
 
 private:
   QFrame *page1;
@@ -55,6 +56,8 @@ private:
   QButtonGroup *defaultViewBtnGroup;
   QRadioButton *defaultViewWorld;
   QRadioButton *defaultViewVirtualDesks;
+  
+  QCheckBox *useComposite;
   
   QCheckBox *passiveScreenshots;
   QCheckBox *dynamicVirtDeskLayout;

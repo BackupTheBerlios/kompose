@@ -61,8 +61,18 @@ KomposePreferences::KomposePreferences()
   page1Layout->addWidget(defaultViewBtnGroup);
 
 
-  QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, i18n("Screenshots"), page1 );
+#ifdef COMPOSITE
+  QGroupBox *screenshotsGroupBox = new QGroupBox( 4, Vertical, i18n("Screenshots"), page1 );
 
+  useComposite = new QCheckBox(i18n("Use XComposite if available"), screenshotsGroupBox);
+  QString useCompositeHelp = i18n(QString::fromUtf8("Making use of the Composite extension of newer X Servers makes the grabbing of screenshots obsolete.\nThe contents of all windows are drawn in back buffers that will be accessed by Komposé.\nNote that the Composite implementation of even modern graphic card drivers is still very slow and may make your system pretty unusable.").utf8());
+  QWhatsThis::add( useComposite, useCompositeHelp );
+  QToolTip::add( useComposite, useCompositeHelp );
+  connect( useComposite, SIGNAL(toggled(bool)), SLOT(setUseCompositeToggled(bool)) );
+#else
+  QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, i18n("Screenshots"), page1 );
+#endif  
+  
   passiveScreenshots = new QCheckBox(i18n("Passive screenshots"), screenshotsGroupBox);
   QString passiveScreenshotsHelp = i18n(QString::fromUtf8("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.").utf8());
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
@@ -236,6 +246,9 @@ void KomposePreferences::fillPages()
     break;
   }
 
+#ifdef COMPOSITE
+  useComposite->setChecked( KomposeSettings::instance()->getUseComposite() );
+#endif  
   passiveScreenshots->setChecked( KomposeSettings::instance()->getPassiveScreenshots() );
   screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() / 1000000 );
   cacheScaledPixmaps->setChecked( KomposeSettings::instance()->getCacheScaledPixmaps() );
@@ -281,6 +294,10 @@ void KomposePreferences::slotApply()
 {
   KomposeSettings::instance()->setDefaultView( defaultViewBtnGroup->selectedId() );
 
+#ifdef COMPOSITE
+  KomposeSettings::instance()->setUseComposite( useComposite->isChecked() );
+#endif
+  
   KomposeSettings::instance()->setPassiveScreenshots( passiveScreenshots->isChecked() );
   KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() * 1000000 );
   KomposeSettings::instance()->setCacheScaledPixmaps( cacheScaledPixmaps->isChecked() );
@@ -318,5 +335,9 @@ void KomposePreferences::slotOk()
   KDialogBase::slotOk();
 }
 
+void KomposePreferences::setUseCompositeToggled( bool b )
+{
+  
+}
 
 #include "komposepreferences.moc"

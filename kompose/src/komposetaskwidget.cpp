@@ -32,12 +32,13 @@
 #include <qpainter.h>
 #include <qdragobject.h>
 #include <qapplication.h>
-#include <qcursor.h>
 #include <qtooltip.h>
 #include <qiconset.h>
 #include <qtimer.h>
 #include <qcolor.h>
 #include <qfont.h>
+
+#include <kcursor.h> 
 
 #include "komposetaskvisualizer.h"
 
@@ -64,7 +65,7 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   connect( t, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
 
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     connect( t, SIGNAL( x11DamageNotify() ), this, SLOT( drawWidgetAndRepaint() ) );
   }
@@ -225,13 +226,13 @@ void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
   else if ( e->key() == Qt::Key_C )
   {
     qDebug("KomposeTaskWidget::keyReleaseEvent - closing Task!");
-    KomposeViewManager::instance()->activateTask( task ); //FIXME: do sth usefull
+    task->close();
     e->accept();
   }
   else if ( e->key() == Qt::Key_M )
   {
     qDebug("KomposeTaskWidget::keyReleaseEvent - toggling state!");
-    KomposeViewManager::instance()->activateTask( task ); //FIXME: do sth usefull
+    task->minimizeOrRestore();
     e->accept();
   }
   else
@@ -256,7 +257,7 @@ void KomposeTaskWidget::leaveEvent ( QEvent * e )
 void KomposeTaskWidget::enterEvent ( QEvent * e )
 {
   setFocus();
-  setCursor( Qt::PointingHandCursor );
+  setCursor( KCursor::handCursor() );
   highlight = true;
   drawWidgetAndRepaint();
 

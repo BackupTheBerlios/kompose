@@ -63,6 +63,7 @@ protected slots:
   void slotWindowChanged( WId, unsigned int );
   void slotDesktopCountChanged(int);
   void slotCurrentDesktopChanged(int);
+  void callCompositeRedirect();
   
 signals:
   void newTask( KomposeTask* task );

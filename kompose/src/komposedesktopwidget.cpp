@@ -31,7 +31,6 @@
 #include <qpainter.h>
 #include <qapplication.h>
 #include <qdragobject.h>
-#include <qcursor.h>
 #include <qtooltip.h>
 
 #include <klocale.h>
@@ -39,6 +38,7 @@
 #include <kwin.h>
 #include <ksharedpixmap.h>
 #include <kwinmodule.h>
+#include <kcursor.h>
 
 
 KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, KomposeLayout *l, const char *name)
@@ -116,7 +116,7 @@ void KomposeDesktopWidget::leaveEvent ( QEvent * e )
 void KomposeDesktopWidget::enterEvent ( QEvent * e )
 {
   setFocus();
-  setCursor( Qt::PointingHandCursor );
+  setCursor( KCursor::handCursor() );
   highlight = true;
   repaint();
 }

@@ -66,11 +66,15 @@ public:
   
 protected:
   void initActions();
-  void initSharedPixmaps();
   void initImlib();
-  void initCompositeExt();
 
 protected slots:
+  void initSharedPixmaps();
+  QString pixmapName(int desk);
+  void slotDone(bool success);
+  void enablePixmapExports();
+  
+  void initCompositeExt();
   void showGlobalShortcutsSettingsDialog();
   void showAboutDlg();
 

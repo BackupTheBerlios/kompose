@@ -7,6 +7,6 @@ Command line options:
 Keyboard shortcuts:
  Cancel                                      ESC
  Navigation between tasks 
-   (within the view of the current desktop)  arrow keys, WASD keys or tab key
- Navigation between virtual desktops         Ctrl + arrow keys or WASD keys
+   (within the view of the current desktop)  arrow, HJKL (vi) or WASD keys or tab key
+ Navigation between virtual desktops         Ctrl + arrow keys, HJKL or WASD keys
  Selection of a window                       Return or Space

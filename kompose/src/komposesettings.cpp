@@ -86,6 +86,8 @@ void KomposeSettings::readConfig()
 
   defaultView = kapp->config()->readNumEntry("defaultView", KOMPOSEDISPLAY_VIRTUALDESKS);
   
+  useComposite = kapp->config()->readBoolEntry("useComposite", false);
+  
   passiveScreenshots = kapp->config()->readBoolEntry("passiveScreenshots", true);
   screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400000000);
 
@@ -133,8 +135,9 @@ void KomposeSettings::writeConfig()
 
   kapp->config()->writeEntry("defaultView", defaultView );
   
+  kapp->config()->writeEntry("useComposite", useComposite );
+  
   kapp->config()->writeEntry("passiveScreenshots", passiveScreenshots );
-//   kapp->config()->writeEntry("onlyOneScreenshot", onlyOneScreenshot);
   kapp->config()->writeEntry("screenshotGrabDelay", screenshotGrabDelay);
 
   kapp->config()->writeEntry("dynamicVirtDeskLayout", dynamicVirtDeskLayout);

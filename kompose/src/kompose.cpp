@@ -46,7 +46,7 @@ Kompose::~Kompose()
 bool Kompose::x11EventFilter (XEvent *event)
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
     {

@@ -20,7 +20,6 @@
 
 #include <qobjectlist.h>
 #include <qptrlist.h>
-#include <qcursor.h>
 #include <qpainter.h>
 
 #include <kwin.h>
@@ -28,6 +27,7 @@
 #include <kpopupmenu.h>
 #include <kaction.h>
 #include <ksharedpixmap.h>
+#include <kcursor.h>
 
 
 KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout *l )
@@ -39,21 +39,30 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
   /* use showMaximized instead of setWindowState to make it compile on qt 3.1 or whatever */
   //   showMaximized();
   //   KWin::setState( winId(), NET::KeepAbove );
-  
+
   // Set Desktop background as our background
   setBackgroundMode( Qt::FixedPixmap );
   setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));
-  
   initMenu();
   initView();
-  showFullScreen();
+  //showFullScreen();
+  
+  // Alternate showFullscreen
+  setWindowState(windowState() | WindowFullScreen);
+  //setWFlags(WStyle_NoBorder);
+  setGeometry( QApplication::desktop()->availableGeometry() );
+  
+  show();
+  
+  if (!isTopLevel())
+    QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
+  setActiveWindow();
+
   KWin::setOnAllDesktops( winId(), true );
 }
 
 KomposeFullscreenWidget::~KomposeFullscreenWidget()
-{
-  //   KomposeTaskContainerWidget::destroy();
-}
+{}
 
 
 void KomposeFullscreenWidget::initMenu()
@@ -87,8 +96,7 @@ void KomposeFullscreenWidget::destroyChildWidgets()
 
 void KomposeFullscreenWidget::initView()
 {
-  setCursor( Qt::WaitCursor );
-  //rootpix->stop();
+  setCursor( KCursor::waitCursor() );
 
   destroyChildWidgets();
 

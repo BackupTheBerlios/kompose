@@ -84,9 +84,7 @@ void KomposeViewManager::slotStartCursorUpdateTimer()
        KomposeSettings::instance()->getActivateOnTopRightCorner() )
   {
     qDebug("KomposeViewManager::slotStartCursorUpdateTimer() - QCursor::pos() checks enabled");
-    QDesktopWidget *deskwidget = new QDesktopWidget();
-    QRect deskRect = deskwidget->screenGeometry();
-    delete deskwidget;
+    QRect deskRect = QApplication::desktop()->screenGeometry();
 
     topLeftCorner = deskRect.topLeft();
     topRightCorner = deskRect.topRight();

@@ -54,15 +54,8 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
   // clear cached pixmaps on viewclose
   connect( KomposeViewManager::instance(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
 
-#ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
-  {
-    initXComposite();
-    connect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
-    XSelectInput( dpy, task->wmFrame(), StructureNotifyMask );
-    connect( task, SIGNAL( x11DamageNotify() ), SLOT( setScaledScreenshotDirty() ) );
-  }
-#endif
+  initXComposite();
+  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(initXComposite()) );
 }
 
 KomposeTaskVisualizer::~KomposeTaskVisualizer()
@@ -104,7 +97,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 
   scaledScreenshot.resize( newSize );
 
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
 #ifdef COMPOSITE
     if ( !validBackingPix )
@@ -132,7 +125,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 #endif
 
   }
-  /*  if ( KomposeGlobal::instance()->hasXcomposite() )
+  /*  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
     {
       // The XComposite way
   #ifdef COMPOSITE
@@ -185,7 +178,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
  */
 void KomposeTaskVisualizer::slotTaskActivated()
 {
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     return;
   }
@@ -217,7 +210,7 @@ void KomposeTaskVisualizer::slotTaskActivated()
 void KomposeTaskVisualizer::slotUpdateScreenshot()
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     if ( !validBackingPix )
     {
@@ -301,24 +294,34 @@ void KomposeTaskVisualizer::updateXCompositeNamedPixmap()
 void KomposeTaskVisualizer::initXComposite()
 {
 #ifdef COMPOSITE
-  dpy = QPaintDevice::x11AppDisplay();
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite())
+  {
+    connect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
+    XSelectInput( dpy, task->wmFrame(), StructureNotifyMask );
+    connect( task, SIGNAL( x11DamageNotify() ), SLOT( setScaledScreenshotDirty() ) );
 
-  XWindowAttributes attr;
-  XGetWindowAttributes( dpy, task->wmFrame(), &attr );
-  format = XRenderFindVisualFormat( dpy, attr.visual );
-  hasAlpha = ( format->type == PictTypeDirect && format->direct.alphaMask ); //FIXME: move this to komposetask
-  //   int x                     = attr.x;
-  //   int y                     = attr.y;
-  //   int width                 = attr.width;
-  //   int height                = attr.height;
-  pa.subwindow_mode = IncludeInferiors; // Don't clip child widgets
-  updateXCompositeNamedPixmap();
+    dpy = QPaintDevice::x11AppDisplay();
 
-  //FIXME: make this usable
-  qDebug("KomposeTaskVisualizer::initXComposite() (WId %d) - Setting up Damage extension", task->window());
-  // Create a damage handle for the window, and specify that we want an event whenever the
-  // damage state changes from not damaged to damaged.
-  damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
+    XWindowAttributes attr;
+    XGetWindowAttributes( dpy, task->wmFrame(), &attr );
+    format = XRenderFindVisualFormat( dpy, attr.visual );
+    hasAlpha = ( format->type == PictTypeDirect && format->direct.alphaMask ); //FIXME: move this to komposetask
+    //   int x                     = attr.x;
+    //   int y                     = attr.y;
+    //   int width                 = attr.width;
+    //   int height                = attr.height;
+    pa.subwindow_mode = IncludeInferiors; // Don't clip child widgets
+    updateXCompositeNamedPixmap();
+
+    //FIXME: make this usable
+    qDebug("KomposeTaskVisualizer::initXComposite() (WId %d) - Setting up Damage extension", task->window());
+    // Create a damage handle for the window, and specify that we want an event whenever the
+    // damage state changes from not damaged to damaged.
+    damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
+  } else {
+    disconnect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
+    disconnect( task, SIGNAL( x11DamageNotify() ), SLOT( setScaledScreenshotDirty() ) );
+  }
 #endif
 }
 
