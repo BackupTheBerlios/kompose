@@ -39,6 +39,7 @@
         <cxxcompiler>kdevgppoptions</cxxcompiler>
         <f77compiler>kdevg77options</f77compiler>
         <cxxflags>-O2 -g0</cxxflags>
+        <envvars/>
       </optimized>
       <debug>
         <configargs>--enable-debug=full</configargs>
@@ -57,6 +58,9 @@
         <f77flags/>
         <envvars/>
       </debug>
+      <default>
+        <envvars/>
+      </default>
     </configurations>
     <make>
       <envvars>
@@ -67,6 +71,7 @@
       <numberofjobs>1</numberofjobs>
       <dontact>false</dontact>
       <makebin/>
+      <prio>0</prio>
     </make>
   </kdevautoproject>
   <kdevfileview>
