@@ -54,6 +54,7 @@ public slots:
 protected slots:
   void toggleBlockScreenshots();
   void checkCursorPos();
+  void reCheckCursorPos();
   
   void uglyQtHackInitFunction();
   void slotStartCursorUpdateTimer();

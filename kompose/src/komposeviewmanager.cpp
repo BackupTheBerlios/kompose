@@ -14,9 +14,13 @@
 #include "komposetaskmanager.h"
 #include "komposeglobal.h"
 #include "komposesettings.h"
+#include "komposesystray.h"
 
 #include <qtimer.h>
 #include <qcursor.h>
+#include <qapplication.h>
+#include <qptrlist.h>
+#include <qwidgetlist.h>
 #include <qdesktopwidget.h>
 
 #include <kwin.h>
@@ -113,14 +117,42 @@ void KomposeViewManager::checkCursorPos()
       !activeView && QCursor::pos() == bottomRightCorner )
   )
   {
+    //cursorUpdateTimer->stop();
+    QTimer::singleShot( KomposeSettings::instance()->getAutoLockDelay(), this, SLOT( reCheckCursorPos() ) );
+  }
+}
+
+/**
+ * Called after the cursor was in a hotspot to check if it's still there
+ */
+void KomposeViewManager::reCheckCursorPos()
+{
+  if (
+    ( KomposeSettings::instance()->getActivateOnTopLeftCorner() &&
+      !activeView && QCursor::pos() == topLeftCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnTopRightCorner() &&
+      !activeView && QCursor::pos() == topRightCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() &&
+      !activeView && QCursor::pos() == bottomLeftCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
+      !activeView && QCursor::pos() == bottomRightCorner )
+  )
+  {
     cursorUpdateTimer->stop();
-    QTimer::singleShot( KomposeSettings::instance()->getAutoLockDelay(), this, SLOT( createView() ) );
+    createView();
   }
 }
 
 
 void KomposeViewManager::createView( int type )
 {
+  if (KomposeSettings::instance()->hasDialogOpen() ||
+      KomposeGlobal::instance()->hasAboutDialogOpen())
+  {
+    qDebug("KomposeViewManager::createView() - Another Kompose Dialog is open... close it first");
+    return;
+  }
+
   if (type == -1)
     type = KomposeSettings::instance()->getDefaultView();
 
@@ -148,7 +180,7 @@ void KomposeViewManager::createView( int type )
     viewWidget->setType( type );
 
   KWin::forceActiveWindow( viewWidget->winId() );
-  
+
   activeView = true;
 }
 
@@ -157,7 +189,7 @@ void KomposeViewManager::closeCurrentView()
 {
   if ( !activeView )
     return;
-  
+
   blockScreenshots = true;
   activeView = false;
 
@@ -177,7 +209,7 @@ void KomposeViewManager::closeCurrentView()
 
   // A short delay until we allow screenshots again (would cause overlapping else
   QTimer::singleShot( 400, this, SLOT( toggleBlockScreenshots() ) );
-  
+
   // Restart Timer for corner checks
   slotStartCursorUpdateTimer();
 }

@@ -73,7 +73,8 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
     hideSystray( false ),
     singleShot( false ),
     xcomposite(0),
-    damageEvent(0)
+    damageEvent(0),
+    aboutDialogOpen(0)
 {
   globalInstance = this;
   kwin_module = new KWinModule(); //FIXME: only needed for sharedpixmap :(
@@ -276,8 +277,11 @@ void KomposeGlobal::showGlobalShortcutsSettingsDialog()
  */
 void KomposeGlobal::showAboutDlg()
 {
+  aboutDialogOpen = true;
   KAboutApplication* kabout = new KAboutApplication();
-  kabout->show();
+  kabout->exec();
+  delete kabout;
+  aboutDialogOpen = false;
 }
 
 /**

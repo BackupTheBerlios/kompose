@@ -141,7 +141,7 @@ dnl Check if Imlib2 is installed properly
 KDE_FIND_IMLIB2_CONFIG
  
 if test -z "$ac_imlib2_config"; then
-dnl  AC_MSG_ERROR([You need to install Imlib2 1.x from http://www.enlightenment.org/pages/imlib2.html if your distributor doesn't have a package])
+  AC_MSG_ERROR([You need to install Imlib2 1.x from http://www.enlightenment.org/pages/imlib2.html if your distributor doesn't have a package])
  echo imlib2-config not found
  #DO_NOT_COMPILE="$DO_NOT_COMPILE kompose" # maybe one day we'll be in KDE, so I'll leave this here :)
 fi

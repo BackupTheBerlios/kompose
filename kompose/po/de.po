@@ -1,123 +1,163 @@
+# translation of de.po to Deutsch
+# German translations for kompose package
+# German messages for kompose.
+# Copyright (C) 2004 THE kompose'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the kompose package.
+# Thomas Fischer <t-fisch@users.sourceforge.net>, 2004.
+# Thomas Fischer <thomas.fischer@t-fischer.net>, 2004.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: de\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-12-22 14:14+0100\n"
+"PO-Revision-Date: 2004-10-25 21:29+0200\n"
+"Last-Translator: Thomas Fischer <thomas.fischer@t-fischer.net>\n"
+"Language-Team: Deutsch <de@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: KBabel 1.9.1\n"
+
 #: _translatorinfo.cpp:1
 msgid ""
 "_: NAME OF TRANSLATORS\n"
 "Your names"
-msgstr ""
+msgstr "Thomas Fischer"
 
 #: _translatorinfo.cpp:3
 msgid ""
 "_: EMAIL OF TRANSLATORS\n"
 "Your emails"
-msgstr ""
+msgstr "t-fisch@users.sourceforge.net"
 
 #: komposedesktopwidget.cpp:62
 msgid "Desktop %1 - %2"
-msgstr ""
+msgstr "Arbeitsfläche %1 - %2"
 
-#: komposeglobal.cpp:151
-msgid "Kompos (ungrouped)"
-msgstr ""
+#: komposeglobal.cpp:152
+msgid "Komposé (ungrouped)"
+msgstr "Komposé (nicht gruppiert)"
 
-#: komposeglobal.cpp:155
-msgid "Kompos (grouped by virtual desktops)"
-msgstr ""
+#: komposeglobal.cpp:156
+msgid "Komposé (grouped by virtual desktops)"
+msgstr "Komposé (gruppiert in virtuellen Arbeitsflächen)"
 
-#: komposeglobal.cpp:159
-msgid "Kompos (current virtual desktop)"
-msgstr ""
-
-#: komposeglobal.cpp:168
-msgid "Configure &Global Shortcuts..."
-msgstr ""
+#: komposeglobal.cpp:160
+msgid "Komposé (current virtual desktop)"
+msgstr "Komposé (aktuelle virtuelle Arbeitsfläche)"
 
 #: komposeglobal.cpp:169
-msgid "About Kompos"
-msgstr ""
+msgid "Configure &Global Shortcuts..."
+msgstr "&Globale Kurzbefehle einrichten..."
+
+#: komposeglobal.cpp:170
+msgid "About Komposé"
+msgstr "Über Komposé"
 
 #: komposepreferences.cpp:38
-msgid "Kompos Preferences"
-msgstr ""
+msgid "Komposé Preferences"
+msgstr "Einrichten - Komposé"
 
 #: komposepreferences.cpp:43
 msgid "Behavior"
-msgstr ""
+msgstr "Verhalten"
 
 #: komposepreferences.cpp:45
 msgid "Layouts"
-msgstr ""
+msgstr "Anordnung"
 
 #: komposepreferences.cpp:49
 msgid "Default Layout"
-msgstr ""
+msgstr "Standardanordnung"
 
 #: komposepreferences.cpp:51
 msgid ""
 "Determines which view should be started by default (e.g. when you click on "
 "the systray icon)."
 msgstr ""
+"Legt fest, welche Ansicht als Standard verwendet wird, wenn z.B. auf das "
+"Symbol in der Kontrollleiste geklickt wird."
 
 #: komposepreferences.cpp:54
 msgid "Ungrouped"
-msgstr ""
+msgstr "Nicht gruppiert"
 
 #: komposepreferences.cpp:55
 msgid "Fullscreen layout that shows all windows in no specific order"
-msgstr ""
+msgstr "Vollbildanordnung, die alle Fenster ohne besondere Reihenfolge zeigt"
 
 #: komposepreferences.cpp:58
 msgid "Grouped by virtual desktops"
-msgstr ""
+msgstr "Gruppiert nach virtuellen Arbeitsflächen"
 
 #: komposepreferences.cpp:59
 msgid ""
 "Fullscreen layout that shows a representation of your virtual desktops\n"
 " and places the windows inside."
 msgstr ""
+"Vollbildanordnung, die die virtuellen Arbeitsflächen und die darin "
+"enthaltenen Fenster zeigt."
 
 #: komposepreferences.cpp:62
 msgid "Current virtual desktop"
-msgstr ""
+msgstr "Aktuelle virtuelle Arbeitsfläche"
 
 #: komposepreferences.cpp:63
 msgid ""
 "Fullscreen layout that shows the windows of the desktop you're currently "
 "working on."
 msgstr ""
+"Vollbildanordnung, die die Fenster der aktuellen virtuellen Arbeitsfläche "
+"zeigt."
 
 #: komposepreferences.cpp:70 komposepreferences.cpp:78
 msgid "Screenshots"
-msgstr ""
+msgstr "Bildschirmphoto"
 
 #: komposepreferences.cpp:72
 msgid "Use XComposite if available"
-msgstr ""
+msgstr "XComposite verwenden falls verfügbar"
 
 #: komposepreferences.cpp:73
 msgid ""
 "Making use of the Composite extension of newer X Servers makes the grabbing "
 "of screenshots obsolete.\n"
 "The contents of all windows are drawn in back buffers that will be accessed "
-"by Kompos\n"
+"by Komposé\n"
 "Note that the Composite implementation of even modern graphic card drivers "
 "is still very slow and may make your system pretty unusable."
 msgstr ""
+"Mit der Composite-Erweiterung moderner X-Server kann auf das herkömmliche "
+"Einfangen des Bildschirms verzichtet werden.\n"
+"Der Inhalt aller Fenster wird in verborgenen Puffern gezeichnet, auf die "
+"Komposé zugreift.\n"
+"Die Composite-Implementierung ist selbst bei aktuellen Treibern oft langsam "
+"und macht das System instabil."
 
 #: komposepreferences.cpp:81
 msgid "Passive screenshots"
-msgstr ""
+msgstr "Passive Bildschirmphotos"
 
 #: komposepreferences.cpp:82
 msgid ""
 "Create a screenshot whenever you raise or active a window.\n"
-"When selected the amount the annoying popup-effect before every Kompos "
+"When selected the amount the annoying popup-effect before every Komposé "
 "activation will be minimized to nearly zero.\n"
 "The drawback is that the screenshots are not so recent and may not display "
 "the actual content."
 msgstr ""
+"Erstellt ein Bildschirmfoto, wann immer ein Fenster gehoben oder aktiviert "
+"wird.\n"
+"Wenn diese Option aktiviert ist, wird das störende Bildschirmflackern vor "
+"jeder Komposé-Aktivierung minimiert.\n"
+"Ein Nachteil dabei ist, daß die Bildschirmfotos nicht immer aktuell sind und "
+"eventuell nicht den gegenwärtigen Inhalt darstellen."
 
 #: komposepreferences.cpp:87
 msgid "Delay between screenshots (ms):"
-msgstr ""
+msgstr "Verzögerung zwischen Bildschirmfotos (ms):"
 
 #: komposepreferences.cpp:90
 msgid ""
@@ -127,97 +167,112 @@ msgid ""
 "activation.\n"
 "Values below 300ms are not recommended, but may work in some cases."
 msgstr ""
+"Bestimmt die Zeit, die gewartet wird zwischen der Aktivierung eines Fensters "
+"und des Aufnehmens eines Bildschirmfotos von diesem Fenster.\n"
+"Falls ein Fenster mehr Zeit braucht, um sich neu zu zeichnen, sollte dieser "
+"Wert erhöht werden.\n"
+"Werte unter 300 ms sind nicht empfehlenswert, auch wenn sie in bestimmten "
+"Fällen funktionieren."
 
 #: komposepreferences.cpp:96
 msgid "Cache scaled Screenshots"
-msgstr ""
+msgstr "Skalierte Bildschirmphotos zwischenspeichern"
 
 #: komposepreferences.cpp:97
 msgid ""
-"This may avoid some scaling operations to be called repeatedly when Kompos "
+"This may avoid some scaling operations to be called repeatedly when Komposé "
 "has been displayed before and the screenshot's size didn't change.\n"
 "It will however increase memory usage quite a bit."
 msgstr ""
+"Verhindert wiederholte Skalierungsoperationen, wenn Komposé Bildschirmfotos "
+"anzeigt, deren Inhalt sich seit dem letzten Komposé-Aufruf nicht geändert "
+"hat.\n"
+"Dadurch wird aber auch der Speicherverbrauch etwas erhöht."
 
 #: komposepreferences.cpp:105
 msgid "Autoactivate when mouse moves into"
-msgstr ""
+msgstr "Automatisch aktivieren, wenn die Maus hier hin bewegt wird"
 
 #: komposepreferences.cpp:108
 msgid "Top-left corner"
-msgstr ""
+msgstr "Obere linke Ecke"
 
 #: komposepreferences.cpp:110
 msgid "Top-right corner"
-msgstr ""
+msgstr "Obere rechte Ecke"
 
 #: komposepreferences.cpp:112
 msgid "Bottom-left corner"
-msgstr ""
+msgstr "Untere linke Ecke"
 
 #: komposepreferences.cpp:114
 msgid "Bottom-right corner"
-msgstr ""
+msgstr "Untere rechte Ecke"
 
 #: komposepreferences.cpp:118
 msgid "Delay until activation (ms):"
-msgstr ""
+msgstr "Verzögerung bis Aktivierung (ms):"
 
 #: komposepreferences.cpp:121
 msgid ""
 "Specifies the time in ms for which the mouse pointer must rest in the corner "
 "until auto-activation."
 msgstr ""
+"Gibt die Zeit in Millisekunden an, für die der Mauszeiger in der Ecke "
+"verweilen muss, damit Komposé aktiviert wird."
 
 #: komposepreferences.cpp:136
 msgid "Enable image effects"
-msgstr ""
+msgstr "Bildeffekte verwenden"
 
 #: komposepreferences.cpp:137
 msgid ""
 "Lighten windows when the mouse moves over it or gray out minimized windows.\n"
 "Depending on your system specs this can be a bit slower."
 msgstr ""
+"Fenster werden aufgehellt, wenn die Maus über sie fährt und angegraut, wenn "
+"sie minimiert sind.\n"
+"Diese Option kann das System verlangsamen."
 
 #: komposepreferences.cpp:143
 msgid "Window Titles"
-msgstr ""
+msgstr "Fenstertitel"
 
 #: komposepreferences.cpp:146
 msgid "Show window titles"
-msgstr ""
+msgstr "Fenstertitel anzeigen"
 
 #: komposepreferences.cpp:147
 msgid "Select Font..."
-msgstr ""
+msgstr "Schrift auswählen..."
 
 #: komposepreferences.cpp:148
-msgid "Display the name of every window in Kompos"
-msgstr ""
+msgid "Display the name of every window in Komposé"
+msgstr "Den Namen von jedem Fenster in Komposé anzeigen"
 
 #: komposepreferences.cpp:156
 msgid "Text color:"
-msgstr ""
+msgstr "Textfarbe:"
 
 #: komposepreferences.cpp:160
 msgid "Shadow color:"
-msgstr ""
+msgstr "Schattenfarbe:"
 
 #: komposepreferences.cpp:170
 msgid "Task Icons"
-msgstr ""
+msgstr "Fenstersymbole"
 
 #: komposepreferences.cpp:171
 msgid "Show icons"
-msgstr ""
+msgstr "Symbole anzeigen"
 
 #: komposepreferences.cpp:186
 msgid "Grouped by Virtual Desktops"
-msgstr ""
+msgstr "Gruppiert nach virtuellen Arbeitsflächen"
 
 #: komposepreferences.cpp:187
 msgid "Layout empty virtual desktops minimized"
-msgstr ""
+msgstr "Leere virtuelle Arbeitsflächen verkleinert darstellen"
 
 #: komposepreferences.cpp:188
 msgid ""
@@ -225,116 +280,121 @@ msgid ""
 "screen.\n"
 "Uncheck it if you want them to be arranged statically, each of the same size."
 msgstr ""
+"Mit dieser Option benötigen leere virtuelle Arbeitsflächen weniger Platz am "
+"Bildschirm.\n"
+"Ohne diese Option wird jeder virtuellen Arbeitsfläche statisch ein "
+"gleichgroßer Platz zugeordnet."
 
 #: komposepreferences.cpp:194
 msgid "Tint virtual desktop widgets:"
-msgstr ""
+msgstr "Rahmen für virtuelle Arbeitsflächen einfärben:"
 
 #: komposepreferences.cpp:196
 msgid "Colorize the transparent background of the virtual desktop widgets"
-msgstr ""
+msgstr "Den transparenten Hintergrund de virtuellen Arbeitsflächen eingfärben"
 
 #: komposepreferences.cpp:202
 msgid "Desktop frame color:"
-msgstr ""
+msgstr "Rahmenfarbe für Arbeitsflächen:"
 
 #: komposepreferences.cpp:204
 msgid "Desktop frame highlight color:"
-msgstr ""
+msgstr "Rahmenfarbe für hervorgehobene Arbeitsflächen:"
 
 #: komposepreferences.cpp:209
 msgid "Select Desktop Names Font..."
-msgstr ""
+msgstr "Schrift für Arbeitsflächenbeschriftungen auswählen..."
 
 #: komposepreferences.cpp:227
 msgid "16x16"
-msgstr ""
+msgstr "16x16"
 
 #: komposepreferences.cpp:230
 msgid "32x32"
-msgstr ""
+msgstr "32x32"
 
 #: komposepreferences.cpp:233
 msgid "64x64"
-msgstr ""
+msgstr "64x64"
 
 #: komposepreferences.cpp:236
 msgid "Don't scale, show as they are (preferably bigger)"
-msgstr ""
-
-#: komposesettings.cpp:50
-msgid "Show Kompos (default view)"
-msgstr ""
+msgstr "Nicht skalieren, sondern Original (vorzugsweise größer) zeigen"
 
 #: komposesettings.cpp:51
-msgid "Displays the view you have configured as default"
-msgstr ""
+msgid "Show Komposé (default view)"
+msgstr "Komposé anzeigen (Standardansicht)"
 
-#: komposesettings.cpp:54
-msgid "Show Kompos (ungrouped)"
-msgstr ""
+#: komposesettings.cpp:52
+msgid "Displays the view you have configured as default"
+msgstr "Anzeigen wie als Standard eingerichtet"
 
 #: komposesettings.cpp:55
-msgid "Displays all windows unsorted"
-msgstr ""
+msgid "Show Komposé (ungrouped)"
+msgstr "Komposé anzeigen (nicht gruppiert)"
 
-#: komposesettings.cpp:58
-msgid "Show Kompos (grouped by virtual desktops)"
-msgstr ""
+#: komposesettings.cpp:56
+msgid "Displays all windows unsorted"
+msgstr "Alle Fenster unsortiert anzeigen"
 
 #: komposesettings.cpp:59
-msgid "Displays all windows sorted by virtual desktops"
-msgstr ""
+msgid "Show Komposé (grouped by virtual desktops)"
+msgstr "Komposé anzeigen (gruppiert nach virtuellen Arbeitsflächen)"
 
-#: komposesettings.cpp:62
-msgid "Show Kompos (current virtual desktop)"
-msgstr ""
+#: komposesettings.cpp:60
+msgid "Displays all windows sorted by virtual desktops"
+msgstr "Alle Fenster sortiert nach virtuellen Arbeitsflächen anzeigen"
 
 #: komposesettings.cpp:63
+msgid "Show Komposé (current virtual desktop)"
+msgstr "Komposé anzeigen (aktuelle virtuelle Arbeitsfläche)"
+
+#: komposesettings.cpp:64
 msgid "Displays all windows on the current desktop"
-msgstr ""
+msgstr "Alle Fenster der aktuellen Arbeitsfläche anzeigen"
 
 #: komposetask.cpp:152
 msgid "modified"
-msgstr ""
+msgstr "verändert"
 
 #: komposetaskprefswidget.cpp:31
 msgid "Task Actions"
-msgstr ""
+msgstr "Fensteraktionen"
 
 #: komposetaskprefswidget.cpp:32
 msgid "Task"
-msgstr ""
+msgstr "Fenster"
 
-#: komposetaskwidget.cpp:344
+#: komposetaskwidget.cpp:352
 msgid "Minimize/Restore"
-msgstr ""
+msgstr "Verkleinern/Wiederherstellen"
 
-#: komposetaskwidget.cpp:358
+#: komposetaskwidget.cpp:366
 msgid "&All Desktops"
-msgstr ""
+msgstr "&Alle Arbeitsflächen"
 
-#: komposetaskwidget.cpp:371
+#: komposetaskwidget.cpp:379
 msgid "To &Desktop"
-msgstr ""
+msgstr "Auf &Arbeitsfläche"
 
 #: main.cpp:32
 msgid "A fullscreen task manager for KDE"
-msgstr ""
+msgstr "Ein Vollbild-Fensterwechsler für KDE"
 
 #: main.cpp:38
 msgid "Do not show the systray icon"
-msgstr ""
+msgstr "Symbol nicht in Kontrollleiste zeigen"
 
 #: main.cpp:39
+#, fuzzy
 msgid "Display the default view and exit (non daemon mode)"
-msgstr ""
+msgstr "Standardansicht zeigen und beenden"
 
 #: main.cpp:64
 msgid "Kompose"
-msgstr ""
+msgstr "Kompose"
 
 #: rc.cpp:2
 #, no-c-format
 msgid "C&ustom"
-msgstr ""
+msgstr "&Benutzerdefiniert"

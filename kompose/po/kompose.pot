@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-16 16:59+0200\n"
+"POT-Creation-Date: 2004-12-22 14:14+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,23 +32,23 @@ msgstr ""
 msgid "Desktop %1 - %2"
 msgstr ""
 
-#: komposeglobal.cpp:151
+#: komposeglobal.cpp:152
 msgid "Komposé (ungrouped)"
 msgstr ""
 
-#: komposeglobal.cpp:155
+#: komposeglobal.cpp:156
 msgid "Komposé (grouped by virtual desktops)"
 msgstr ""
 
-#: komposeglobal.cpp:159
+#: komposeglobal.cpp:160
 msgid "Komposé (current virtual desktop)"
 msgstr ""
 
-#: komposeglobal.cpp:168
+#: komposeglobal.cpp:169
 msgid "Configure &Global Shortcuts..."
 msgstr ""
 
-#: komposeglobal.cpp:169
+#: komposeglobal.cpp:170
 msgid "About Komposé"
 msgstr ""
 
@@ -280,35 +280,35 @@ msgstr ""
 msgid "Don't scale, show as they are (preferably bigger)"
 msgstr ""
 
-#: komposesettings.cpp:50
+#: komposesettings.cpp:51
 msgid "Show Komposé (default view)"
 msgstr ""
 
-#: komposesettings.cpp:51
+#: komposesettings.cpp:52
 msgid "Displays the view you have configured as default"
 msgstr ""
 
-#: komposesettings.cpp:54
+#: komposesettings.cpp:55
 msgid "Show Komposé (ungrouped)"
 msgstr ""
 
-#: komposesettings.cpp:55
+#: komposesettings.cpp:56
 msgid "Displays all windows unsorted"
 msgstr ""
 
-#: komposesettings.cpp:58
+#: komposesettings.cpp:59
 msgid "Show Komposé (grouped by virtual desktops)"
 msgstr ""
 
-#: komposesettings.cpp:59
+#: komposesettings.cpp:60
 msgid "Displays all windows sorted by virtual desktops"
 msgstr ""
 
-#: komposesettings.cpp:62
+#: komposesettings.cpp:63
 msgid "Show Komposé (current virtual desktop)"
 msgstr ""
 
-#: komposesettings.cpp:63
+#: komposesettings.cpp:64
 msgid "Displays all windows on the current desktop"
 msgstr ""
 
@@ -324,15 +324,15 @@ msgstr ""
 msgid "Task"
 msgstr ""
 
-#: komposetaskwidget.cpp:344
+#: komposetaskwidget.cpp:352
 msgid "Minimize/Restore"
 msgstr ""
 
-#: komposetaskwidget.cpp:358
+#: komposetaskwidget.cpp:366
 msgid "&All Desktops"
 msgstr ""
 
-#: komposetaskwidget.cpp:371
+#: komposetaskwidget.cpp:379
 msgid "To &Desktop"
 msgstr ""
 

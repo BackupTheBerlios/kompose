@@ -1,4 +1,10 @@
- 0.5:
+0.5.1
+-Hot corners delay controls whether Komposé is started and not when it's started :)
+-imlib2 error message added to configure script
+-Fixed "if a kompose window (prefs, about) is open, you are stuck"
+-Added german translation (thanks to Thomas Fischer)
+
+0.5:
 -Composite support to take screenshots without raising windows
 -Damage support for live-updates of windows
 -major refactoring for a cleaner design

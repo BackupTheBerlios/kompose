@@ -40,6 +40,7 @@ public:
   void readConfig();
   void writeConfig();
   
+  bool hasDialogOpen() { return dialogOpen; }
   KGlobalAccel *getGlobalAccel() const { return globalAccel; }
   
   bool getUseComposite() const { return useComposite; }
@@ -114,6 +115,7 @@ signals:
 
 private:
   KGlobalAccel *globalAccel;
+  bool dialogOpen;
   
   bool useComposite;
   bool passiveScreenshots;

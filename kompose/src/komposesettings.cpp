@@ -42,7 +42,8 @@ KomposeSettings* KomposeSettings::instance()
 
 KomposeSettings::KomposeSettings(QObject *parent, const char *name)
     : QObject(parent, name),
-    windowTitleFontMetrics(0)
+    windowTitleFontMetrics(0),
+    dialogOpen(0)
 {
   
   // Init global shortcut object
@@ -180,12 +181,14 @@ void KomposeSettings::writeConfig()
 
 void KomposeSettings::showPreferencesDlg()
 {
+  dialogOpen = true;
   // popup preference dialog
   KomposePreferences *dlg = new KomposePreferences();
 
   dlg->exec();
 
   delete dlg;
+  dialogOpen = false;
 }
 
 int KomposeSettings::getIconSizePixels()

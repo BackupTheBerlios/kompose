@@ -47,6 +47,7 @@ public:
   KomposeSysTray* getSysTray() { return systray; }
   void initGui();
   
+  bool hasAboutDialogOpen() { return aboutDialogOpen; }
   void setHideSystray( bool b ) { hideSystray = b; }
   void setSingleShot( bool b ) { singleShot = b; }
   bool getSingleShot() { return singleShot; }
@@ -82,6 +83,7 @@ protected slots:
   void showAboutDlg();
 
 private:
+  bool aboutDialogOpen;
   bool hideSystray;
   bool singleShot;
   bool xcomposite;

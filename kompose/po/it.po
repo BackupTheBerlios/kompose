@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kompose\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2004-10-16 16:59+0200\n"
+"POT-Creation-Date: 2004-12-22 14:14+0100\n"
 "PO-Revision-Date: 2004-10-12 16:51+0200\n"
 "Last-Translator: Giorgio Moscardi <enjoy.the.silence@iol.it>\n"
 "Language-Team: Italiano <kde-i18n-it@kde.org>\n"
@@ -32,32 +32,27 @@ msgstr "enjoy.the.silence@iol.it"
 msgid "Desktop %1 - %2"
 msgstr "Desktop %1 - %2"
 
-#: komposeglobal.cpp:151
-#, fuzzy
+#: komposeglobal.cpp:152
 msgid "Komposé (ungrouped)"
 msgstr "Komposé (Non raggruppato)"
 
-#: komposeglobal.cpp:155
-#, fuzzy
+#: komposeglobal.cpp:156
 msgid "Komposé (grouped by virtual desktops)"
 msgstr "Komposé (Raggruppato per desktop virtuale)"
 
-#: komposeglobal.cpp:159
-#, fuzzy
+#: komposeglobal.cpp:160
 msgid "Komposé (current virtual desktop)"
 msgstr "Komposé (Desktop virtuale corrente)"
 
-#: komposeglobal.cpp:168
+#: komposeglobal.cpp:169
 msgid "Configure &Global Shortcuts..."
 msgstr "Configura le scorciatoie &globali..."
 
-#: komposeglobal.cpp:169
-#, fuzzy
+#: komposeglobal.cpp:170
 msgid "About Komposé"
 msgstr "Informazioni su Komposé"
 
 #: komposepreferences.cpp:38
-#, fuzzy
 msgid "Komposé Preferences"
 msgstr "Impostazioni di Komposé"
 
@@ -124,7 +119,6 @@ msgid "Use XComposite if available"
 msgstr "Utilizza XComposite se disponibile"
 
 #: komposepreferences.cpp:73
-#, fuzzy
 msgid ""
 "Making use of the Composite extension of newer X Servers makes the grabbing "
 "of screenshots obsolete.\n"
@@ -146,7 +140,6 @@ msgid "Passive screenshots"
 msgstr "Foto dello schermo passive"
 
 #: komposepreferences.cpp:82
-#, fuzzy
 msgid ""
 "Create a screenshot whenever you raise or active a window.\n"
 "When selected the amount the annoying popup-effect before every Komposé "
@@ -185,7 +178,6 @@ msgid "Cache scaled Screenshots"
 msgstr "Metti in cache le foto dello schermo riscalate"
 
 #: komposepreferences.cpp:97
-#, fuzzy
 msgid ""
 "This may avoid some scaling operations to be called repeatedly when Komposé "
 "has been displayed before and the screenshot's size didn't change.\n"
@@ -255,7 +247,6 @@ msgid "Select Font..."
 msgstr "Seleziona il tipo di carattere..."
 
 #: komposepreferences.cpp:148
-#, fuzzy
 msgid "Display the name of every window in Komposé"
 msgstr "Mostra il nome di ogni finestra in Komposé"
 
@@ -330,39 +321,35 @@ msgstr "64x64"
 msgid "Don't scale, show as they are (preferably bigger)"
 msgstr "Non riscalare, mostra così come sono (preferibilmente più grandi)"
 
-#: komposesettings.cpp:50
-#, fuzzy
+#: komposesettings.cpp:51
 msgid "Show Komposé (default view)"
 msgstr "Mostra Komposé (Visuale predefinita)"
 
-#: komposesettings.cpp:51
+#: komposesettings.cpp:52
 msgid "Displays the view you have configured as default"
 msgstr "Mostra la visuale che hai selezionato come predefinita"
 
-#: komposesettings.cpp:54
-#, fuzzy
+#: komposesettings.cpp:55
 msgid "Show Komposé (ungrouped)"
 msgstr "Mostra Komposé (Non raggruppato)"
 
-#: komposesettings.cpp:55
+#: komposesettings.cpp:56
 msgid "Displays all windows unsorted"
 msgstr "Mostra tutte le finestre non ordinate"
 
-#: komposesettings.cpp:58
-#, fuzzy
+#: komposesettings.cpp:59
 msgid "Show Komposé (grouped by virtual desktops)"
 msgstr "Mostra Komposé (Raggruppato per desktop virtuale)"
 
-#: komposesettings.cpp:59
+#: komposesettings.cpp:60
 msgid "Displays all windows sorted by virtual desktops"
 msgstr "Mostra tutte le finestre ordinate per desktop virtuale"
 
-#: komposesettings.cpp:62
-#, fuzzy
+#: komposesettings.cpp:63
 msgid "Show Komposé (current virtual desktop)"
 msgstr "Mostra Komposé (Desktop virtuale corrente)"
 
-#: komposesettings.cpp:63
+#: komposesettings.cpp:64
 msgid "Displays all windows on the current desktop"
 msgstr "Mostra tutte le finestre del desktop corrente"
 
@@ -378,15 +365,15 @@ msgstr "Azioni del processo"
 msgid "Task"
 msgstr "Processo"
 
-#: komposetaskwidget.cpp:344
+#: komposetaskwidget.cpp:352
 msgid "Minimize/Restore"
 msgstr "Minimizza/Ripristina"
 
-#: komposetaskwidget.cpp:358
+#: komposetaskwidget.cpp:366
 msgid "&All Desktops"
 msgstr "&Tutti i desktop"
 
-#: komposetaskwidget.cpp:371
+#: komposetaskwidget.cpp:379
 msgid "To &Desktop"
 msgstr "Al &desktop"
 
