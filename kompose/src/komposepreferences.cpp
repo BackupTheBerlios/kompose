@@ -12,6 +12,7 @@
 #include "komposepreferences.h"
 
 #include "komposesettings.h"
+#include "komposeglobal.h"
 
 #include <qlayout.h>
 #include <qcheckbox.h>
@@ -342,7 +343,7 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setActivateOnTopRighCorner( m_topRightCorner->isChecked() );
   KomposeSettings::instance()->setActivateOnBottomLeftCorner( m_bottomLeftCorner->isChecked() );
   KomposeSettings::instance()->setActivateOnBottomRightCorner( m_bottomRightCorner->isChecked() );
-  KomposeSettings::instance()->setActivateOnBottomRightCorner( autoLockDelay->value() );
+  KomposeSettings::instance()->setAutoLockDelay( autoLockDelay->value() );
   
   KomposeSettings::instance()->writeConfig();
 

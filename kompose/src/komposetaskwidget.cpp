@@ -22,6 +22,7 @@
 #include "komposetaskmanager.h"
 #include "komposeviewmanager.h"
 #include "komposetask.h"
+#include "komposetaskcontainerwidget.h"
 #include "komposetaskprefswidget.h"
 #include "komposesettings.h"
 #include "komposeglobal.h"
@@ -104,15 +105,10 @@ void KomposeTaskWidget::slotTaskDestroyed()
 {
   disconnect( task, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
   disconnect( task, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
-  if (KomposeViewManager::instance()->hasActiveView())
-  {
-    dynamic_cast<KomposeWidget*>(parentWidget())->getLayout()->remove(this);
-    //parent()->removeChild( this );
-    //close();
-    deleteLater();
-  }
+  
+  //if (KomposeViewManager::instance()->hasActiveView())
+  emit requestRemoval(this);
 }
-
 void KomposeTaskWidget::resizeEvent ( QResizeEvent * e )
 {
   if ( e->oldSize() != e->size())

@@ -51,6 +51,9 @@ public:
   KomposeTask* getTask() const { return task; };
   KAction* getActMinimizeRestoreTask() { return actMinimizeRestoreTask; }
   KAction* getActCloseTask() { return actCloseTask; }
+
+signals:
+  void requestRemoval(KomposeWidget*);
   
 protected:
   void paintEvent ( QPaintEvent * );
@@ -67,7 +70,7 @@ protected:
   void startDrag();
   void initActions();
   void initMenu();
-  
+      
 protected slots:
   void slotTaskDestroyed();
   void drawWidget();

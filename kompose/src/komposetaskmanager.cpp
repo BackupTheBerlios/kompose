@@ -30,6 +30,7 @@
 #include <qtimer.h>
 #include <qimage.h>
 #include <qpixmap.h>
+#include <qwidget.h>
 
 #include <kapplication.h>
 #include <kwinmodule.h>
@@ -178,10 +179,12 @@ void KomposeTaskManager::slotWindowRemoved(WId w )
 void KomposeTaskManager::slotWindowAdded(WId w )
 {
   // ignore myself
-  if ( KomposeViewManager::instance()->hasActiveView() && w == KomposeViewManager::instance()->getViewWidget()->winId() )
-  {
+  if ( QWidget::find(w) != 0 )
     return;
-  }
+//   if ( KomposeViewManager::instance()->hasActiveView() && w == KomposeViewManager::instance()->getViewWidget()->winId() )
+//   {
+//     return;
+//   }
 
   KWin::WindowInfo info = KWin::windowInfo(w);
 
@@ -306,21 +309,26 @@ QString KomposeTaskManager::getDesktopName(int desk) const
  */
 bool KomposeTaskManager::processX11Event( XEvent *event )
 {
+if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    {
+      qDebug("         KEIN WAKiiiiiiiiiiiiiiiiiiiiiiiiiiiii!");
+}
 #ifdef COMPOSITE
   if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
     if ( event->type == ConfigureNotify )
     {
       XConfigureEvent *e = &event->xconfigure;
-
+      
       KomposeTask* t = findTask( e->window, true );
       if (!t)
         return false;
       t->slotX11ConfigureNotify();
+      return true;
     }
-    if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    else if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
     {
-    
+      qDebug("         KEIN WAK!");
       XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
       // e->drawable is the window ID of the damaged window
       // e->geometry is the geometry of the damaged window
@@ -329,10 +337,16 @@ bool KomposeTaskManager::processX11Event( XEvent *event )
 
       // Subtract all the damage, repairing the window.
       XDamageSubtract( QPaintDevice::x11AppDisplay(), e->damage, None, None );
+      if ( !KomposeViewManager::instance()->hasActiveView() )
+        return true;
+      qDebug("WAKAWAKA");
+      // FIXME: too many damage events are called. block findTask here...
+      // FIXME: Don't try XDamage with KAsteroids! Do something to avoid 100% cpu usage
       KomposeTask* t = findTask( e->drawable );
       if (!t)
         return false;
       t->slotX11DamageNotify();
+      return true;
     }
   }
 #endif

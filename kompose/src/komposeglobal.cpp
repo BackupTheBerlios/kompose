@@ -63,7 +63,9 @@ KomposeGlobal* KomposeGlobal::instance()
 KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
     : QObject(parent, name),
     hideSystray( false ),
-    singleShot( false )
+    singleShot( false ),
+    xcomposite(0),
+    damageEvent(0)
 {
   globalInstance = this;
 
@@ -162,14 +164,15 @@ void KomposeGlobal::initActions()
 
 void KomposeGlobal::initSharedPixmaps()
 {
+  enablePixmapExports();
   // When Kompose is started by session management the bg shared pixmap may not be available yet
   if (!desktopBgPixmap->isAvailable( pixmapName(1) ))
   {
-    qDebug("KomposeGlobal::initSharedPixmaps() - Pixmap not available");
-    enablePixmapExports();
-    //QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
-    initSharedPixmaps();
-    return;
+    qWarning("KomposeGlobal::initSharedPixmaps() - Pixmap not available");
+    //enablePixmapExports();
+    QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
+    //initSharedPixmaps();
+    //return;
   }
 
   qDebug("KomposeGlobal::initSharedPixmaps()");
@@ -194,7 +197,7 @@ void KomposeGlobal::slotDone(bool success)
   if (!success)
   {
     qDebug("KomposeGlobal::slotDone() - loading of desktop background failed.\n");
-    QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
+    //QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
   }
 }
 
@@ -270,6 +273,7 @@ void KomposeGlobal::initCompositeExt()
   if ( !(!xcomposite && KomposeSettings::instance()->getUseComposite()) )
     return;
 
+  xcomposite = false;
 #ifdef COMPOSITE
   // Check for XComposite
   Display *dpy = QPaintDevice::x11AppDisplay();
@@ -308,8 +312,8 @@ void KomposeGlobal::initCompositeExt()
 
   }
   else
-#endif
     xcomposite = false;
+#endif
 
   if ( xcomposite )
     qDebug("KomposeGlobal::initCompositeExt() - XComposite extension found and enabled.");

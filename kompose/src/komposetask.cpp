@@ -315,7 +315,7 @@ void KomposeTask::slotX11DamageNotify()
   
   blockDamageEvents = true;
   emit x11DamageNotify();
-  QTimer::singleShot( 500, this, SLOT( unBlockDamageEvents() ) );
+  QTimer::singleShot( 1000, this, SLOT( unBlockDamageEvents() ) );
 }
 
 int KomposeTask::getHeightForWidth ( int w ) const

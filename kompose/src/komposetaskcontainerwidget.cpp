@@ -214,6 +214,7 @@ void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task )
      this->className(), task->window(), task->onDesktop() );
     KomposeTaskWidget *taskwidget = new KomposeTaskWidget( task, this );
     taskwidget->show();
+    connect( taskwidget, SIGNAL(requestRemoval(KomposeWidget*)), SLOT(requestRemoval(KomposeWidget*)) );
   }
 }
 
@@ -232,5 +233,14 @@ double KomposeTaskContainerWidget::getAspectRatio()
   return -1;
 }
 
+void KomposeTaskContainerWidget::requestRemoval( KomposeWidget *obj )
+{
+  layout->remove(obj);
+  // removeChild( obj );  // FIXME: This causes segfaults although it would
+                          // be the correct way (ChildRemoveEvents to rearrange the layout...)
+  !obj->close(true);
+  layout->arrangeLayout();
+}
 
+  
 #include "komposetaskcontainerwidget.moc"

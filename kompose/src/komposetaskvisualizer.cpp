@@ -272,20 +272,24 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
 void KomposeTaskVisualizer::updateXCompositeNamedPixmap()
 {
 #ifdef COMPOSITE
-  if( !task->isOnCurrentDesktop() )
+  if ( compositeInit &&
+       KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite())
   {
-    qDebug("KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId %d) - Not reallocationg (unmapped)", task->window());
-    return;
+    if( !task->isOnCurrentDesktop() )
+    {
+      qDebug("KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId %d) - Not reallocationg (unmapped)", task->window());
+      return;
+    }
+
+    qDebug("KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId %d) - Reallocating backing pixmap", task->window());
+    if ( validBackingPix )
+      XFreePixmap(dpy, windowBackingPix);
+
+    windowBackingPix = XCompositeNameWindowPixmap(dpy, task->wmFrame() );
+
+    validBackingPix = true;
+    scaledScreenshotDirty = true;
   }
-
-  qDebug("KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId %d) - Reallocating backing pixmap", task->window());
-  if ( validBackingPix )
-    XFreePixmap(dpy, windowBackingPix);
-
-  windowBackingPix = XCompositeNameWindowPixmap(dpy, task->wmFrame() );
-
-  validBackingPix = true;
-  scaledScreenshotDirty = true;
 #endif
 }
 
@@ -296,13 +300,13 @@ void KomposeTaskVisualizer::updateXCompositeNamedPixmap()
 void KomposeTaskVisualizer::initXComposite()
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite())
+  if ( !compositeInit && KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite())
   {
+    dpy = QPaintDevice::x11AppDisplay();
+
     connect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
     XSelectInput( dpy, task->wmFrame(), StructureNotifyMask );
     connect( task, SIGNAL( x11DamageNotify() ), SLOT( setScaledScreenshotDirty() ) );
-
-    dpy = QPaintDevice::x11AppDisplay();
 
     XWindowAttributes attr;
     XGetWindowAttributes( dpy, task->wmFrame(), &attr );
@@ -313,6 +317,7 @@ void KomposeTaskVisualizer::initXComposite()
     //   int width                 = attr.width;
     //   int height                = attr.height;
     pa.subwindow_mode = IncludeInferiors; // Don't clip child widgets
+    compositeInit = true;
     updateXCompositeNamedPixmap();
 
     //FIXME: make this usable
@@ -320,8 +325,9 @@ void KomposeTaskVisualizer::initXComposite()
     // Create a damage handle for the window, and specify that we want an event whenever the
     // damage state changes from not damaged to damaged.
     damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
-    compositeInit = true;
-  } else {
+  }
+  else
+  {
     disconnect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
     disconnect( task, SIGNAL( x11DamageNotify() ), this, SLOT( setScaledScreenshotDirty() ) );
     if ( compositeInit )
@@ -333,7 +339,7 @@ void KomposeTaskVisualizer::initXComposite()
 #endif
 }
 
-
+  
 /**
  * Grabs a screenshot the old fashioned way
  */

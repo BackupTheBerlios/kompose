@@ -37,6 +37,9 @@ public:
   
   void setDesktop( int desk ) { desktop = desk; }
   int getDesktop() { return desktop; }
+
+public slots:
+  void requestRemoval( KomposeWidget *obj );
   
 protected slots:
   void createTaskWidgets();

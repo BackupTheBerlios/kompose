@@ -46,6 +46,9 @@ Kompose::~Kompose()
 
 bool Kompose::x11EventFilter (XEvent *event)
 {
+if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    
+    qDebug("HUILFEEEEEEEEEEEEEEEEEEEEEEEE");
 #ifdef COMPOSITE
   if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
   {
