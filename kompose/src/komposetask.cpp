@@ -102,7 +102,10 @@ bool KomposeTask::isOnTop() const
 
 bool KomposeTask::isActive() const
 {
-  return ( kwinmodule->activeWindow() & windowID );
+  if ( kwinmodule->activeWindow() == windowID )
+    return true;
+  else
+    return false;
 }
 
 bool KomposeTask::isMaximized() const

@@ -92,7 +92,16 @@ public:
   bool getCacheScaledPixmaps() const { return cacheScaledPixmaps; }
   void setCacheScaledPixmaps( bool b ) { cacheScaledPixmaps = b; }
   
-  
+  bool getActivateOnTopLeftCorner() const { return activateOnTopLeftCorner; }
+  void setActivateOnTopLeftCorner( bool b ) { activateOnTopLeftCorner = b; }
+  bool getActivateOnTopRightCorner() const { return activateOnTopRightCorner; }
+  void setActivateOnTopRighCorner( bool b ) { activateOnTopRightCorner = b; }
+  bool getActivateOnBottomLeftCorner() const { return activateOnBottomLeftCorner; }
+  void setActivateOnBottomLeftCorner( bool b ) { activateOnBottomLeftCorner = b; }
+  bool getActivateOnBottomRightCorner() const { return activateOnBottomRightCorner; }
+  void setActivateOnBottomRightCorner( bool b ) { activateOnBottomRightCorner = b; }
+    
+ 
 public slots:
   void showPreferencesDlg();
 
@@ -130,6 +139,11 @@ private:
   QColor desktopTitleFontHighlightColor;
 
   bool cacheScaledPixmaps;
+
+  bool activateOnTopLeftCorner;
+  bool activateOnTopRightCorner;
+  bool activateOnBottomLeftCorner;
+  bool activateOnBottomRightCorner;
 };
 
 #endif

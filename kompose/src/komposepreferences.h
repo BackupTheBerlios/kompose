@@ -85,6 +85,11 @@ private:
   KColorButton *desktopTitleFontColor;
   KColorButton *desktopTitleFontHighlightColor;
   QFont *desktopTitleFont;
+  
+  QCheckBox *m_topLeftCorner;
+  QCheckBox *m_bottomLeftCorner;
+  QCheckBox *m_topRightCorner;
+  QCheckBox *m_bottomRightCorner;
 };
 
 #endif

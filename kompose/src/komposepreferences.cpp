@@ -26,16 +26,19 @@
 #include <qslider.h>
 #include <qpushbutton.h>
 #include <qgrid.h>
-#include <qvgroupbox.h> 
+#include <qvgroupbox.h>
 #include <qradiobutton.h>
 
 #include <kiconloader.h>
 #include <kcolorbutton.h>
-#include <kfontdialog.h> 
+#include <kfontdialog.h>
 
 KomposePreferences::KomposePreferences()
     : KDialogBase(IconList, i18n(QString::fromUtf8("Komposé Preferences").utf8()), Ok|Apply|Cancel, Ok)
 {
+  // FIXME: this is the biggest constructor I've EVER written!
+  // How about Qt Designer?!
+  
   QFrame *page1 = addPage( i18n("Behavior"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
   QFrame *page3 = addPage( i18n("Layouts"), QString::null, DesktopIcon("window_list", KIcon::SizeMedium) );
@@ -67,7 +70,7 @@ KomposePreferences::KomposePreferences()
 
   QHBox *hLayScreenshotGrabDelay = new QHBox(screenshotsGroupBox);
   QLabel *screenshotGrabDelayLabel = new QLabel(i18n("Delay between screenshots (ms):"), hLayScreenshotGrabDelay);
-  screenshotGrabDelay = new QSpinBox(0, 2000, 1, hLayScreenshotGrabDelay);
+  screenshotGrabDelay = new QSpinBox(0, 999, 1, hLayScreenshotGrabDelay);
   screenshotGrabDelayLabel->setBuddy(screenshotGrabDelay);
   QString screenshotGrabDelayHelp = i18n("Specifies the time to wait between the activation of a window and the screenshot taking.\nIncrease it when your windows need more time to draw themselves after activation.\nValues below 300ms are not recommended, but may work in some cases." );
   QWhatsThis::add( screenshotGrabDelay, screenshotGrabDelayHelp );
@@ -79,8 +82,24 @@ KomposePreferences::KomposePreferences()
   QString cacheScaledPixmapsHelp = i18n("This may avoid some scaling operations to be called repeatedly when Komposé has been displayed before and the screenshot's size didn't change.\nIt will however increase memory usage quite a bit.");
   QWhatsThis::add( cacheScaledPixmaps, cacheScaledPixmapsHelp );
   QToolTip::add( cacheScaledPixmaps, cacheScaledPixmapsHelp );
-  
+
   page1Layout->addWidget(screenshotsGroupBox);
+
+
+  // Autolock
+  QGroupBox* autoLockGroup = new QGroupBox( i18n("Autoactivate when mouse moves into"), page1 );
+  autoLockGroup->setColumnLayout( 0, Qt::Vertical );
+  QBoxLayout* autoLockLayout = new QVBoxLayout( autoLockGroup->layout(), KDialog::spacingHint() );
+  m_topLeftCorner = new QCheckBox( i18n("Top-left corner"), autoLockGroup);
+  autoLockLayout->addWidget( m_topLeftCorner );
+  m_topRightCorner = new QCheckBox( i18n("Top-right corner"), autoLockGroup );
+  autoLockLayout->addWidget( m_topRightCorner );
+  m_bottomLeftCorner = new QCheckBox( i18n("Bottom-left corner"), autoLockGroup );
+  autoLockLayout->addWidget( m_bottomLeftCorner );
+  m_bottomRightCorner = new QCheckBox( i18n("Bottom-right corner"), autoLockGroup );
+  autoLockLayout->addWidget( m_bottomRightCorner );
+
+  page1Layout->addWidget(autoLockGroup);
 
   page1Layout->insertStretch(-1);
 
@@ -94,9 +113,9 @@ KomposePreferences::KomposePreferences()
   QToolTip::add( imageEffects, imageEffectsHelp );
   page2Layout->addWidget(imageEffects);
 
-  
+
   QGroupBox *windowTitleGroupBox = new QGroupBox( 3, Vertical, i18n("Window Titles"), page2 );
-  
+
   QHBox *hBoxWindowTitles = new QHBox(windowTitleGroupBox);
   showWindowTitles = new QCheckBox(i18n("Show window titles"), hBoxWindowTitles);
   windowTitleFontBtn = new QPushButton(i18n("Select Font..."), hBoxWindowTitles);
@@ -105,7 +124,7 @@ KomposePreferences::KomposePreferences()
   QToolTip::add( showWindowTitles, showWindowTitlesHelp );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontBtn, SLOT(setEnabled(bool)) );
   connect( windowTitleFontBtn, SIGNAL(clicked()), this, SLOT(showWindowTitleFontDialog()) );
-  
+
   QGrid *gridWindowTitlesColor = new QGrid(2, windowTitleGroupBox);
   // windowTitleFontColorLabel = new QLabel(windowTitleFontColor, i18n("Text color: "), gridWindowTitlesColor); // FIXME: How to link to a buddy that doesn't yet exist?
   windowTitleFontColorLabel = new QLabel(i18n("Text color:"), gridWindowTitlesColor);
@@ -117,11 +136,11 @@ KomposePreferences::KomposePreferences()
   connect( showWindowTitles, SIGNAL(toggled(bool)), showWindowTitleShadow, SLOT(setEnabled(bool)) );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontShadowColor, SLOT(setEnabled(bool)) );
   connect( showWindowTitleShadow, SIGNAL(toggled(bool)), windowTitleFontShadowColor, SLOT(setEnabled(bool)) );
-  
+
   page2Layout->addWidget(windowTitleGroupBox);
 
 
-   
+
   QGroupBox *iconGroupBox = new QGroupBox( 3, Vertical, i18n("Task Icons"), page2 );
   showIcons = new QCheckBox(i18n("Show icons"), iconGroupBox);
   iconSize = new QSlider(0, 3, 1, 0, Qt::Horizontal, iconGroupBox);
@@ -134,16 +153,16 @@ KomposePreferences::KomposePreferences()
 
   page2Layout->insertStretch(-1);
 
-  
-  
+
+
   QVBoxLayout *page3Layout = new QVBoxLayout( page3, 0, KDialog::spacingHint() );
-  
+
   QVGroupBox *virtDesksLayoutGroupBox = new QVGroupBox( i18n("Grouped by Virtual Desktops"), page3 );
   dynamicVirtDeskLayout = new QCheckBox(i18n("Layout empty virtual desktops minimized"), virtDesksLayoutGroupBox );
   QString dynamicVirtDeskLayoutHelp = i18n("Check this if you want empty virtual desktops to take less space on the screen.\nUncheck it if you want them to be arranged statically, each of the same size.");
   QWhatsThis::add( dynamicVirtDeskLayout, dynamicVirtDeskLayoutHelp );
   QToolTip::add( dynamicVirtDeskLayout, dynamicVirtDeskLayoutHelp );
-  
+
   QGrid *desktopColorsGroupBox = new QGrid( 2, virtDesksLayoutGroupBox );
   desktopColorsGroupBox->setSpacing( 4 );
   tintVirtDesks = new QCheckBox(i18n("Tint virtual desktop widgets:"), desktopColorsGroupBox);
@@ -158,15 +177,15 @@ KomposePreferences::KomposePreferences()
   desktopTitleFontColor = new KColorButton(Qt::black, desktopColorsGroupBox);
   desktopTitleFontHighlightColorLabel = new QLabel(i18n("Desktop frame highlight color:"), desktopColorsGroupBox);
   desktopTitleFontHighlightColor = new KColorButton(Qt::black, desktopColorsGroupBox);
-  
+
   page3Layout->addWidget(virtDesksLayoutGroupBox);
 
-  desktopTitleFontBtn = new QPushButton(i18n("Select Desktop Names Font..."), virtDesksLayoutGroupBox);  
+  desktopTitleFontBtn = new QPushButton(i18n("Select Desktop Names Font..."), virtDesksLayoutGroupBox);
   connect( desktopTitleFontBtn, SIGNAL(clicked()), this, SLOT(showDesktopTitleFontDialog()) );
-  
+
   page3Layout->insertStretch(-1);
-  
-  
+
+
   fillPages();
 }
 
@@ -238,16 +257,21 @@ void KomposePreferences::fillPages()
   windowTitleFontColor->setEnabled( KomposeSettings::instance()->getShowWindowTitles() );
   showWindowTitleShadow->setEnabled( KomposeSettings::instance()->getShowWindowTitles() );
   windowTitleFontShadowColor->setEnabled( KomposeSettings::instance()->getShowWindowTitles() || KomposeSettings::instance()->getShowWindowTitleShadow() );
-    
+
   desktopTitleFont = new QFont(KomposeSettings::instance()->getDesktopTitleFont());
   desktopTitleFontColor->setColor( KomposeSettings::instance()->getDesktopTitleFontColor() );
   desktopTitleFontHighlightColor->setColor( KomposeSettings::instance()->getDesktopTitleFontHighlightColor() );
-  
+
   showIcons->setChecked( KomposeSettings::instance()->getShowIcons() );
   iconSize->setValue( KomposeSettings::instance()->getIconSize() );
   iconSize->setEnabled( showIcons->isChecked() );
   iconSizeDescription->setEnabled( showIcons->isChecked() );
   updateIconSliderDesc( iconSize->value() );
+  
+  m_topLeftCorner->setChecked( KomposeSettings::instance()->getActivateOnTopLeftCorner() );
+  m_bottomLeftCorner->setChecked( KomposeSettings::instance()->getActivateOnBottomLeftCorner() );
+  m_topRightCorner->setChecked( KomposeSettings::instance()->getActivateOnTopRightCorner() );
+  m_bottomRightCorner->setChecked( KomposeSettings::instance()->getActivateOnBottomRightCorner() );
 }
 
 
@@ -274,10 +298,15 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setDesktopTitleFont( *desktopTitleFont );
   KomposeSettings::instance()->setDesktopTitleFontColor( desktopTitleFontColor->color() );
   KomposeSettings::instance()->setDesktopTitleFontHighlightColor( desktopTitleFontHighlightColor->color() );
-  
+
   KomposeSettings::instance()->setShowIcons( showIcons->isChecked() );
   KomposeSettings::instance()->setIconSize( iconSize->value() );
 
+  KomposeSettings::instance()->setActivateOnTopLeftCorner( m_topLeftCorner->isChecked() );
+  KomposeSettings::instance()->setActivateOnTopRighCorner( m_topRightCorner->isChecked() );
+  KomposeSettings::instance()->setActivateOnBottomLeftCorner( m_bottomLeftCorner->isChecked() );
+  KomposeSettings::instance()->setActivateOnBottomRightCorner( m_bottomRightCorner->isChecked() );
+  
   KomposeSettings::instance()->writeConfig();
 
   KDialogBase::slotApply();

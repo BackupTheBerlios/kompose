@@ -12,12 +12,14 @@
 #ifndef KOMPOSEVIEWMANAGER_H
 #define KOMPOSEVIEWMANAGER_H
 
+#include <qpoint.h>
 #include <dcopobject.h>
 
 #include "komposedcopiface.h"
 #include "komposefullscreenwidget.h"
 
 class KomposeTask;
+class QTimer;
 
 /**
 @author Hans Oischinger
@@ -49,7 +51,10 @@ public slots:
 
 protected slots:
   void toggleBlockScreenshots();
+  void checkCursorPos();
   
+  void slotStartCursorUpdateTimer();
+    
 signals:
   void viewClosed();
 
@@ -59,6 +64,12 @@ private:
   bool blockScreenshots;   // no screenshots when true
   int deskBeforeSnaps;    // the virtual desk we were on befor screenshots were taken
 
+  QTimer *cursorUpdateTimer;
+  // The 4 corners
+  QPoint topLeftCorner;
+  QPoint topRightCorner;
+  QPoint bottomLeftCorner;
+  QPoint bottomRightCorner;
 };
 
 #endif

@@ -113,6 +113,11 @@ void KomposeSettings::readConfig()
 
   cacheScaledPixmaps = kapp->config()->readBoolEntry("cacheScaledPixmaps", false);
     
+  activateOnTopLeftCorner = kapp->config()->readBoolEntry("activateOnTopLeftCorner", false );
+  activateOnTopRightCorner = kapp->config()->readBoolEntry("activateOnTopRightCorner", false );
+  activateOnBottomLeftCorner = kapp->config()->readBoolEntry("activateOnBottomLeftCorner", false );
+  activateOnBottomRightCorner = kapp->config()->readBoolEntry("activateOnBottomRightCorner", false );
+    
   emit settingsChanged();
 }
 
@@ -154,7 +159,11 @@ void KomposeSettings::writeConfig()
   
   kapp->config()->writeEntry("cacheScaledPixmaps", cacheScaledPixmaps);
   
-  
+  kapp->config()->writeEntry("activateOnTopLeftCorner", activateOnTopLeftCorner);
+  kapp->config()->writeEntry("activateOnTopRightCorner", activateOnTopRightCorner);
+  kapp->config()->writeEntry("activateOnBottomLeftCorner", activateOnBottomLeftCorner);
+  kapp->config()->writeEntry("activateOnBottomRightCorner", activateOnBottomRightCorner);
+    
   kapp->config()->sync();
 
   qDebug("KomposeSettings::writeConfig() - Settings saved to cfg file");

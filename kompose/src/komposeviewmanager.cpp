@@ -16,6 +16,8 @@
 #include "komposesettings.h"
 
 #include <qtimer.h>
+#include <qcursor.h>
+#include <qdesktopwidget.h>
 
 #include <kwin.h>
 #include <kapplication.h>
@@ -37,18 +39,75 @@ KomposeViewManager* KomposeViewManager::instance()
 }
 
 KomposeViewManager::KomposeViewManager():
-    QObject(),
     DCOPObject( "KomposeDcopIface" ),
+    QObject(),
     viewWidget(),
     activeView(0),
     blockScreenshots(0)
 {
   viewManagerInstance = this;
+
+  // Setup cursorupdate timer to check for mouse moves into corner
+  cursorUpdateTimer = new QTimer();
+  slotStartCursorUpdateTimer();
+  
+  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), SLOT(slotStartCursorUpdateTimer() ) );
 }
 
 
 KomposeViewManager::~KomposeViewManager()
-{}
+{
+  delete cursorUpdateTimer;
+}
+
+
+/**
+ * Starts the corner check timer which polls QCursor::pos() every second
+ @see checkCursorPos()
+ */
+void KomposeViewManager::slotStartCursorUpdateTimer()
+{
+  qDebug("KomposeViewManager::slotStartCursorUpdateTimer() - Checking Settings");
+  disconnect( cursorUpdateTimer, SIGNAL( timeout() ), this, SLOT( checkCursorPos() ) );
+
+  if ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() ||
+       KomposeSettings::instance()->getActivateOnBottomRightCorner() ||
+       KomposeSettings::instance()->getActivateOnTopLeftCorner() ||
+       KomposeSettings::instance()->getActivateOnTopRightCorner() )
+  {
+    qDebug("KomposeViewManager::slotStartCursorUpdateTimer() - QCursor::pos() checks enabled");
+    QDesktopWidget *deskwidget = new QDesktopWidget();
+    QRect deskRect = deskwidget->screenGeometry();
+    delete deskwidget;
+
+    topLeftCorner = deskRect.topLeft();
+    topRightCorner = deskRect.topRight();
+    bottomLeftCorner = deskRect.topLeft();
+    bottomRightCorner = deskRect.bottomRight();
+
+    connect( cursorUpdateTimer, SIGNAL( timeout() ), SLOT( checkCursorPos() ) );
+    cursorUpdateTimer->start( 1000, false );
+  }
+}
+
+
+/**
+ * Checks if cursor hovered over a corner that activates Kompose
+ */
+void KomposeViewManager::checkCursorPos()
+{
+  if (
+    ( KomposeSettings::instance()->getActivateOnTopLeftCorner() &&
+      !activeView && QCursor::pos() == topLeftCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnTopRightCorner() &&
+      !activeView && QCursor::pos() == topRightCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() &&
+      !activeView && QCursor::pos() == bottomLeftCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
+      !activeView && QCursor::pos() == bottomRightCorner )
+  )
+    createView();
+}
 
 
 void KomposeViewManager::createView( int type )
@@ -79,9 +138,12 @@ void KomposeViewManager::createVirtualDesktopView()
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
     // Update screenshot of the current window to be more up2date
-    //     slotUpdateScreenshot( kwinmodule->activeWindow() );
+    // FIXME: make this configurable for faster Komposé show?
+    //KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
     // Update all other
+    blockScreenshots = true;
     KomposeTaskManager::instance()->slotUpdateScreenshots();
+    blockScreenshots = false;
   }
 
   qDebug("KomposeViewManager::createVirtualDesktopView - Creating View");
@@ -108,9 +170,11 @@ void KomposeViewManager::createWorldView()
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
     // Update screenshot of the current window to be more up2date
-    //     slotUpdateScreenshot( kwinmodule->activeWindow() );
+    //KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
     // Update all other
+    blockScreenshots = true;
     KomposeTaskManager::instance()->slotUpdateScreenshots();
+    blockScreenshots = false;
   }
 
   qDebug("KomposeViewManager::createWorldView - Creating View");
@@ -130,7 +194,7 @@ void KomposeViewManager::closeCurrentView()
 {
   if ( !activeView )
     return;
-  
+
   blockScreenshots = true;
   activeView = false;
 
@@ -145,9 +209,9 @@ void KomposeViewManager::closeCurrentView()
 
   // Reset old Desktop
   KWin::setCurrentDesktop( deskBeforeSnaps );
-  
+
   // A short delay until we allow screenshots again (would cause overlapping else
-  QTimer::singleShot( 1500, this, SLOT( toggleBlockScreenshots() ) );
+  QTimer::singleShot( 500, this, SLOT( toggleBlockScreenshots() ) );
 }
 
 void KomposeViewManager::toggleBlockScreenshots()

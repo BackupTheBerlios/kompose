@@ -52,9 +52,11 @@ public:
 public slots:  
   bool processX11Event( XEvent *event );
   void slotUpdateScreenshots();
+  void simulatePasvScreenshotEvent();
 
   void slotStartWindowListeners();
-  
+
+protected slots:  
   void slotTaskActivated(WId);
   void slotWindowAdded( WId w );
   void slotWindowRemoved( WId w );

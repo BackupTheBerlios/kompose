@@ -21,20 +21,25 @@
 #include <netwm.h>
 #include <qapplication.h>
 
+#include <time.h>
+
 #include "komposetaskvisualizer.h"
+
 
 KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *name)
     : QObject(parent, name),
     task(parent),
-    scaledScreenshotDirty(false)
+    scaledScreenshotDirty(false),
+    screenshotSuspended(false),
+    screenshotBlocked(false)
 {
 #ifdef COMPOSITE
-  validBackingPix = false
+  validBackingPix = false;
 #endif
-  screenshot = new QPixmap();
-  scaledScreenshot = new QPixmap();
-  screenshot->setOptimization( QPixmap::BestOptim );
-  scaledScreenshot->setOptimization( QPixmap::BestOptim );
+//   screenshot = new QPixmap();
+//   scaledScreenshot = new QPixmap();
+  screenshot.setOptimization( QPixmap::BestOptim );
+  scaledScreenshot.setOptimization( QPixmap::BestOptim );
 
   connect( KomposeViewManager::instance(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
 
@@ -49,7 +54,8 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
 }
 
 KomposeTaskVisualizer::~KomposeTaskVisualizer()
-{}
+{
+}
 
 
 /**
@@ -58,9 +64,9 @@ KomposeTaskVisualizer::~KomposeTaskVisualizer()
  */
 void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix)
 {
-  if ( scaledScreenshotDirty || scaledScreenshot->isNull() || scaledScreenshot->size() != pix->size() )
+  if ( scaledScreenshotDirty || scaledScreenshot.isNull() || scaledScreenshot.size() != pix->size() )
     renderScaledScreenshot( pix->size() );
-  copyBlt ( pix, 0, 0, scaledScreenshot, 0, 0, pix->width(), pix->height() );
+  copyBlt ( pix, 0, 0, &scaledScreenshot, 0, 0, pix->width(), pix->height() );
 
   //   QPainter p( pix );
   //   p.drawPixmap(0 ,0 , *scaledScreenshot, 0, 0, pix->width(), pix->height() );
@@ -76,7 +82,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 {
   qDebug("KomposeTaskVisualizer::renderScaledScreenshot() (%d)", task->window());
 
-  scaledScreenshot->resize( newSize );
+  scaledScreenshot.resize( newSize );
 
   if ( KomposeGlobal::instance()->hasXcomposite() )
   {
@@ -87,21 +93,21 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
       // FIXME: Currently it seems that there is no way to retrieve unmapped backing pixmaps,
       // even switching desktops won't work due to the latency of XComposite :(
       // Return a empty pixmap
-      scaledScreenshot->fill(white);
+      scaledScreenshot.fill(white);
       return;
     }
 
     // Create a Screenshot qpixmap
-    screenshot->resize( task->getGeometry().size() );
+    screenshot.resize( task->getGeometry().size() );
 
     Picture picture = XRenderCreatePicture( dpy, windowBackingPix, format, CPSubwindowMode, &pa );
     XRenderComposite( dpy,
                       hasAlpha ? PictOpOver : PictOpSrc,
                       picture,
                       None,
-                      screenshot->x11RenderHandle(),
+                      screenshot.x11RenderHandle(),
                       0, 0, 0, 0,
-                      0, 0, screenshot->width(), screenshot->height() );
+                      0, 0, screenshot.width(), screenshot.height() );
     XRenderFreePicture (dpy, picture);
 #endif
 
@@ -138,13 +144,13 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
     {*/
   // Scale and render screenshot on scaledScreenshot
   imlib_context_set_anti_alias(1);
-  imlib_context_set_drawable( screenshot->handle() );
-  Imlib_Image imgOrig = imlib_create_image_from_drawable((Pixmap)0, 0, 0, screenshot->width(), screenshot->height(), 1);
+  imlib_context_set_drawable( screenshot.handle() );
+  Imlib_Image imgOrig = imlib_create_image_from_drawable((Pixmap)0, 0, 0, screenshot.width(), screenshot.height(), 1);
   imlib_context_set_image( imgOrig );
-  Imlib_Image img = imlib_create_cropped_scaled_image(0, 0, screenshot->width(), screenshot->height(), newSize.width(), newSize.height());
+  Imlib_Image img = imlib_create_cropped_scaled_image(0, 0, screenshot.width(), screenshot.height(), newSize.width(), newSize.height());
   imlib_free_image();
   imlib_context_set_image( img );
-  imlib_context_set_drawable( scaledScreenshot->handle() );
+  imlib_context_set_drawable( scaledScreenshot.handle() );
   imlib_render_image_on_drawable_at_size(0, 0, newSize.width(), newSize.height());
   imlib_free_image();
   //   }
@@ -163,16 +169,23 @@ void KomposeTaskVisualizer::slotTaskActivated()
     return;
   }
 
+  if ( KomposeViewManager::instance()->getBlockScreenshots() && !screenshotSuspended )
+  {
+    // Retry 1 sec later
+    screenshotSuspended = true;
+    QTimer::singleShot( 1000, this, SLOT( slotTaskActivated() ) );
+  } 
+  screenshotSuspended = false;
+
   // Grab a Passive Screenshot
   if ( KomposeSettings::instance()->getPassiveScreenshots() &&
        !KomposeViewManager::instance()->hasActiveView() &&
-       !KomposeViewManager::instance()->getBlockScreenshots() &&
-       task->isActive() )
+       !KomposeViewManager::instance()->getBlockScreenshots() )
   {
     qDebug("KomposeTaskVisualizer::slotTaskActivated() (WId %d) - Screenshot already exists, but passive mode on - Grabbing new one.", task->window());
     // Use a timer to make task switching feel more responsive
-    //QTimer::singleShot( 50, this, SLOT( captureScreenshot_GrabWindow() ) );
-    captureScreenshot_GrabWindow();
+    QTimer::singleShot( 700, this, SLOT( captureScreenshot_GrabWindow() ) );
+    //captureScreenshot_GrabWindow();
   }
 }
 
@@ -197,7 +210,7 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
 #endif
 
   // If no screenshot exists grab one via activate/raise & capture
-  if ( screenshot->isNull() )
+  if ( screenshot.isNull() )
   {
     bool  iconifyLater = false;
 
@@ -208,10 +221,24 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
     }
 
     qDebug("KomposeTaskVisualizer::slotUpdateScreenshot() (WId %d) - Forcing activation (no screenshot exists)", task->window());
+    
     task->activate();
-
+    QApplication::flushX();
+    QApplication::syncX();
+        
+    // Wait until window is fully redrawn
+    struct timespec req, rem;
+    req.tv_sec = 0;
+    req.tv_nsec = KomposeSettings::instance()->getScreenshotGrabDelay();
+    while(nanosleep(&req, &rem))
+      req = rem;
+      
+    QApplication::flushX();
+      //task->refresh();
+      
     // Finally capture!
-    captureScreenshot_GrabWindow();
+    screenshot = QPixmap::grabWindow( task->window() );
+    //captureScreenshot_GrabWindow();
 
     // Restore if formerly iconified
     if ( iconifyLater )
@@ -280,21 +307,25 @@ void KomposeTaskVisualizer::initXComposite()
  */
 void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
 {
-  if ( !task->isActive() )
-    task->activate();
+  if ( screenshotBlocked || ( !(task->isActive() && task->isOnTop()) ) )
+  {
+    qDebug("KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId %d) - Could not grab screenshot.", task->window());
+    return;
+  }
+  //task->activate();
 
-  // Wait until window is fully redrawn
-  struct timespec req, rem;
-  req.tv_sec = 0;
-  req.tv_nsec = KomposeSettings::instance()->getScreenshotGrabDelay();
-  while(nanosleep(&req, &rem))
-    req = rem;
 
   // QWidget *rootWin = qApp->desktop();
   // screenshot = QPixmap::grabWindow( rootWin->winId(), geom.x(), geom.y(), geom.width(), geom.height() );
 
-  *screenshot = QPixmap::grabWindow( task->window() );
+  screenshot = QPixmap::grabWindow( task->window() );
 
+  // We've just grabbed a screenshot and don't want this to happen again in the next 3?! seconds
+  screenshotBlocked = true;
+  QTimer::singleShot( 3000, this, SLOT( enablePasvScreenshots() ) );
+    
+  qDebug("KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId %d) - Grabbed screenshot.", task->window());
+      
   // Code to create a screenshot directly as an Imlib image
 
   //     QRect geom = windowInfo.geometry();
@@ -327,9 +358,14 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
   //qDebug("KomposeTaskVisualizer::captureScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
 }
 
+void KomposeTaskVisualizer::enablePasvScreenshots()
+{
+  screenshotBlocked = false;
+}
+
 void KomposeTaskVisualizer::clearCached()
 {
-  scaledScreenshot->resize(0,0);
+  scaledScreenshot.resize(0,0);
 }
 
 

@@ -116,8 +116,8 @@ KomposeTask* KomposeTaskManager::findTask(WId w, bool wmFrameIds )
 
 void KomposeTaskManager::slotStartWindowListeners()
 {
-  //disconnect( kwin_module, SIGNAL(windowChanged( WId, unsigned int )), this,
-  //            SLOT(slotWindowChanged( WId, unsigned int )) );
+  disconnect( kwin_module, SIGNAL(windowChanged( WId, unsigned int )), this,
+              SLOT(slotWindowChanged( WId, unsigned int )) );
   connect( kwin_module, SIGNAL(windowChanged( WId, unsigned int )), this,
            SLOT(slotWindowChanged( WId, unsigned int )) );
 }
@@ -220,6 +220,16 @@ void KomposeTaskManager::slotUpdateScreenshots()
         task->slotUpdateScreenshot();
     }
   }
+}
+
+
+/**
+ * simulates a window activated event for the currently active window (no forcing of screenshots)
+ */
+void KomposeTaskManager::simulatePasvScreenshotEvent()
+{
+  qDebug("KomposeTaskManager::simulatePasvScreenshotEvent()");
+  slotTaskActivated( kwin_module->activeWindow() );
 }
 
 /**

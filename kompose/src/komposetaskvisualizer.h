@@ -49,7 +49,9 @@ protected slots:
   void captureScreenshot_GrabWindow();
   void updateXCompositeNamedPixmap();
   void renderScaledScreenshot( QSize size );
+  
   void clearCached();
+  void enablePasvScreenshots();
   
 public slots:
   void slotTaskActivated();
@@ -57,9 +59,12 @@ public slots:
 
 private:
   KomposeTask *task;
-  QPixmap *screenshot;
-  QPixmap *scaledScreenshot;
+  QPixmap screenshot;
+  QPixmap scaledScreenshot;
   bool scaledScreenshotDirty;
+  bool screenshotSuspended;   // suspend pasv screenshots for this task
+  bool screenshotBlocked;   // dis/enable pasv screenshots for this task
+  
 #ifdef COMPOSITE
   Pixmap windowBackingPix;
   bool validBackingPix;
