@@ -141,24 +141,16 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
   }
 
   // check if any state we are interested in is marked dirty
-  if(!(dirty & (NET::WMVisibleName|NET::WMName|NET::WMState|NET::WMIcon|NET::XAWMState|NET::WMDesktop)) )
+  if(!(dirty & (NET::WMVisibleName|NET::WMVisibleIconName|NET::WMName|NET::WMState|NET::WMIcon|NET::XAWMState|NET::WMDesktop)) )
     return;
 
   // find task
   KomposeTask* t = findTask( w );
   if (!t) return;
-
-  //kdDebug() << "TaskManager::windowChanged " << w << " " << dirty << endl;
-
-
-  // refresh icon pixmap if necessary
-  //   if (dirty & NET::WMIcon)
-  //     t->refresh(true);
-  //   else
-  //     t->refresh();
-
-  if(dirty & (NET::WMDesktop|NET::WMState|NET::XAWMState))
-    t->refresh();// moved to different desktop or is on all or change in iconification/withdrawnnes
+  
+  // TODO: Instead of one refresh() method we could implement specific method for names and geometry, etc...
+  // checked like this: if(dirty & (NET::WMDesktop|NET::WMState|NET::XAWMState))
+  t->refresh();
 }
 
 
@@ -256,7 +248,7 @@ void KomposeTaskManager::createView( int type )
 {
   if (type == -1)
     type = KomposeSettings::instance()->getDefaultView();
-
+    
   switch(type)
   {
   case KOMPOSEDISPLAY_VIRTUALDESKS:
@@ -279,6 +271,9 @@ void KomposeTaskManager::createVirtualDesktopView()
   {
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
+    // Update screenshot of the current window to be more up2date
+    slotUpdateScreenshot( kwinmodule->activeWindow() );
+    // Update all other
     slotUpdateScreenshots();
   }
 
@@ -307,7 +302,8 @@ void KomposeTaskManager::createWorldView()
   {
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
-    slotUpdateScreenshots();
+    // Update screenshot of the current window to be more up2date
+    slotUpdateScreenshot( kwinmodule->activeWindow() );
   }
 
   qDebug("KomposeTaskManager::createWorldView - Creating View");
