@@ -29,6 +29,9 @@
 #include <kkeydialog.h>
 #include <kaboutapplication.h>
 #include <ksharedpixmap.h>
+#include <kwinmodule.h>
+#include <dcopclient.h>
+#include <dcopref.h>
 
 #include <dcopclient.h>
 
@@ -46,6 +49,11 @@
 
 static KomposeGlobal* globalInstance = 0;
 Display *disp;
+
+static QString wallpaperForDesktop(int desktop)
+{
+  return DCOPRef("kdesktop", "KBackgroundIface").call("currentWallpaper", desktop);
+}
 
 /**
  * KomposeSettings is a singleton
@@ -68,6 +76,8 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
     damageEvent(0)
 {
   globalInstance = this;
+  kwin_module = new KWinModule(); //FIXME: only needed for sharedpixmap :(
+  currentDesktop = kwin_module->currentDesktop();
 
   desktopBgPixmap = new KSharedPixmap;
   connect(desktopBgPixmap, SIGNAL(done(bool)), SLOT(slotDone(bool)));
@@ -152,7 +162,7 @@ void KomposeGlobal::initActions()
                                           actionCollection, "showCurrentDesktopView");
 
   actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()), actionCollection );
-  
+
   actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
                               actionCollection, "options_configure_global_keybinding");
   actConfigGlobalShortcuts->setText(i18n("Configure &Global Shortcuts..."));
@@ -164,6 +174,11 @@ void KomposeGlobal::initActions()
 
 void KomposeGlobal::initSharedPixmaps()
 {
+  // Whenever the background pixmap changes we'll have to reload it:
+  //connect(kwin_module, SIGNAL(windowChanged(WId, unsigned int)), SLOT(desktopChanged(WId, unsigned int)));
+  connect(kwin_module, SIGNAL(currentDesktopChanged(int)), SLOT(slotDesktopChanged(int)));
+  connect(kapp, SIGNAL(backgroundChanged(int)), SLOT(slotBackgroundChanged(int)));
+
   enablePixmapExports();
   // When Kompose is started by session management the bg shared pixmap may not be available yet
   if (!desktopBgPixmap->isAvailable( pixmapName(1) ))
@@ -176,8 +191,34 @@ void KomposeGlobal::initSharedPixmaps()
   }
 
   qDebug("KomposeGlobal::initSharedPixmaps()");
-  // To simplify things we take the background of the first desktop
-  desktopBgPixmap->loadFromShared( pixmapName(1) );
+  refreshSharedPixmaps();
+}
+
+void KomposeGlobal::slotDesktopChanged(int desktop)
+{
+  if (desktop != -2)
+  {
+    // -2 is for manual loading, everything else enables the following checks:
+    if (wallpaperForDesktop(currentDesktop) == wallpaperForDesktop(desktop) &&
+        !wallpaperForDesktop(currentDesktop).isNull())
+      return;
+
+    if ( !(pixmapName(currentDesktop) != pixmapName(desktop)) )
+      return;
+  }
+
+  currentDesktop = kwin_module->currentDesktop();
+  refreshSharedPixmaps();
+}
+
+void KomposeGlobal::slotBackgroundChanged(int desktop)
+{
+  refreshSharedPixmaps();
+}
+
+void KomposeGlobal::refreshSharedPixmaps()
+{
+  desktopBgPixmap->loadFromShared( pixmapName(currentDesktop) );
 }
 
 QString KomposeGlobal::pixmapName(int desk)

@@ -21,6 +21,7 @@ class KPopupMenu;
 class KActionCollection;
 class KAction;
 class KSharedPixmap;
+class KWinModule;
 
 // Check for Composite extension
 // FIXME: Am I doing this right? I don't know anything about automake & co
@@ -74,6 +75,9 @@ protected slots:
   QString pixmapName(int desk);
   void slotDone(bool success);
   void enablePixmapExports();
+  void slotDesktopChanged(int desktop);
+  void slotBackgroundChanged(int desktop);
+  void refreshSharedPixmaps();
   
   void initCompositeExt();
   void showGlobalShortcutsSettingsDialog();
@@ -86,6 +90,7 @@ private:
   int damageEvent, damageError;
   
   KSharedPixmap *desktopBgPixmap;
+  int currentDesktop;
   KomposeSysTray* systray;
   KActionCollection* actionCollection;
 
@@ -96,6 +101,8 @@ private:
   KAction *actShowWorldView;
   KAction *actAboutDlg;
   KAction *actQuit;
+  
+  KWinModule* kwin_module;
 };
 
 #endif
