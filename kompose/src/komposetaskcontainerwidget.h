@@ -37,7 +37,6 @@ public:
   
   void setDesktop( int desk ) { desktop = desk; }
   int getDesktop() { return desktop; }
-  int getNumofChilds() { return layout->getNumofChilds(); }
   
 protected slots:
   void createTaskWidgets();

@@ -62,7 +62,9 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
 }
 
 KomposeFullscreenWidget::~KomposeFullscreenWidget()
-{}
+{
+  menu->deleteLater();
+}
 
 
 void KomposeFullscreenWidget::initMenu()

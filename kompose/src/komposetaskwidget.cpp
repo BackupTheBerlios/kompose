@@ -106,8 +106,10 @@ void KomposeTaskWidget::slotTaskDestroyed()
   disconnect( task, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
   if (KomposeViewManager::instance()->hasActiveView())
   {
-    parent()->removeChild( this );
-    close(true);
+    dynamic_cast<KomposeWidget*>(parentWidget())->getLayout()->remove(this);
+    //parent()->removeChild( this );
+    //close();
+    deleteLater();
   }
 }
 

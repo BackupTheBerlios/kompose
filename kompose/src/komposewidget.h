@@ -43,7 +43,8 @@ public:
   virtual double getAspectRatio() = 0;
   
   KomposeLayout* getLayout() { return layout; }
-  
+  int getNumofChilds();
+
 protected:
   void childEvent( QChildEvent * ce);
   void resizeEvent ( QResizeEvent * e );

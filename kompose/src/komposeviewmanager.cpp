@@ -52,7 +52,7 @@ KomposeViewManager::KomposeViewManager():
   slotStartCursorUpdateTimer();
 
   // dirty hack. see uglyQtHackInitFunction()
-  QTimer::singleShot( 1000, this, SLOT( uglyQtHackInitFunction() ) );
+  QTimer::singleShot( 500, this, SLOT( uglyQtHackInitFunction() ) );
 }
 
 
@@ -69,7 +69,7 @@ void KomposeViewManager::uglyQtHackInitFunction()
 {
   connect( KomposeSettings::instance(), SIGNAL( settingsChanged() ), SLOT( slotStartCursorUpdateTimer() ) );
 }
- 
+
 /**
  * Starts the corner check timer which polls QCursor::pos() every second
  @see checkCursorPos()
@@ -88,11 +88,11 @@ void KomposeViewManager::slotStartCursorUpdateTimer()
 
     topLeftCorner = deskRect.topLeft();
     topRightCorner = deskRect.topRight();
-    bottomLeftCorner = deskRect.topLeft();
+    bottomLeftCorner = deskRect.bottomLeft();
     bottomRightCorner = deskRect.bottomRight();
 
     connect( cursorUpdateTimer, SIGNAL( timeout() ), SLOT( checkCursorPos() ) );
-    cursorUpdateTimer->start( 1000, false );
+    cursorUpdateTimer->start( 200, false ); // TODO: Find out why even an interval of 1ms doesn't hit performance!
   }
 }
 
@@ -112,7 +112,10 @@ void KomposeViewManager::checkCursorPos()
     ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
       !activeView && QCursor::pos() == bottomRightCorner )
   )
-    createView();
+  {
+    cursorUpdateTimer->stop();
+    QTimer::singleShot( KomposeSettings::instance()->getAutoLockDelay(), this, SLOT( createView() ) );
+  }
 }
 
 
@@ -120,7 +123,7 @@ void KomposeViewManager::createView( int type )
 {
   if (type == -1)
     type = KomposeSettings::instance()->getDefaultView();
-  
+
   qDebug("KomposeViewManager::createView( type %d )", type);
 
   if ( !activeView )
@@ -138,12 +141,12 @@ void KomposeViewManager::createView( int type )
       KomposeTaskManager::instance()->slotUpdateScreenshots();
     blockScreenshots = false;
   }
-  
+
   if ( !activeView )
     viewWidget = new KomposeFullscreenWidget( type );
   else
     viewWidget->setType( type );
-    
+
   KWin::forceActiveWindow( viewWidget->winId() );
   activeView = true;
 }
@@ -157,9 +160,11 @@ void KomposeViewManager::closeCurrentView()
   blockScreenshots = true;
   activeView = false;
 
-  viewWidget->setUpdatesEnabled( false );
-  viewWidget->close(true);
-  viewWidget = 0;
+  //viewWidget->setUpdatesEnabled( false );
+  //viewWidget->hide();
+  viewWidget->close();
+  viewWidget->deleteLater();
+  //viewWidget = 0;
 
   emit viewClosed();
 
@@ -171,6 +176,9 @@ void KomposeViewManager::closeCurrentView()
 
   // A short delay until we allow screenshots again (would cause overlapping else
   QTimer::singleShot( 400, this, SLOT( toggleBlockScreenshots() ) );
+  
+  // Restart Timer for corner checks
+  slotStartCursorUpdateTimer();
 }
 
 void KomposeViewManager::toggleBlockScreenshots()

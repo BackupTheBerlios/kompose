@@ -127,7 +127,8 @@ void KomposeSettings::readConfig()
   activateOnTopRightCorner = kapp->config()->readBoolEntry("activateOnTopRightCorner", false );
   activateOnBottomLeftCorner = kapp->config()->readBoolEntry("activateOnBottomLeftCorner", false );
   activateOnBottomRightCorner = kapp->config()->readBoolEntry("activateOnBottomRightCorner", false );
-    
+  autoLockDelay = kapp->config()->readNumEntry("autoLockDelay", 1000);
+  
   emit settingsChanged();
 }
 
@@ -174,7 +175,8 @@ void KomposeSettings::writeConfig()
   kapp->config()->writeEntry("activateOnTopRightCorner", activateOnTopRightCorner);
   kapp->config()->writeEntry("activateOnBottomLeftCorner", activateOnBottomLeftCorner);
   kapp->config()->writeEntry("activateOnBottomRightCorner", activateOnBottomRightCorner);
-    
+  kapp->config()->writeEntry("autoLockDelay", autoLockDelay);
+  
   kapp->config()->sync();
 
   qDebug("KomposeSettings::writeConfig() - Settings saved to cfg file");

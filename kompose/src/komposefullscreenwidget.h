@@ -53,7 +53,6 @@ protected:
 //   virtual void closeEvent ( QCloseEvent * e );
  
 private:
-  KRootPixmap *rootpix;
   int type;
   KPopupMenu *menu;
 };

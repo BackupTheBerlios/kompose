@@ -53,9 +53,9 @@ void KomposeTaskContainerWidget::reparentTaskWidget( KomposeTask* task, int from
       {
         removeChild( task );
         layout->remove(child);
-        child->deleteLater();
-        //child->close(true);
-        QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
+        //child->deleteLater();
+        child->close(true);
+        //QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
         return;
       }
     }

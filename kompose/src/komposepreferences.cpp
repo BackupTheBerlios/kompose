@@ -84,7 +84,7 @@ KomposePreferences::KomposePreferences()
 
   QHBox *hLayScreenshotGrabDelay = new QHBox(screenshotsGroupBox);
   QLabel *screenshotGrabDelayLabel = new QLabel(i18n("Delay between screenshots (ms):"), hLayScreenshotGrabDelay);
-  screenshotGrabDelay = new QSpinBox(0, 999, 1, hLayScreenshotGrabDelay);
+  screenshotGrabDelay = new QSpinBox(0, 999, 10, hLayScreenshotGrabDelay);
   screenshotGrabDelayLabel->setBuddy(screenshotGrabDelay);
   QString screenshotGrabDelayHelp = i18n("Specifies the time to wait between the activation of a window and the screenshot taking.\nIncrease it when your windows need more time to draw themselves after activation.\nValues below 300ms are not recommended, but may work in some cases." );
   QWhatsThis::add( screenshotGrabDelay, screenshotGrabDelayHelp );
@@ -112,6 +112,17 @@ KomposePreferences::KomposePreferences()
   autoLockLayout->addWidget( m_bottomLeftCorner );
   m_bottomRightCorner = new QCheckBox( i18n("Bottom-right corner"), autoLockGroup );
   autoLockLayout->addWidget( m_bottomRightCorner );
+  
+  QHBox *hLayAutoLockDelay = new QHBox(autoLockGroup);
+  QLabel *autoLockDelayLabel = new QLabel(i18n("Delay until activation (ms):"), hLayAutoLockDelay);
+  autoLockDelay = new QSpinBox(0, 5000, 10, hLayAutoLockDelay);
+  autoLockDelayLabel->setBuddy(autoLockDelay);
+  QString autoLockDelayHelp = i18n("Specifies the time in ms for which the mouse pointer must rest in the corner until auto-activation." );
+  QWhatsThis::add( autoLockDelay, autoLockDelayHelp );
+  QToolTip::add( autoLockDelay, autoLockDelayHelp );
+  QWhatsThis::add( autoLockDelayLabel, autoLockDelayHelp );
+  QToolTip::add( autoLockDelayLabel, autoLockDelayHelp );
+  autoLockLayout->addWidget( hLayAutoLockDelay );
 
   page1Layout->addWidget(autoLockGroup);
 
@@ -292,6 +303,7 @@ void KomposePreferences::fillPages()
   m_bottomLeftCorner->setChecked( KomposeSettings::instance()->getActivateOnBottomLeftCorner() );
   m_topRightCorner->setChecked( KomposeSettings::instance()->getActivateOnTopRightCorner() );
   m_bottomRightCorner->setChecked( KomposeSettings::instance()->getActivateOnBottomRightCorner() );
+  autoLockDelay->setValue( KomposeSettings::instance()->getAutoLockDelay() );
 }
 
 
@@ -330,6 +342,7 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setActivateOnTopRighCorner( m_topRightCorner->isChecked() );
   KomposeSettings::instance()->setActivateOnBottomLeftCorner( m_bottomLeftCorner->isChecked() );
   KomposeSettings::instance()->setActivateOnBottomRightCorner( m_bottomRightCorner->isChecked() );
+  KomposeSettings::instance()->setActivateOnBottomRightCorner( autoLockDelay->value() );
   
   KomposeSettings::instance()->writeConfig();
 

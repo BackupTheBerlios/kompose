@@ -79,7 +79,10 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
 
 KomposeDesktopWidget::~KomposeDesktopWidget()
-{}
+{
+  disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+  delete rootpix;
+}
 
 void KomposeDesktopWidget::initFonts()
 {

@@ -94,6 +94,7 @@ private:
   QCheckBox *m_bottomLeftCorner;
   QCheckBox *m_topRightCorner;
   QCheckBox *m_bottomRightCorner;
+  QSpinBox *autoLockDelay;
 };
 
 #endif

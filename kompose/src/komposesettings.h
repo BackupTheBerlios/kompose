@@ -49,8 +49,6 @@ public:
   
   bool getPassiveScreenshots() const { return passiveScreenshots; }
   void setPassiveScreenshots( bool b ) { passiveScreenshots = b; }
-//   bool getOnlyOneScreenshot() const { return onlyOneScreenshot; }
-//   void setOnlyOneScreenshot( bool b ) { onlyOneScreenshot = b; }
   uint getScreenshotGrabDelay() { return screenshotGrabDelay; }
   void setScreenshotGrabDelay( uint val ) { screenshotGrabDelay=val; }
   bool getDynamicVirtDeskLayout() const { return dynamicVirtDeskLayout; }
@@ -104,6 +102,8 @@ public:
   bool getActivateOnBottomRightCorner() const { return activateOnBottomRightCorner; }
   void setActivateOnBottomRightCorner( bool b ) { activateOnBottomRightCorner = b; }
     
+  uint getAutoLockDelay() { return autoLockDelay; }
+  void setAutoLockDelay( uint val ) { autoLockDelay=val; }
  
 public slots:
   void showPreferencesDlg();
@@ -148,6 +148,7 @@ private:
   bool activateOnTopRightCorner;
   bool activateOnBottomLeftCorner;
   bool activateOnBottomRightCorner;
+  uint autoLockDelay;
 };
 
 #endif

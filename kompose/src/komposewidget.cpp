@@ -39,7 +39,6 @@ KomposeWidget::KomposeWidget(QWidget *parent, KomposeLayout *l, const char *name
 
 KomposeWidget::~KomposeWidget()
 {
-  close();
   delete layout;
 }
 
@@ -62,7 +61,11 @@ void KomposeWidget::childEvent ( QChildEvent * ce)
     qDebug("KomposeWidget::childEvent : Removed widget %s from %s", ce->child()->className(), className() );
     layout->remove( dynamic_cast<KomposeWidget*>(ce->child()) );
   }
-//layout->arrangeLayout();
+  
+//   if ( parentWidget() && parentWidget()->inherits("KomposeWidget") )
+//     (dynamic_cast<KomposeWidget*>(parentWidget()))->getLayout()->arrangeLayout();
+//   else
+//     layout->arrangeLayout();
   // Whenever a child is added/removed: rearrange layout
   // FIXME: sometimes widget's aren't added in time, so we have to add a short delay:
   QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
@@ -87,6 +90,11 @@ KomposeWidget* KomposeWidget::getParentWidget() const
     qDebug("KomposeWidget::getParentWidget() - QWidget::parent() does not inherit (KomposeWidget)");
     return NULL;
   }
+}
+
+int KomposeWidget::getNumofChilds()
+{
+  return layout->getNumofChilds();
 }
 
 
