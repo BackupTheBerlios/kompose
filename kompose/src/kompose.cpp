@@ -21,6 +21,7 @@
 #include "kompose.h"
 
 #include "komposeglobal.h"
+#include "komposesettings.h"
 #include "komposetaskmanager.h"
 
 #include <klocale.h>

@@ -36,6 +36,7 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
 {
 #ifdef COMPOSITE
   validBackingPix = false;
+  compositeInit = false;
 #endif
 
   screenshot.setOptimization( QPixmap::BestOptim );
@@ -61,7 +62,8 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
 KomposeTaskVisualizer::~KomposeTaskVisualizer()
 {
 #ifdef COMPOSITE
-  XDamageDestroy( dpy, damage);
+  if ( compositeInit )
+    XDamageDestroy( dpy, damage);
 #endif
 }
 
@@ -318,9 +320,15 @@ void KomposeTaskVisualizer::initXComposite()
     // Create a damage handle for the window, and specify that we want an event whenever the
     // damage state changes from not damaged to damaged.
     damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
+    compositeInit = true;
   } else {
     disconnect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
-    disconnect( task, SIGNAL( x11DamageNotify() ), SLOT( setScaledScreenshotDirty() ) );
+    disconnect( task, SIGNAL( x11DamageNotify() ), this, SLOT( setScaledScreenshotDirty() ) );
+    if ( compositeInit )
+    {
+      XDamageDestroy( dpy, damage);
+      compositeInit = false;
+    }
   }
 #endif
 }

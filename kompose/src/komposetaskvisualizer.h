@@ -81,6 +81,7 @@ private:
   XRenderPictureAttributes pa;
   bool hasAlpha;
   Damage damage;
+  bool compositeInit;  // true if composite&damage has been initialised
 #endif
 };
 
