@@ -20,7 +20,7 @@
 #ifndef KOMPOSEDESKTOPWIDGET_H
 #define KOMPOSEDESKTOPWIDGET_H
 
-#include "komposewidget.h"
+#include "komposetaskcontainerwidget.h"
 
 class KRootPixmap;
 class KomposeLayout;
@@ -29,7 +29,7 @@ class KomposeTask;
 /**
 @author Hans Oischinger
 */
-class KomposeDesktopWidget : public KomposeWidget
+class KomposeDesktopWidget : public KomposeTaskContainerWidget
 {
   Q_OBJECT
 public:
@@ -37,9 +37,9 @@ public:
 
   ~KomposeDesktopWidget();
 
-  int getHeightForWidth( int w ) const;
-  int getWidthForHeight( int h ) const;
-  double getAspectRatio();
+//   int getHeightForWidth( int w ) const;
+//   int getWidthForHeight( int h ) const;
+//   double getAspectRatio();
 
 protected:
   void paintEvent ( QPaintEvent * );
@@ -49,15 +49,10 @@ protected:
   void enterEvent ( QEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
   void mouseDoubleClickEvent ( QMouseEvent * e );
-
-protected slots:
-  void createTaskWidgets();
-  void createTaskWidget( KomposeTask* task );
   
 private:
   QRect deskRect;
   KRootPixmap *rootpix;
-  int deskNum;
 };
 
 #endif

@@ -108,7 +108,11 @@ KomposeWidgetInterface* KomposeWidget::getParentWidget() const
 
 void KomposeWidget::removeChildWidget( KomposeWidgetInterface* obj )
 {
-  QWidget::removeChild((QObject *) obj);
+  QWidget *qobj = dynamic_cast<QWidget*>(obj);
+  qobj->hide();
+  removeChild(qobj);
+  // FIXME: When does deleteLater() start? Whenever I call it some QWidget::focusEvent() comes and references my deleted object
+  // qobj->deleteLater();
 }
 
 // int KomposeWidget::getHeightForWidth( int w ) const

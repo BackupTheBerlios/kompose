@@ -24,6 +24,7 @@
 #include <qptrlist.h>
 
 #include "komposetask.h"
+#include "komposefullscreenwidget.h"
 
 class KWinModule;
 class KomposeLayout;
@@ -53,8 +54,10 @@ public:
   TaskList getTasks() const { return tasklist; }
   
 public slots:
+  void createView( int type );
   void createVirtualDesktopView();
-  void closeVirtualDesktopView();
+  void createWorldView();
+  void closeCurrentView();
   bool hasActiveView() { return activeView; }
   
   void setCurrentDesktop( int desknum );
@@ -76,12 +79,10 @@ signals:
 
 protected:
   KomposeTask* findTask(WId w);
-//   void createGLVirtualDestopView();
-  void createQtVirtualDestopView();
   
 private:
   KWinModule* kwinmodule;
-  QWidget *viewWidget;    // the widget where all action takes place
+  KomposeFullscreenWidget *viewWidget;    // the widget where all action takes place
   bool activeView;        // used to check if a view is active
   TaskList tasklist;      // list of tasks handled by the WM
   

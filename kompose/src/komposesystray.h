@@ -39,10 +39,10 @@ public slots:
   
 private:
   KPopupMenu *menu;
-  KAction *actQuit;
   KAction *actConfigGlobalShortcuts;
   KAction *actPreferencesDialog;
   KAction *actShowVirtualDesktopView;
+  KAction *actShowWorldView;
 };
 
 #endif

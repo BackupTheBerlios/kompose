@@ -14,16 +14,21 @@
 #include "komposedesktopwidget.h"
 #include "komposetaskwidget.h"
 #include "komposetaskmanager.h"
+#include "komposeglobal.h"
+#include "komposelayout.h"
 
+#include <qobjectlist.h>
+#include <qptrlist.h>
 #include <qcursor.h>
 
 #include <krootpixmap.h>
 #include <kwin.h>
 #include <kapplication.h>
+#include <kpopupmenu.h>
 
-
-KomposeFullscreenWidget::KomposeFullscreenWidget( KomposeLayout *l )
-    : KomposeWidget( 0, l )
+KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout *l )
+    : KomposeTaskContainerWidget( -1, 0, l ),
+    type(displayType)
 {
   //   if ( QT_VERSION < 0x030300 )
   //   {
@@ -34,16 +39,41 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( KomposeLayout *l )
   //   }
 
   rootpix = new KRootPixmap (this);
-
-  setCursor( Qt::WaitCursor );
-
-  createDesktopWidgets();
-
-  rootpix->start();
-  
-  unsetCursor();
+  initView();
 }
 
+
+void KomposeFullscreenWidget::initView()
+{
+  setCursor( Qt::WaitCursor );
+  
+  setUpdatesEnabled( false );
+  KomposeWidgetInterface *child;
+  QPtrListIterator<KomposeWidgetInterface> it( *(layout->getManagedWidgets()));
+  while ( (child = it.current()) != 0 )
+  {
+    ++it;
+    qDebug("KomposeFullscreenWidget::initView() - Removing widget");
+    removeChildWidget( child );
+  }
+  setUpdatesEnabled( true );
+
+
+  if ( type == KOMPOSEDISPLAY_VIRTUALDESKS )
+  {
+    createDesktopWidgets();
+  }
+  else if ( type == KOMPOSEDISPLAY_WORLD )
+  {
+    setDesktop( -1 );
+    createTaskWidgets();
+    connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+  }
+
+  rootpix->start();
+
+  unsetCursor();
+}
 
 void KomposeFullscreenWidget::createDesktopWidgets()
 {
@@ -53,13 +83,36 @@ void KomposeFullscreenWidget::createDesktopWidgets()
     int row = i / 2;
     int col = i % 2;
     //qDebug("rc %d %d", row, col);
-    desktop[i] = new KomposeDesktopWidget(i, this);
-    desktop[i]->show();
+    KomposeDesktopWidget *desktop = new KomposeDesktopWidget(i, this);
+    desktop->show();
   }
 }
 
 KomposeFullscreenWidget::~KomposeFullscreenWidget()
 {}
+
+void KomposeFullscreenWidget::mouseReleaseEvent (QMouseEvent * e)
+{}
+
+void KomposeFullscreenWidget::mousePressEvent ( QMouseEvent * e )
+{
+  if ( !rect().contains( e->pos() ) )
+    return;
+
+  switch ( e->button() )
+  {
+  case LeftButton:
+    break;
+  case MidButton:
+    // fall through
+  case RightButton:
+    KomposeGlobal::instance()->getSysTray()->contextMenu()->popup( e->globalPos() );
+    break;
+  default:
+    // nothing
+    break;
+  }
+}
 
 int KomposeFullscreenWidget::getHeightForWidth ( int w ) const
 {

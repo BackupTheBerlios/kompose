@@ -47,10 +47,14 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
 
   // Init global shortcut object
   globalAccel = new KGlobalAccel( this );
-  globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose"),
-                       i18n("Displays a komposition of all Windows on your virtual Desktops."),
+  globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose (Virtual Desktops)"),
+                       i18n("Displays all Windows sorted by virtual Desktops."),
                        CTRL+SHIFT+Key_I, KKey::QtWIN+CTRL+SHIFT+Key_I,
                        KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()) );
+  globalAccel->insert( "showAllTasksView", i18n("Show Kompose (All Tasks)"),
+                       i18n("Displays all Windows unsorted."),
+                       CTRL+SHIFT+Key_J, KKey::QtWIN+CTRL+SHIFT+Key_J,
+                       KomposeTaskManager::instance(), SLOT(createWorldView()) );
 
 
   // Init our Pixmap converter powered by MIT-SHM shared memory extension. great stuff, KDE people :)
@@ -79,8 +83,10 @@ void KomposeSettings::readConfig()
 
   kapp->config()->setGroup("Main window");
 
+  defaultView = kapp->config()->readNumEntry("defaultView", KOMPOSEDISPLAY_VIRTUALDESKS);
+  
   passiveScreenshots = kapp->config()->readBoolEntry("passiveScreenshots", true);
-  overwriteOldScreenshots = kapp->config()->readBoolEntry("overwriteOldScreenshots", true);
+  onlyOneScreenshot = kapp->config()->readBoolEntry("onlyOneScreenshot", false);
   screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400000000);
 
   highlightWindows = kapp->config()->readBoolEntry("highlightWindows", false);
@@ -98,8 +104,10 @@ void KomposeSettings::writeConfig()
   // Read from config file
   kapp->config()->setGroup("Main window");
 
+  kapp->config()->writeEntry("defaultView", defaultView );
+  
   kapp->config()->writeEntry("passiveScreenshots", passiveScreenshots );
-  kapp->config()->writeEntry("overwriteOldScreenshots", overwriteOldScreenshots);
+  kapp->config()->writeEntry("onlyOneScreenshot", onlyOneScreenshot);
   kapp->config()->writeEntry("screenshotGrabDelay", screenshotGrabDelay);
 
   kapp->config()->writeEntry("highlightWindows", highlightWindows);

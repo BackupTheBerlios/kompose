@@ -20,6 +20,9 @@
 #include <qwhatsthis.h>
 #include <qtooltip.h>
 #include <qspinbox.h>
+#include <qgroupbox.h>
+#include <qbuttongroup.h>
+#include <qhbox.h>
 
 #include <kiconloader.h>
 #include <kcolorbutton.h>
@@ -27,35 +30,49 @@
 KomposePreferences::KomposePreferences()
     : KDialogBase(IconList, i18n("Komposé Preferences"), Ok|Apply|Cancel, Ok)
 {
-  QFrame *page1 = addPage( i18n("Screenshots"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
+  QFrame *page1 = addPage( i18n("Behaviour"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
 
   QVBoxLayout *page1Layout = new QVBoxLayout( page1, 0, KDialog::spacingHint() );
 
-  passiveScreenshots = new QCheckBox(i18n("Passive Screenshots"), page1);
+  defaultViewBtnGroup = new QButtonGroup( 2, Horizontal, "Default View", page1 );
+  defaultViewBtnGroup->setExclusive( true );
+  QString defaultViewBtnGroupHelp = i18n("Determines which View should be started by default (e.g. when you click on the systray icon).");
+  QWhatsThis::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
+  QToolTip::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
+  defaultViewWorld = new QCheckBox(i18n("Exposé-style View"), defaultViewBtnGroup );
+  QString defaultViewWorldHelp = i18n("Fullscreen View that shows all tasks in the way Apple's Exposé does it.");
+  QWhatsThis::add( defaultViewWorld, defaultViewWorldHelp );
+  QToolTip::add( defaultViewWorld, defaultViewWorldHelp );
+  defaultViewVirtualDesks = new QCheckBox(i18n("Arranged by Virtual Desktops"), defaultViewBtnGroup );
+  QString defaultViewVirtualDesksHelp = i18n("Fullscreen View that shows a representation of your virtual desktops\n and places the tasks inside.");
+  QWhatsThis::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
+  QToolTip::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
+  page1Layout->addWidget(defaultViewBtnGroup);
+  
+  
+  QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, "Screenshots", page1 );
+  
+  passiveScreenshots = new QCheckBox(i18n("Passive Screenshots"), screenshotsGroupBox);
   QString passiveScreenshotsHelp = i18n("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.");
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
   QToolTip::add( passiveScreenshots, passiveScreenshotsHelp );
-  page1Layout->addWidget(passiveScreenshots);
 
-  overwriteOldScreenshots = new QCheckBox(i18n("Create screenshots whenever possible"), page1);
-  QString overwriteOldScreenshotsHelp = i18n("When enabled old screenshots will be overwritten whenever possible.\n Disabling will only create a screenshot once the application is first activated and will never update it.");
-  QWhatsThis::add( overwriteOldScreenshots, overwriteOldScreenshotsHelp );
-  QToolTip::add( overwriteOldScreenshots, overwriteOldScreenshotsHelp );
-  page1Layout->addWidget(overwriteOldScreenshots);
+  onlyOneScreenshot = new QCheckBox(i18n("Only grab a screenshot when none exists"), screenshotsGroupBox);
+  QString onlyOneScreenshotHelp = i18n("When disabled new screenshots will be taken whenever possible.\n Enabling will only create a screenshot once the application is first activated and will never update it.");
+  QWhatsThis::add( onlyOneScreenshot, onlyOneScreenshotHelp );
+  QToolTip::add( onlyOneScreenshot, onlyOneScreenshotHelp );
 
-  QHBoxLayout *hLayScreenshotGrabDelay = new QHBoxLayout(0, 0, 6);
-  screenshotGrabDelay = new QSpinBox(0, 2000, 1, page1);
-  QLabel *screenshotGrabDelayLabel = new QLabel(screenshotGrabDelay, i18n("Delay between Screenshots (ms)"), page1);
+  QHBox *hLayScreenshotGrabDelay = new QHBox(screenshotsGroupBox);
+  screenshotGrabDelay = new QSpinBox(0, 2000, 1, hLayScreenshotGrabDelay);
+  QLabel *screenshotGrabDelayLabel = new QLabel(screenshotGrabDelay, i18n("Delay between Screenshots (ms)"), hLayScreenshotGrabDelay);
   QString screenshotGrabDelayHelp = i18n("Specifies the time to wait between the Activation of a window and the screenshot Taking.\nIncrease it when your windows need more time to draw themselves after activation.\nValues below 300ms are not recommended, but may work in some cases" );
   QWhatsThis::add( screenshotGrabDelay, screenshotGrabDelayHelp );
   QToolTip::add( screenshotGrabDelay, screenshotGrabDelayHelp );
   QWhatsThis::add( screenshotGrabDelayLabel, screenshotGrabDelayHelp );
   QToolTip::add( screenshotGrabDelayLabel, screenshotGrabDelayHelp );
-  hLayScreenshotGrabDelay->addWidget(screenshotGrabDelayLabel);
-  hLayScreenshotGrabDelay->addWidget(screenshotGrabDelay);
-  hLayScreenshotGrabDelay->insertStretch(-1);
-  page1Layout->addLayout(hLayScreenshotGrabDelay);
+  
+  page1Layout->addWidget(screenshotsGroupBox);
 
   page1Layout->insertStretch(-1);
 
@@ -96,8 +113,18 @@ KomposePreferences::~KomposePreferences()
 void KomposePreferences::fillPages()
 {
   // Sync Settings to Preferences dialog
+  switch ( KomposeSettings::instance()->getDefaultView() )
+  {
+    case KOMPOSEDISPLAY_VIRTUALDESKS:
+      defaultViewVirtualDesks->setChecked( true );
+      break;
+    case KOMPOSEDISPLAY_WORLD:
+      defaultViewWorld->setChecked( true );
+      break;
+  }
+  
   passiveScreenshots->setChecked( KomposeSettings::instance()->getPassiveScreenshots() );
-  overwriteOldScreenshots->setChecked( KomposeSettings::instance()->getOverwriteOldScreenshots() );
+  onlyOneScreenshot->setChecked( KomposeSettings::instance()->getOnlyOneScreenshot() );
   screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() / 1000000 );
 
   highlightWindows->setChecked( KomposeSettings::instance()->getHighlightWindows() );
@@ -111,8 +138,10 @@ void KomposePreferences::fillPages()
 
 void KomposePreferences::slotApply()
 {
+  KomposeSettings::instance()->setDefaultView( defaultViewBtnGroup->selectedId() );
+  
   KomposeSettings::instance()->setPassiveScreenshots( passiveScreenshots->isChecked() );
-  KomposeSettings::instance()->setOverwriteOldScreenshots( overwriteOldScreenshots->isChecked() );
+  KomposeSettings::instance()->setOnlyOneScreenshot( onlyOneScreenshot->isChecked() );
   KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() * 1000000 );
 
   KomposeSettings::instance()->setHighlightWindows( highlightWindows->isChecked() );

@@ -79,52 +79,14 @@ void KomposeLayout::rearrangeContents()
     return;
   }
   // Calculate grid's rows & cols
-  double dsqrt = sqrt( (double)sizeOfList );
-  int isqrt = sqrt( sizeOfList );
-  int rows = sqrt(sizeOfList);
+  int rows = ceil( sqrt(sizeOfList) );
   int columns = rows;
 
-  if ( dsqrt - (double)isqrt != 0.0 )
-  {
-    if ( sizeOfList <= 2 )
-    {
-      rows = 1;
-      columns = 2;
-    }
-    else if ( sizeOfList <= 4 )
-    {
-      rows = 2;
-      columns = 2;
-    }
-    else if ( sizeOfList <= 6 )
-    {
-      rows = 2;
-      columns = 3;
-    }
-    else if ( sizeOfList <= 9 )
-    {
-      rows = 3;
-      columns = 3;
-    }
-    else if ( sizeOfList <= 12 )
-    {
-      rows = 3;
-      columns = 4;
-    }
-    else if ( sizeOfList <= 16 )
-    {
-      rows = 4;
-      columns = 4;
-    }
-    else
-    {
-      rows = 5;
-      columns = 5;
-    }
-  }
+//   if ( columns * rows < sizeOfList )
+//     ++rows;
 
 
-  qDebug("KomposeLayout::rearrangeContents() - Relayouting %d child widgets with %d rows & %d columns", it.count(), rows, columns);
+  qDebug("KomposeLayout::rearrangeContents() - Relayouting %d child widgets with %d rows & %d columns", sizeOfList, rows, columns);
 
   // Calculate width & height
   int w = (parentWidget->getRect().width() - (columns+1) * spacing ) / columns;
@@ -150,23 +112,30 @@ void KomposeLayout::rearrangeContents()
 
       int widgetw = 100;
       int widgeth = 100;
-
-      double widthForHeight = task->getWidthForHeight(h);
-      double heightForWidth = task->getHeightForWidth(w);
-      if ( (ratio >= 1.0 && heightForWidth <= h) ||
-           (ratio < 1.0 && widthForHeight > w)   )
+        
+      if ( ratio == -1 )
       {
         widgetw = w;
-        widgeth = heightForWidth;
-      }
-      else if ( (ratio < 1.0 && widthForHeight <= w) ||
-                (ratio >= 1.0 && heightForWidth > h)   )
-      {
         widgeth = h;
-        widgetw = widthForHeight;
       }
-
-
+      else
+      {
+        double widthForHeight = task->getWidthForHeight(h);
+        double heightForWidth = task->getHeightForWidth(w);
+        if ( (ratio >= 1.0 && heightForWidth <= h) ||
+             (ratio < 1.0 && widthForHeight > w)   )
+        {
+          widgetw = w;
+          widgeth = heightForWidth;
+        }
+        else if ( (ratio < 1.0 && widthForHeight <= w) ||
+                  (ratio >= 1.0 && heightForWidth > h)   )
+        {
+          widgeth = h;
+          widgetw = widthForHeight;
+        }
+      }
+      
       // Set the Widget's size
       QRect geom( parentWidget->getRect().x() + j * (w + spacing) + spacing,
                   parentWidget->getRect().y() + i * (h + spacing) + spacing,

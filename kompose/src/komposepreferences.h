@@ -20,6 +20,7 @@ class QCheckBox;
 class QFrame;
 class QSpinBox;
 class KColorButton;
+class QButtonGroup;
 
 /**
 @author Hans Oischinger
@@ -43,8 +44,12 @@ private:
   QFrame *page1;
   QFrame *page2;
   
+  QButtonGroup *defaultViewBtnGroup;
+  QCheckBox *defaultViewWorld;
+  QCheckBox *defaultViewVirtualDesks;
+  
   QCheckBox *passiveScreenshots;
-  QCheckBox *overwriteOldScreenshots;
+  QCheckBox *onlyOneScreenshot;
   QCheckBox *highlightWindows;
   QCheckBox *tintVirtDesks;
   KColorButton *tintVirtDesksColor;

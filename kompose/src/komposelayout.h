@@ -42,6 +42,8 @@ public:
   void add( KomposeWidgetInterface *w );
   void remove( KomposeWidgetInterface *w );
 
+  const QPtrList<KomposeWidgetInterface> *getManagedWidgets() { return &list; }
+  
 public slots:
   void arrangeLayout();
 

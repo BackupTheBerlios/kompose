@@ -13,9 +13,9 @@
 #define KOMPOSEFULLSCREENWIDGET_H
 
 
-#include "komposewidget.h"
+#include "komposetaskcontainerwidget.h"
+#include "komposesettings.h"
 
-#define MAX_DESKTOPS 16
 
 class KRootPixmap;
 class KomposeDesktopWidget;
@@ -23,26 +23,32 @@ class KomposeDesktopWidget;
 /**
 @author Hans Oischinger
 */
-class KomposeFullscreenWidget : public KomposeWidget
+class KomposeFullscreenWidget : public KomposeTaskContainerWidget
 {
 Q_OBJECT
 public:
-  KomposeFullscreenWidget( KomposeLayout *l = 0);
+  KomposeFullscreenWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
 
   ~KomposeFullscreenWidget();
 
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
   double getAspectRatio();
+ 
+  void setType( int t ) { type = t; initView(); }
+  int getType() { return type; }
   
 protected:
+  void initView();
   void createDesktopWidgets();
 
+  void mouseReleaseEvent (QMouseEvent *);
+  void mousePressEvent (QMouseEvent *);
+ 
 private:
   KRootPixmap *rootpix;
+  int type;
   
-  KomposeDesktopWidget *desktop[MAX_DESKTOPS];  // Virtual Desktops representation
-
 };
 
 #endif

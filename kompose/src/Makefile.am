@@ -2,7 +2,7 @@
 INCLUDES = $(all_includes)
 
 # these are the headers for your project
-noinst_HEADERS = kompose.h komposetaskmanager.h komposetask.h komposewidget.h komposetaskwidget.h komposedesktopwidget.h komposelayout.h komposesystray.h komposefullscreenwidget.h komposesettings.h komposepreferences.h komposetaskprefswidget.h imageeffect.h komposewidgetinterface.h komposeglobal.h
+noinst_HEADERS = kompose.h komposetaskmanager.h komposetask.h komposewidget.h komposetaskwidget.h komposedesktopwidget.h komposelayout.h komposesystray.h komposefullscreenwidget.h komposesettings.h komposepreferences.h komposetaskprefswidget.h komposewidgetinterface.h komposeglobal.h komposetaskcontainerwidget.h
 
 # let automoc handle all of the meta source files (moc)
 METASOURCES = AUTO
@@ -20,7 +20,7 @@ KDE_ICON = kompose
 bin_PROGRAMS = kompose
 
 # the application source, library search path, and link libraries
-kompose_SOURCES = main.cpp kompose.cpp komposetaskmanager.cpp komposetask.cpp komposewidget.cpp komposetaskwidget.cpp komposedesktopwidget.cpp komposelayout.cpp komposesystray.cpp komposefullscreenwidget.cpp komposesettings.cpp komposepreferences.cpp komposetaskprefswidget.cpp komposewidgetinterface.cpp imageeffect.cpp komposeglobal.cpp
+kompose_SOURCES = main.cpp kompose.cpp komposetaskmanager.cpp komposetask.cpp komposewidget.cpp komposetaskwidget.cpp komposedesktopwidget.cpp komposelayout.cpp komposesystray.cpp komposefullscreenwidget.cpp komposesettings.cpp komposepreferences.cpp komposetaskprefswidget.cpp komposewidgetinterface.cpp komposeglobal.cpp komposetaskcontainerwidget.cpp
 kompose_LDFLAGS = $(KDE_RPATH) $(all_libraries)
 kompose_LDADD = $(LIB_KDEUI)
 

@@ -28,8 +28,12 @@ KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
     : KSystemTray(parent, name)
 {
   // Actions
-  actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection() );
-  actShowVirtualDesktopView = new KAction(i18n("&Show Kompose"), "background",
+  //   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection() );
+  actShowWorldView = new KAction(i18n("Komposé"), "background",
+                                 0,
+                                 KomposeTaskManager::instance(), SLOT(createWorldView()),
+                                 actionCollection(), "showWorldView");
+  actShowVirtualDesktopView = new KAction(i18n("Komposé (arranged by virtual desktops)"), "background",
                                           0,
                                           KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()),
                                           actionCollection(), "showVirtualDesktopView");
@@ -42,15 +46,15 @@ KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
 
 
   // Create Menu
-  menu = new KPopupMenu( this );
-  menu->insertTitle( SmallIcon("desktop"), kapp->caption() );  // FIXME: use kapp->miniIcon()
+  menu = contextMenu();
   move( -1000, -1000 );
   // Fill Menu
-  menu->insertSeparator();
+  actShowWorldView->plug(menu);
   actShowVirtualDesktopView->plug(menu);
+  menu->insertSeparator();
   actPreferencesDialog->plug(menu);
   actConfigGlobalShortcuts->plug(menu);
-  actQuit->plug(menu);
+  menu->insertSeparator();
 
 }
 
@@ -69,7 +73,7 @@ void KomposeSysTray::mousePressEvent ( QMouseEvent * e )
   switch ( e->button() )
   {
   case LeftButton:
-    KomposeTaskManager::instance()->createVirtualDesktopView();
+    KomposeTaskManager::instance()->createView( KomposeSettings::instance()->getDefaultView() );
     break;
   case MidButton:
     // fall through

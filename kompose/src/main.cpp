@@ -46,7 +46,8 @@ int main(int argc, char **argv)
   about.addAuthor( "Hans Oischinger", 0, "oisch@sourceforge.net" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
-  KUniqueApplication app;
+  KApplication app;
+//   KUniqueApplication app;
   Kompose *mainWin = 0;
 
   // no session.. just start up normally

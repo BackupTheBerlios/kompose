@@ -218,49 +218,63 @@ void KomposeTaskManager::slotUpdateScreenshot(WId winId)
 }
 
 
+void KomposeTaskManager::createView( int type )
+{
+  switch(type)
+  {
+    case KOMPOSEDISPLAY_VIRTUALDESKS:
+      createVirtualDesktopView();
+      break;
+    case KOMPOSEDISPLAY_WORLD:
+      createWorldView();
+      break;
+  }
+}
+
+
 void KomposeTaskManager::createVirtualDesktopView()
 {
-  if ( activeView )
-    return;
+  if ( !activeView )
+    slotUpdateScreenshots();
 
   qDebug("KomposeTaskManager::createVirtualDesktopView - Creating View");
-
-  slotUpdateScreenshots();
-
-  qDebug("Got Screenshots");
-
-  //   if (KomposeSettings::instance()->getUseGL())
-  //     createGLVirtualDestopView();
-  //   else
-  createQtVirtualDestopView();
+  
+  if ( !activeView )
+    viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_VIRTUALDESKS );
+  else
+    viewWidget->setType( KOMPOSEDISPLAY_VIRTUALDESKS );
 
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;
   viewWidget->show();
 
-  // Reactivate viewWidget
-  //qApp->processEvents();
+  slotStartWindowListeners();
+}
+
+
+void KomposeTaskManager::createWorldView()
+{
+  if ( !activeView )
+    slotUpdateScreenshots();
+
+  qDebug("KomposeTaskManager::createWorldView - Creating View");
+  
+  if ( !activeView )
+    viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_WORLD );
+  else
+    viewWidget->setType( KOMPOSEDISPLAY_WORLD );
+
+  KWin::forceActiveWindow( viewWidget->winId() );
+
+  activeView = true;
+  viewWidget->show();
 
   slotStartWindowListeners();
-
 }
 
-// void KomposeTaskManager::createGLVirtualDestopView()
-// {
-//   qDebug("KomposeTaskManager::createGLVirtualDestopView");
-//   // The parent widget we're working on
-//   viewWidget = new KomposeGLFullscreenWidget();
-// }
 
-void KomposeTaskManager::createQtVirtualDestopView()
-{
-  qDebug("KomposeTaskManager::createQtVirtualDestopView");
-  // The parent widget we're working on
-  viewWidget = new KomposeFullscreenWidget();
-}
-
-void KomposeTaskManager::closeVirtualDesktopView()
+void KomposeTaskManager::closeCurrentView()
 {
   if ( !activeView )
     return;
@@ -305,13 +319,13 @@ bool KomposeTaskManager::isOnTop(const KomposeTask* task)
 void KomposeTaskManager::setCurrentDesktop( int desknum )
 {
   KWin::setCurrentDesktop(desknum+1);
-  closeVirtualDesktopView();
+  closeCurrentView();
 }
 
 void KomposeTaskManager::activateTask( KomposeTask *task )
 {
   task->activate();
-  closeVirtualDesktopView();
+  closeCurrentView();
 }
 
 

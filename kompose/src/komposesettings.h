@@ -15,6 +15,10 @@
 #include <qobject.h>
 #include <qcolor.h>
 
+#define MAX_DESKTOPS 16
+
+enum KomposeDisplay { KOMPOSEDISPLAY_WORLD, KOMPOSEDISPLAY_VIRTUALDESKS };
+
 class KGlobalAccel;
 class KPixmapIO;;
 class QColor;
@@ -38,12 +42,10 @@ public:
   KGlobalAccel *getGlobalAccel() const { return globalAccel; }
   KPixmapIO *getPixmapIO() { return pixmapIO; }
   
-  bool getUseGL() const { return useGL; }
-  void setUseGL( bool b ) { useGL = b; }
   bool getPassiveScreenshots() const { return passiveScreenshots; }
   void setPassiveScreenshots( bool b ) { passiveScreenshots = b; }
-  bool getOverwriteOldScreenshots() const { return overwriteOldScreenshots; }
-  void setOverwriteOldScreenshots( bool b ) { overwriteOldScreenshots = b; }
+  bool getOnlyOneScreenshot() const { return onlyOneScreenshot; }
+  void setOnlyOneScreenshot( bool b ) { onlyOneScreenshot = b; }
   uint getScreenshotGrabDelay() { return screenshotGrabDelay; }
   void setScreenshotGrabDelay( uint val ) { screenshotGrabDelay=val; }
   bool getHighlightWindows() const { return highlightWindows; }
@@ -52,6 +54,8 @@ public:
   void setTintVirtDesks( bool b ) { tintVirtDesks = b; }
   const QColor& getTintVirtDesksColor() const { return tintVirtDesksColor; }
   void setTintVirtDesksColor( QColor c ) { tintVirtDesksColor = c; }
+  int  getDefaultView() const { return defaultView; }
+  void setDefaultView( int d ) { defaultView = d; }
     
 public slots:
   void showPreferencesDlg();
@@ -63,14 +67,13 @@ private:
   KGlobalAccel *globalAccel;
   KPixmapIO *pixmapIO;
   
-  bool useGL;
-  
   bool passiveScreenshots;
-  bool overwriteOldScreenshots;
+  bool onlyOneScreenshot;
   uint screenshotGrabDelay;
   bool highlightWindows;
   bool tintVirtDesks;
   QColor tintVirtDesksColor;
+  int defaultView;
 };
 
 #endif

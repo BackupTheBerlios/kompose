@@ -36,13 +36,12 @@
 
 
 KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, KomposeLayout *l, const char *name)
-    : KomposeWidget( parent, l, name ),
-    deskNum( desktop )
+    : KomposeTaskContainerWidget( desktop, parent, l, name )
 {
   // Retrieve geometry
-  QDesktopWidget *deskwidget = new QDesktopWidget();
-  deskRect = deskwidget->availableGeometry();
-  delete deskwidget;
+//   QDesktopWidget *deskwidget = new QDesktopWidget();
+//   deskRect = deskwidget->screenGeometry();
+//   delete deskwidget;
 
   rootpix = new KRootPixmap (this);
   if ( KomposeSettings::instance()->getTintVirtDesks() )
@@ -61,48 +60,23 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 KomposeDesktopWidget::~KomposeDesktopWidget()
 {}
 
-
-void KomposeDesktopWidget::createTaskWidgets()
-{
-  TaskList tl = KomposeTaskManager::instance()->getTasks();
-  qDebug("KomposeDesktopWidget::createTaskWidgets() on %d tasks", tl.count());
-  QPtrListIterator<KomposeTask> it( tl );
-  KomposeTask *task;
-  while ( (task = it.current()) != 0 )
-  {
-    ++it;
-    Q_CHECK_PTR(task);
-    createTaskWidget( task );
-  }
-}
-
-
-void KomposeDesktopWidget::createTaskWidget( KomposeTask* task )
-{
-    if (deskNum == task->onDesktop()-1 )
-    {
-      qDebug("KomposeDesktopWidget::createTaskWidget()" );
-      KomposeTaskWidget *taskwidget = new KomposeTaskWidget( task, this, 0, "kjh" );
-    }
-}
-
-int KomposeDesktopWidget::getHeightForWidth( int w ) const
-{
-  qDebug("KomposeDesktopWidget::getHeightForWidth()");
-  return ((double)w / (double)deskRect.width()) * deskRect.height();
-}
-
-int KomposeDesktopWidget::getWidthForHeight( int h ) const
-{
-  qDebug("KomposeDesktopWidget::getWidthForHeight()");
-  return ((double)h / (double)deskRect.height()) * deskRect.width();
-}
-
-double KomposeDesktopWidget::getAspectRatio()
-{
-  qDebug("KomposeDesktopWidget::getAspectRatio()");
-  return (double)deskRect.width() / (double)deskRect.height();
-}
+// int KomposeDesktopWidget::getHeightForWidth( int w ) const
+// {
+//   qDebug("KomposeDesktopWidget::getHeightForWidth()");
+//   return ((double)w / (double)deskRect.width()) * deskRect.height();
+// }
+// 
+// int KomposeDesktopWidget::getWidthForHeight( int h ) const
+// {
+//   qDebug("KomposeDesktopWidget::getWidthForHeight()");
+//   return ((double)h / (double)deskRect.height()) * deskRect.width();
+// }
+// 
+// double KomposeDesktopWidget::getAspectRatio()
+// {
+//   qDebug("KomposeDesktopWidget::getAspectRatio()");
+//   return (double)deskRect.width() / (double)deskRect.height();
+// }
 
 
 void KomposeDesktopWidget::leaveEvent ( QEvent * e )
@@ -119,13 +93,13 @@ void KomposeDesktopWidget::enterEvent ( QEvent * e )
 
 void KomposeDesktopWidget::mouseReleaseEvent ( QMouseEvent * e )
 {
-  KomposeTaskManager::instance()->setCurrentDesktop(deskNum);
+  KomposeTaskManager::instance()->setCurrentDesktop(desktop);
 }
 
 
 void KomposeDesktopWidget::mouseDoubleClickEvent ( QMouseEvent * e )
 {
-  KomposeTaskManager::instance()->setCurrentDesktop(deskNum);
+  KomposeTaskManager::instance()->setCurrentDesktop(desktop);
 }
 
 
@@ -156,7 +130,7 @@ void KomposeDesktopWidget::dropEvent ( QDropEvent * e )
   {
     qDebug("KomposeDesktopWidget::dropEvent - Received Task drop");
     KomposeTaskWidget* dropWidget = dynamic_cast<KomposeTaskWidget*>(e->source());
-    dropWidget->getTask()->toDesktop( deskNum + 1);
+    dropWidget->getTask()->toDesktop( desktop + 1);
     if ( dropWidget->parentWidget() != this)
       dropWidget->reparent( this, QPoint(0,0), true );
 

@@ -23,7 +23,6 @@
 #include "komposetask.h"
 #include "komposetaskprefswidget.h"
 #include "komposesettings.h"
-#include "imageeffect.h"
 
 #include <qpixmap.h>
 #include <qimage.h>
@@ -47,6 +46,9 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
     scaledSelectedScreenshot(0),
     highlight(false)
 {
+  setWFlags( WStaticContents | WRepaintNoErase | WResizeNoErase );  // avoid redraw errors
+  setBackgroundMode( Qt::NoBackground );  // avoid flickering
+
   QToolTip::add( this, task->visibleNameWithState() );
 
   prefWidget = new KomposeTaskPrefsWidget( this, "Task prefs" );
@@ -55,7 +57,6 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   //connect( t, SIGNAL( destroyed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( stateChanged() ), this, SLOT( repaint() ) );
-
 }
 
 
@@ -97,7 +98,7 @@ void KomposeTaskWidget::scaleScreenshot()
     scaledSelectedScreenshot = scaledScreenshot.copy();
     KImageEffect::selectedImage( scaledSelectedScreenshot, Qt::white );
   }
-  
+
   show();
   repaint();
 }
@@ -125,8 +126,6 @@ void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
   int xpos = ( width() - scaledScreenshot.width() ) / 2;
   int ypos = ( height() - scaledScreenshot.height() ) / 2;
 
-  Q_CHECK_PTR( task );
-
   p.begin( this );
   if ( highlight && KomposeSettings::instance()->getHighlightWindows() )
   {
@@ -137,12 +136,12 @@ void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
   {
     if ( task->isIconified() )
     {
-      //qDebug("KomposeTaskWidget::paintEvent - Painting minimized window");
+      // qDebug("KomposeTaskWidget::paintEvent - Painting minimized window");
       p.drawImage( xpos,ypos, scaledMinimizedScreenshot);
     }
     else
     {
-      //qDebug("KomposeTaskWidget::paintEvent - Painting normal window");
+      // qDebug("KomposeTaskWidget::paintEvent - Painting normal window");
       p.drawImage( xpos,ypos, scaledScreenshot);
     }
   }

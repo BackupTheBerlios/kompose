@@ -255,10 +255,10 @@ void KomposeTask::updateScreenshot()
 
   if ( !pm_screenshot.isNull() )
   {
-    if ( ( !KomposeSettings::instance()->getPassiveScreenshots() && !KomposeSettings::instance()->getOverwriteOldScreenshots() ) ||
+    if ( ( !KomposeSettings::instance()->getPassiveScreenshots() && KomposeSettings::instance()->getOnlyOneScreenshot() ) ||
          ( KomposeSettings::instance()->getPassiveScreenshots() &&
-           ( ( KomposeSettings::instance()->getOverwriteOldScreenshots() && !isOnTop() )
-             || !KomposeSettings::instance()->getOverwriteOldScreenshots() ) ) )
+           ( ( !KomposeSettings::instance()->getOnlyOneScreenshot() && !isOnTop() )
+             || KomposeSettings::instance()->getOnlyOneScreenshot() ) ) )
     {
       qDebug("KomposeTask::updateScreenshot() - Screenshot already exists... skipping.");
       return;
