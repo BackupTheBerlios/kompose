@@ -21,6 +21,16 @@ class KPopupMenu;
 class KActionCollection;
 class KAction;
 
+// Check for Composite extension
+// FIXME: Am I doing this right? I don't know anything about automake & co
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
+#if defined(Q_WS_X11) && defined(HAVE_XRENDER) && QT_VERSION >= 0x030300
+# define COMPOSITE
+#endif
+
 /**
 @author Hans Oischinger
 */
@@ -41,7 +51,8 @@ public:
   void setHideSystray( bool b ) { hideSystray = b; }
   void setSingleShot( bool b ) { singleShot = b; }
   bool getSingleShot() { return singleShot; }
-
+  bool hasXcomposite() { return xcomposite; }
+  
   // Action getters
   KAction *getActConfigGlobalShortcuts() { return actConfigGlobalShortcuts; }
   KAction *getActPreferencesDialog() { return actPreferencesDialog; }
@@ -60,6 +71,7 @@ protected slots:
 private:
   bool hideSystray;
   bool singleShot;
+  bool xcomposite;
   KomposeSysTray* systray;
   KActionCollection* actionCollection;
 

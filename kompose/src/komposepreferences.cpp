@@ -27,15 +27,16 @@
 #include <qpushbutton.h>
 #include <qgrid.h>
 #include <qvgroupbox.h> 
+#include <qradiobutton.h>
 
 #include <kiconloader.h>
 #include <kcolorbutton.h>
 #include <kfontdialog.h> 
 
 KomposePreferences::KomposePreferences()
-    : KDialogBase(IconList, i18n(QString("Komposé Preferences").utf8()), Ok|Apply|Cancel, Ok)
+    : KDialogBase(IconList, i18n(QString::fromUtf8("KomposÃ© Preferences").utf8()), Ok|Apply|Cancel, Ok)
 {
-  QFrame *page1 = addPage( i18n("Behaviour"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
+  QFrame *page1 = addPage( i18n("Behavior"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
   QFrame *page3 = addPage( i18n("Layouts"), QString::null, DesktopIcon("window_list", KIcon::SizeMedium) );
 
@@ -43,15 +44,15 @@ KomposePreferences::KomposePreferences()
 
   defaultViewBtnGroup = new QButtonGroup( 2, Horizontal, i18n("Default Layout"), page1 );
   defaultViewBtnGroup->setExclusive( true );
-  QString defaultViewBtnGroupHelp = i18n("Determines which View should be started by default (e.g. when you click on the systray icon).");
+  QString defaultViewBtnGroupHelp = i18n("Determines which view should be started by default (e.g. when you click on the systray icon).");
   QWhatsThis::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
   QToolTip::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
-  defaultViewWorld = new QCheckBox(i18n("Ungrouped"), defaultViewBtnGroup );
-  QString defaultViewWorldHelp = i18n("Fullscreen Layout that shows all windows in no specific order");
+  defaultViewWorld = new QRadioButton(i18n("Ungrouped"), defaultViewBtnGroup );
+  QString defaultViewWorldHelp = i18n("Fullscreen layout that shows all windows in no specific order");
   QWhatsThis::add( defaultViewWorld, defaultViewWorldHelp );
   QToolTip::add( defaultViewWorld, defaultViewWorldHelp );
-  defaultViewVirtualDesks = new QCheckBox(i18n("Grouped  by Virtual Desktops"), defaultViewBtnGroup );
-  QString defaultViewVirtualDesksHelp = i18n("Fullscreen Layout that shows a representation of your Virtual Desktops\n and places the windows inside.");
+  defaultViewVirtualDesks = new QRadioButton(i18n("Grouped by virtual desktops"), defaultViewBtnGroup );
+  QString defaultViewVirtualDesksHelp = i18n("Fullscreen layout that shows a representation of your virtual desktops\n and places the windows inside.");
   QWhatsThis::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
   QToolTip::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
   page1Layout->addWidget(defaultViewBtnGroup);
@@ -59,20 +60,21 @@ KomposePreferences::KomposePreferences()
 
   QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, i18n("Screenshots"), page1 );
 
-  passiveScreenshots = new QCheckBox(i18n("Passive Screenshots"), screenshotsGroupBox);
-  QString passiveScreenshotsHelp = i18n(QString("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.").utf8());
+  passiveScreenshots = new QCheckBox(i18n("Passive screenshots"), screenshotsGroupBox);
+  QString passiveScreenshotsHelp = i18n(QString::fromUtf8("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every KomposÃ© activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.").utf8());
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
   QToolTip::add( passiveScreenshots, passiveScreenshotsHelp );
 
   //   onlyOneScreenshot = new QCheckBox(i18n("Only grab a screenshot when none exists"), screenshotsGroupBox);
-  //   QString onlyOneScreenshotHelp = i18n("When disabled new screenshots will be taken whenever possible.\n Enabling will only create a screenshot once the application is first activated and will never update it.");
+  //   QString onlyOneScreenshotHelp = i18n("When disabled new screenshots will be taken whenever possible.\nEnabling will only create a screenshot once the application is first activated and will never update it.");
   //   QWhatsThis::add( onlyOneScreenshot, onlyOneScreenshotHelp );
   //   QToolTip::add( onlyOneScreenshot, onlyOneScreenshotHelp );
   
   QHBox *hLayScreenshotGrabDelay = new QHBox(screenshotsGroupBox);
+  QLabel *screenshotGrabDelayLabel = new QLabel(i18n("Delay between screenshots (ms):"), hLayScreenshotGrabDelay);
   screenshotGrabDelay = new QSpinBox(0, 2000, 1, hLayScreenshotGrabDelay);
-  QLabel *screenshotGrabDelayLabel = new QLabel(screenshotGrabDelay, i18n("Delay between Screenshots (ms)"), hLayScreenshotGrabDelay);
-  QString screenshotGrabDelayHelp = i18n("Specifies the time to wait between the Activation of a window and the screenshot Taking.\nIncrease it when your windows need more time to draw themselves after activation.\nValues below 300ms are not recommended, but may work in some cases" );
+  screenshotGrabDelayLabel->setBuddy(screenshotGrabDelay);
+  QString screenshotGrabDelayHelp = i18n("Specifies the time to wait between the activation of a window and the screenshot taking.\nIncrease it when your windows need more time to draw themselves after activation.\nValues below 300ms are not recommended, but may work in some cases." );
   QWhatsThis::add( screenshotGrabDelay, screenshotGrabDelayHelp );
   QToolTip::add( screenshotGrabDelay, screenshotGrabDelayHelp );
   QWhatsThis::add( screenshotGrabDelayLabel, screenshotGrabDelayHelp );
@@ -93,24 +95,24 @@ KomposePreferences::KomposePreferences()
   page2Layout->addWidget(imageEffects);
 
   
-  QGroupBox *windowTitleGroupBox = new QGroupBox( 3, Vertical, i18n("Window titles"), page2 );
+  QGroupBox *windowTitleGroupBox = new QGroupBox( 3, Vertical, i18n("Window Titles"), page2 );
   
   QHBox *hBoxWindowTitles = new QHBox(windowTitleGroupBox);
-  showWindowTitles = new QCheckBox(i18n("Show Window titles"), hBoxWindowTitles);
-  windowTitleFontBtn = new QPushButton(i18n("Select Font"), hBoxWindowTitles);
-  QString showWindowTitlesHelp = i18n( QString("Display the name of every window in Komposé") );
+  showWindowTitles = new QCheckBox(i18n("Show window titles"), hBoxWindowTitles);
+  windowTitleFontBtn = new QPushButton(i18n("Select font..."), hBoxWindowTitles);
+  QString showWindowTitlesHelp = i18n( QString::fromUtf8("Display the name of every window in KomposÃ©") );
   QWhatsThis::add( showWindowTitles, showWindowTitlesHelp );
   QToolTip::add( showWindowTitles, showWindowTitlesHelp );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontBtn, SLOT(setEnabled(bool)) );
   connect( windowTitleFontBtn, SIGNAL(clicked()), this, SLOT(showWindowTitleFontDialog()) );
   
   QGrid *gridWindowTitlesColor = new QGrid(2, windowTitleGroupBox);
-  // windowTitleFontColorLabel = new QLabel(windowTitleFontColor, i18n("Text Color: "), gridWindowTitlesColor); // FIXME: How to link to a buddy that doesn't yet exist?
-  windowTitleFontColorLabel = new QLabel(i18n("Text Color: "), gridWindowTitlesColor);
+  // windowTitleFontColorLabel = new QLabel(windowTitleFontColor, i18n("Text color: "), gridWindowTitlesColor); // FIXME: How to link to a buddy that doesn't yet exist?
+  windowTitleFontColorLabel = new QLabel(i18n("Text color:"), gridWindowTitlesColor);
   windowTitleFontColor = new KColorButton(Qt::black, gridWindowTitlesColor);
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontColorLabel, SLOT(setEnabled(bool)) );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontColor, SLOT(setEnabled(bool)) );
-  showWindowTitleShadow = new QCheckBox(i18n("Shadow Color: "), gridWindowTitlesColor);
+  showWindowTitleShadow = new QCheckBox(i18n("Shadow color:"), gridWindowTitlesColor);
   windowTitleFontShadowColor = new KColorButton(Qt::lightGray, gridWindowTitlesColor);
   connect( showWindowTitles, SIGNAL(toggled(bool)), showWindowTitleShadow, SLOT(setEnabled(bool)) );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontShadowColor, SLOT(setEnabled(bool)) );
@@ -121,7 +123,7 @@ KomposePreferences::KomposePreferences()
 
    
   QGroupBox *iconGroupBox = new QGroupBox( 3, Vertical, i18n("Task Icons"), page2 );
-  showIcons = new QCheckBox(i18n("Show Icons"), iconGroupBox);
+  showIcons = new QCheckBox(i18n("Show icons"), iconGroupBox);
   iconSize = new QSlider(0, 3, 1, 0, Qt::Horizontal, iconGroupBox);
   iconSizeDescription = new QLabel( iconSize, "", iconGroupBox);
   connect( iconSize, SIGNAL( sliderMoved(int) ), this, SLOT( updateIconSliderDesc(int) ) );
@@ -136,30 +138,30 @@ KomposePreferences::KomposePreferences()
   
   QVBoxLayout *page3Layout = new QVBoxLayout( page3, 0, KDialog::spacingHint() );
   
-  QVGroupBox *virtDesksLayoutGroupBox = new QVGroupBox( i18n("grouped by Virtual Desktops"), page3 );
-  dynamicVirtDeskLayout = new QCheckBox(i18n("Layout empty Virtual Desktops minimized"), virtDesksLayoutGroupBox );
-  QString dynamicVirtDeskLayoutHelp = i18n("Check this if you want empty Virtual Desktops to take less space on the screen.\nUncheck it if you want them to be arranged statically, each of the same size.");
+  QVGroupBox *virtDesksLayoutGroupBox = new QVGroupBox( i18n("Grouped by Virtual Desktops"), page3 );
+  dynamicVirtDeskLayout = new QCheckBox(i18n("Layout empty virtual desktops minimized"), virtDesksLayoutGroupBox );
+  QString dynamicVirtDeskLayoutHelp = i18n("Check this if you want empty virtual desktops to take less space on the screen.\nUncheck it if you want them to be arranged statically, each of the same size.");
   QWhatsThis::add( dynamicVirtDeskLayout, dynamicVirtDeskLayoutHelp );
   QToolTip::add( dynamicVirtDeskLayout, dynamicVirtDeskLayoutHelp );
   
   QGrid *desktopColorsGroupBox = new QGrid( 2, virtDesksLayoutGroupBox );
   desktopColorsGroupBox->setSpacing( 4 );
-  tintVirtDesks = new QCheckBox(i18n("Tint Virtual Desktop widgets: "), desktopColorsGroupBox);
+  tintVirtDesks = new QCheckBox(i18n("Tint virtual desktop widgets:"), desktopColorsGroupBox);
   tintVirtDesksColor = new KColorButton(Qt::blue, desktopColorsGroupBox);
-  QString tintVirtDesksHelp = i18n("Colorize the transparent background of the Virtual Desktop widgets" );
+  QString tintVirtDesksHelp = i18n("Colorize the transparent background of the virtual desktop widgets" );
   QWhatsThis::add( tintVirtDesks, tintVirtDesksHelp );
   QToolTip::add( tintVirtDesks, tintVirtDesksHelp );
   QWhatsThis::add( tintVirtDesksColor, tintVirtDesksHelp );
   QToolTip::add( tintVirtDesksColor, tintVirtDesksHelp );
   connect( tintVirtDesks, SIGNAL(toggled(bool)), tintVirtDesksColor, SLOT(setEnabled(bool)) );
-  desktopTitleFontColorLabel = new QLabel(i18n("Desktop frame color: "), desktopColorsGroupBox);
+  desktopTitleFontColorLabel = new QLabel(i18n("Desktop frame color:"), desktopColorsGroupBox);
   desktopTitleFontColor = new KColorButton(Qt::black, desktopColorsGroupBox);
-  desktopTitleFontHighlightColorLabel = new QLabel(i18n("Desktop frame highlight color: "), desktopColorsGroupBox);
+  desktopTitleFontHighlightColorLabel = new QLabel(i18n("Desktop frame highlight color:"), desktopColorsGroupBox);
   desktopTitleFontHighlightColor = new KColorButton(Qt::black, desktopColorsGroupBox);
   
   page3Layout->addWidget(virtDesksLayoutGroupBox);
 
-  desktopTitleFontBtn = new QPushButton(i18n("Select desktop names font"), virtDesksLayoutGroupBox);  
+  desktopTitleFontBtn = new QPushButton(i18n("Select desktop names font..."), virtDesksLayoutGroupBox);  
   connect( desktopTitleFontBtn, SIGNAL(clicked()), this, SLOT(showDesktopTitleFontDialog()) );
   
   page3Layout->insertStretch(-1);

@@ -33,6 +33,9 @@
 #include <X11/Xutil.h>
 #include <Imlib2.h>
 
+#ifdef COMPOSITE
+ #include <X11/extensions/Xcomposite.h>
+#endif
 
 static KomposeGlobal* globalInstance = 0;
   Display *disp;
@@ -57,6 +60,28 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
     singleShot( false )
 {
   globalInstance = this;
+  
+#ifdef COMPOSITE
+  // Check for XComposite
+  Display *dpy = QPaintDevice::x11AppDisplay();
+
+  int event_base, error_base;
+  if ( XCompositeQueryExtension( dpy, &event_base, &error_base ) )
+  {
+    // If we get here the server supports the extension
+    xcomposite = true;
+    
+    int major = 1, minor = 1; // The highest version we support
+    XCompositeQueryVersion( dpy, &major, &minor );
+
+    // major and minor will now contain the version the server supports.
+    // The protocol specifies that the returned version will never be higher
+    // then the one requested. Version 1.1 is the first version to have the
+    // XCompositeNameWindowPixmap() request.
+  } else
+#endif
+    xcomposite = false;
+  
 }
 
 void KomposeGlobal::initGui()
@@ -97,11 +122,11 @@ void KomposeGlobal::initActions()
   
   // Actions
   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection );
-  actShowWorldView = new KAction(i18n(QString("Komposé (ungrouped)").utf8()), "kompose",
+  actShowWorldView = new KAction(i18n(QString::fromUtf8("KomposÃ© (ungrouped)").utf8()), "kompose",
                                  0,
                                  KomposeTaskManager::instance(), SLOT(createWorldView()),
                                  actionCollection, "showWorldView");
-  actShowVirtualDesktopView = new KAction(i18n(QString("Komposé (grouped by Virtual Desktops)").utf8()), "kompose",
+  actShowVirtualDesktopView = new KAction(i18n(QString::fromUtf8("KomposÃ© (grouped by virtual desktops)").utf8()), "kompose",
                                           0,
                                           KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()),
                                           actionCollection, "showVirtualDesktopView");
@@ -110,7 +135,7 @@ void KomposeGlobal::initActions()
   actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
                               actionCollection, "options_configure_global_keybinding");
   actConfigGlobalShortcuts->setText(i18n("Configure &Global Shortcuts..."));
-  actAboutDlg      = new KAction(i18n(QString("About Komposé").utf8()), "kompose",
+  actAboutDlg      = new KAction(i18n(QString::fromUtf8("About KomposÃ©").utf8()), "kompose",
                                  0,
                                  this, SLOT(showAbutDlg()),
                                  actionCollection, "showAbutDlg");

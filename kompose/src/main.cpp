@@ -29,14 +29,15 @@
 #include <klocale.h>
 #include <kuniqueapplication.h>
 
-static const char description[] =
+
+static const char description[] = 
   I18N_NOOP("A fullscreen task manager for KDE");
 
 static const char version[] = "0.4.2";
 
 static KCmdLineOptions options[] =
   {
-    { "nosystray", I18N_NOOP( "Don't show the systray icon" ), 0 },
+    { "nosystray", I18N_NOOP( "Do not show the systray icon" ), 0 },
     { "singleshot", I18N_NOOP( "Display the default view and exit (non daemon mode)" ), 0 },
     KCmdLineLastOption
   };
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
   KCmdLineArgs::addCmdLineOptions( options );
 
   KApplication app;
-//   KUniqueApplication app;
+  //KUniqueApplication app;
   Kompose *mainWin = 0;
 
   // no session.. just start up normally

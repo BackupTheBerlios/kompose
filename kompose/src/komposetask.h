@@ -26,6 +26,7 @@
 
 #include <kwin.h>
 
+typedef unsigned long   Picture;
 
 class KWinModule;
 class KomposeImage;
@@ -71,6 +72,7 @@ public:
 protected:
   void paintEvent ( QPaintEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
+  void captureScreenshot();
   
 signals:
   void stateChanged();
@@ -101,7 +103,10 @@ private:
   KWinModule* kwinmodule;
   WId windowID;
   KWin::WindowInfo windowInfo;
-
+  bool hasAlpha;
+  
+  // XComposite
+  Picture picture;
   KomposeImage *screenshot;
   
   bool active;

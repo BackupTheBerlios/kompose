@@ -24,6 +24,7 @@ class QButtonGroup;
 class QSlider;
 class QPushButton;
 class QFont;
+class QRadioButton;
 
 /**
 @author Hans Oischinger
@@ -52,8 +53,8 @@ private:
   QFrame *page2;
   
   QButtonGroup *defaultViewBtnGroup;
-  QCheckBox *defaultViewWorld;
-  QCheckBox *defaultViewVirtualDesks;
+  QRadioButton *defaultViewWorld;
+  QRadioButton *defaultViewVirtualDesks;
   
   QCheckBox *passiveScreenshots;
   QCheckBox *dynamicVirtDeskLayout;

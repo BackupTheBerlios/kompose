@@ -37,15 +37,45 @@
 #include <time.h>
 
 #include "komposeimage.h"
+#include "komposeglobal.h"
 
+#ifdef COMPOSITE
+ #include <X11/extensions/Xrender.h>
+ #include <X11/extensions/Xcomposite.h>
+#endif
+ 
 KomposeTask::KomposeTask(WId win, KWinModule *kwinmod, QObject *parent, const char *name)
     : QObject(parent, name),
     kwinmodule(kwinmod),
     active(false),
     windowID(win)
 {
-  windowInfo = KWin::windowInfo(windowID);
+  refresh();
+  
+#ifdef COMPOSITE
+  // XComposite stuff
+  // We need to find out some things about the window, such as it's size, it's position
+  // on the screen, and the format of the pixel data
+  Display *dpy = QPaintDevice::x11AppDisplay();
+  XWindowAttributes attr;
+  XGetWindowAttributes( dpy, windowID, &attr );
+  XRenderPictFormat *format = XRenderFindVisualFormat( dpy, attr.visual );
+  hasAlpha             = ( format->type == PictTypeDirect && format->direct.alphaMask );
+  int x                     = attr.x;
+  int y                     = attr.y;
+  int width                 = attr.width;
+  int height                = attr.height;
 
+  // Create a Render picture so we can reference the window contents.
+  // We need to set the subwindow mode to IncludeInferiors, otherwise child widgets
+  // in the window won't be included when we draw it, which is not what we want.
+  XRenderPictureAttributes pa;
+  pa.subwindow_mode = IncludeInferiors; // Don't clip child widgets
+
+  picture = XRenderCreatePicture( dpy, windowID, format, CPSubwindowMode, &pa );
+  // End of XComposite stuff
+#endif
+  
   screenshot = new KomposeImage();
 
   // This will empty our image cache after the view has been closed (saves a lot of ram)
@@ -242,7 +272,7 @@ void KomposeTask::toggleShaded()
  */
 void KomposeTask::refresh()
 {
-  qDebug("KomposeTask::refresh() - Window parameters have changed");
+  qDebug("KomposeTask::refresh() - Window parameters have changed or initial refresh");
   windowInfo = KWin::windowInfo(windowID);
 
   if ( !windowInfo.valid() )
@@ -261,17 +291,49 @@ void KomposeTask::refresh()
 
 void KomposeTask::updateScreenshot()
 {
-  bool iconifyLater = false;
+  // First we try XComposite and hope that it works
+  if ( KomposeGlobal::instance()->hasXcomposite() )
+  {
+#ifdef COMPOSITE
+    if ( isIconified() || !isOnCurrentDesktop() )
+    {
+      qDebug("KomposeTask::updateScreenshot() - XComposite Picture not available (minimized or not on current desktop.");
+      captureScreenshot();
+    }
 
+    qDebug("KomposeTask::updateScreenshot() - XComposite succeeded.");
+    QRect geom = windowInfo.geometry();
+    QPixmap pm_screenshot(geom.width(), geom.height() );
+
+    pm_screenshot.fill(white);
+    
+    XRenderComposite( QPaintDevice::x11AppDisplay(), hasAlpha ? PictOpOver : PictOpSrc, picture, None,
+                      pm_screenshot.x11RenderHandle(), 0, 0, 0, 0, 0, 0, geom.width(), geom.height() );
+    screenshot->setImage( pm_screenshot );
+
+    return;
+#endif  
+  } else {
+    // Fallback to traditional screenshots when XComposite fails
+    qDebug("KomposeTask::updateScreenshot() - XComposite failed -> Capturing screenshot.");
+    captureScreenshot();
+  }
+  
+}
+
+void KomposeTask::captureScreenshot()
+{
+  bool iconifyLater = false;
+  
   if ( screenshot->isValid() )
   {
     if ( KomposeSettings::instance()->getPassiveScreenshots() && isOnTop() )
     {
-      qDebug("KomposeTask::updateScreenshot() - Screenshot already exists, but passive mode on - Grabbing new one.");
+      qDebug("KomposeTask::captureScreenshot() - Screenshot already exists, but passive mode on - Grabbing new one.");
     }
     else
     {
-      qDebug("KomposeTask::updateScreenshot() - Screenshot already exists... skipping.");
+      qDebug("KomposeTask::captureScreenshot() - Screenshot already exists... skipping.");
       return;
     }
   }
@@ -281,11 +343,11 @@ void KomposeTask::updateScreenshot()
 
     if ( isIconified() == true )
     {
-      qDebug("KomposeTask::updateScreenshot() - Window iconified... we have to raise it and iconify it again later.");
+      qDebug("KomposeTask::captureScreenshot() - Window iconified... we have to raise it and iconify it again later.");
       iconifyLater = true;
     }
 
-    qDebug("KomposeTask::updateScreenshot() - Forcing activation (no screenshot exists)");
+    qDebug("KomposeTask::captureScreenshot() - Forcing activation (no screenshot exists)");
     activateOrRaise();
   }
 
@@ -300,7 +362,7 @@ void KomposeTask::updateScreenshot()
     req = rem;
 
   // pm_screenshot = QPixmap::grabWindow( rootWin->winId(), geom.x(), geom.y(), geom.width(), geom.height() );
-  QPixmap   pm_screenshot = QPixmap::grabWindow( windowID );
+  QPixmap pm_screenshot = QPixmap::grabWindow( windowID );
 
   screenshot->setImage( pm_screenshot );
 
@@ -334,7 +396,7 @@ void KomposeTask::updateScreenshot()
   if ( iconifyLater )
     QTimer::singleShot( 1000, this, SLOT( iconify() ) );
 
-  qDebug("KomposeTask::updateScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
+  qDebug("KomposeTask::captureScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
 }
 
 

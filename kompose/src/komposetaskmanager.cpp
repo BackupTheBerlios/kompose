@@ -36,6 +36,11 @@
 #include <qpixmap.h>
 #include <qapplication.h>
 
+#ifdef COMPOSITE
+ #include <X11/extensions/Xrender.h>
+ #include <X11/extensions/Xcomposite.h>
+#endif
+
 static KomposeTaskManager* taskManagerInstance = 0;
 
 
@@ -59,8 +64,17 @@ KomposeTaskManager::KomposeTaskManager()
     activeView(0)
 {
   taskManagerInstance = this;
-
   qDebug("KomposeTaskManager::KomposeTaskManager()");
+
+#ifdef COMPOSITE
+  // Enable offscreen rendering for all Rootwins
+  Display *dpy = QPaintDevice::x11AppDisplay();
+  for ( int i = 0; i < ScreenCount( dpy ); i++ )
+    XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ),
+                                  CompositeRedirectAutomatic );
+  // End of XComposite stuff
+#endif  
+  
   kwinmodule = new KWinModule(this, 2);
   numDesks = KWin::numberOfDesktops();
 
@@ -117,14 +131,12 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
     if ( (info.state() & NET::SkipTaskbar) != 0 )
     {
       slotWindowRemoved( w );
-      //_skiptaskbar_windows.push_front( w );
       return;
     }
     else
     {
-      //_skiptaskbar_windows.remove( w );
       if( !findTask( w ))
-        slotWindowAdded( w ); // skipTaskBar state was removed, so add this window
+        slotWindowAdded( w );
     }
   }
 
@@ -169,14 +181,13 @@ void KomposeTaskManager::slotWindowAdded(WId w )
     return;
   }
 
-  NETWinInfo info (qt_xdisplay(),  w, qt_xrootwin(),
-                   NET::WMWindowType | NET::WMPid | NET::WMState );
+  KWin::WindowInfo info = KWin::windowInfo(w);
 
   // ignore NET::Tool and other special window types
-  if (info.windowType() != NET::Normal
-      && info.windowType() != NET::Override
-      && info.windowType() != NET::Unknown
-      && info.windowType() != NET::Dialog)
+  if (info.windowType(NET::AllTypesMask) != NET::Normal
+      && info.windowType(NET::AllTypesMask) != NET::Override
+      && info.windowType(NET::AllTypesMask) != NET::Unknown
+      && info.windowType(NET::AllTypesMask) != NET::Dialog)
     return;
 
   // ignore windows that want to be ignored by the taskbar
@@ -185,6 +196,9 @@ void KomposeTaskManager::slotWindowAdded(WId w )
     return;
   }
 
+  if ( !info.valid() )
+    return;
+    
   KomposeTask* t = new KomposeTask(w, kwinmodule, this);
   tasklist.append(t);
 
@@ -203,17 +217,17 @@ void KomposeTaskManager::slotUpdateScreenshots()
 
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
-    
+
   // Disable passive screenshots temporarily as we want to force screenshots now
   bool passiveScreenshots = KomposeSettings::instance()->getPassiveScreenshots();
   KomposeSettings::instance()->setPassiveScreenshots( false );
-  
+
   while ( (task = it.current()) != 0 )
   {
     ++it;
     task->updateScreenshot();
   }
-  
+
   if ( passiveScreenshots )
     KomposeSettings::instance()->setPassiveScreenshots( true );
 }

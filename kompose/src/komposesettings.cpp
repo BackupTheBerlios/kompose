@@ -47,11 +47,11 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
   // Init global shortcut object
   globalAccel = new KGlobalAccel( this );
   globalAccel->insert( "showAllTasksView", i18n("Show Kompose (ungrouped)"),
-                       i18n("Displays all Windows unsorted."),
+                       i18n("Displays all windows unsorted"),
                        CTRL+SHIFT+Key_J, KKey::QtWIN+CTRL+SHIFT+Key_J,
                        KomposeTaskManager::instance(), SLOT(createWorldView()) );
-  globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose (grouped by Virtual Desktops)"),
-                       i18n("Displays all Windows sorted by Virtual Desktops."),
+  globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose (grouped by virtual desktops)"),
+                       i18n("Displays all windows sorted by virtual desktops"),
                        CTRL+SHIFT+Key_I, KKey::QtWIN+CTRL+SHIFT+Key_I,
                        KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()) );
 
