@@ -1,0 +1,231 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2004-08-24 19:57+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: _translatorinfo.cpp:1
+msgid ""
+"_: NAME OF TRANSLATORS\n"
+"Your names"
+msgstr ""
+
+#: _translatorinfo.cpp:3
+msgid ""
+"_: EMAIL OF TRANSLATORS\n"
+"Your emails"
+msgstr ""
+
+#: komposedesktopwidget.cpp:54
+msgid "Desktop %1 - %2"
+msgstr ""
+
+#: komposeglobal.cpp:112
+msgid "Configure &Global Shortcuts..."
+msgstr ""
+
+#: komposepreferences.cpp:38
+msgid "Behaviour"
+msgstr ""
+
+#: komposepreferences.cpp:40
+msgid "Layouts"
+msgstr ""
+
+#: komposepreferences.cpp:44
+msgid "Default Layout"
+msgstr ""
+
+#: komposepreferences.cpp:46
+msgid ""
+"Determines which View should be started by default (e.g. when you click on "
+"the systray icon)."
+msgstr ""
+
+#: komposepreferences.cpp:49
+msgid "Ungrouped"
+msgstr ""
+
+#: komposepreferences.cpp:50
+msgid "Fullscreen Layout that shows all windows in no specific order"
+msgstr ""
+
+#: komposepreferences.cpp:53
+msgid "Grouped  by Virtual Desktops"
+msgstr ""
+
+#: komposepreferences.cpp:54
+msgid ""
+"Fullscreen Layout that shows a representation of your Virtual Desktops\n"
+" and places the windows inside."
+msgstr ""
+
+#: komposepreferences.cpp:60
+msgid "Screenshots"
+msgstr ""
+
+#: komposepreferences.cpp:62
+msgid "Passive Screenshots"
+msgstr ""
+
+#: komposepreferences.cpp:74
+msgid "Delay between Screenshots (ms)"
+msgstr ""
+
+#: komposepreferences.cpp:75
+msgid ""
+"Specifies the time to wait between the Activation of a window and the "
+"screenshot Taking.\n"
+"Increase it when your windows need more time to draw themselves after "
+"activation.\n"
+"Values below 300ms are not recommended, but may work in some cases"
+msgstr ""
+
+#: komposepreferences.cpp:89
+msgid "Enable image effects"
+msgstr ""
+
+#: komposepreferences.cpp:90
+msgid ""
+"Lighten windows when the mouse moves over it or gray out minimized windows.\n"
+"Depending on your system specs this can be a bit slower."
+msgstr ""
+
+#: komposepreferences.cpp:96
+msgid "Window titles"
+msgstr ""
+
+#: komposepreferences.cpp:99
+msgid "Show Window titles"
+msgstr ""
+
+#: komposepreferences.cpp:100
+msgid "Select Font"
+msgstr ""
+
+#: komposepreferences.cpp:109
+msgid "Text Color: "
+msgstr ""
+
+#: komposepreferences.cpp:113
+msgid "Shadow Color: "
+msgstr ""
+
+#: komposepreferences.cpp:123
+msgid "Task Icons"
+msgstr ""
+
+#: komposepreferences.cpp:124
+msgid "Show Icons"
+msgstr ""
+
+#: komposepreferences.cpp:139
+msgid "grouped by Virtual Desktops"
+msgstr ""
+
+#: komposepreferences.cpp:140
+msgid "Layout empty Virtual Desktops minimized"
+msgstr ""
+
+#: komposepreferences.cpp:141
+msgid ""
+"Check this if you want empty Virtual Desktops to take less space on the "
+"screen.\n"
+"Uncheck it if you want them to be arranged statically, each of the same size."
+msgstr ""
+
+#: komposepreferences.cpp:147
+msgid "Tint Virtual Desktop widgets: "
+msgstr ""
+
+#: komposepreferences.cpp:149
+msgid "Colorize the transparent background of the Virtual Desktop widgets"
+msgstr ""
+
+#: komposepreferences.cpp:155
+msgid "Desktop frame color: "
+msgstr ""
+
+#: komposepreferences.cpp:157
+msgid "Desktop frame highlight color: "
+msgstr ""
+
+#: komposepreferences.cpp:162
+msgid "Select desktop names font"
+msgstr ""
+
+#: komposepreferences.cpp:180
+msgid "16x16"
+msgstr ""
+
+#: komposepreferences.cpp:183
+msgid "32x32"
+msgstr ""
+
+#: komposepreferences.cpp:186
+msgid "64x64"
+msgstr ""
+
+#: komposepreferences.cpp:189
+msgid "Don't scale, show as they are (preferably bigger)"
+msgstr ""
+
+#: komposesettings.cpp:49
+msgid "Show Kompose (ungrouped)"
+msgstr ""
+
+#: komposesettings.cpp:50
+msgid "Displays all Windows unsorted."
+msgstr ""
+
+#: komposesettings.cpp:53
+msgid "Show Kompose (grouped by Virtual Desktops)"
+msgstr ""
+
+#: komposesettings.cpp:54
+msgid "Displays all Windows sorted by Virtual Desktops."
+msgstr ""
+
+#: komposetask.cpp:112
+msgid "modified"
+msgstr ""
+
+#: komposetaskprefswidget.cpp:33
+msgid "Task Actions"
+msgstr ""
+
+#: komposetaskprefswidget.cpp:34
+msgid "Task"
+msgstr ""
+
+#: komposetaskprefswidget.cpp:46
+msgid "Minimize/Restore"
+msgstr ""
+
+#: main.cpp:31
+msgid "A fullscreen task manager for KDE"
+msgstr ""
+
+#: main.cpp:37
+msgid "Don't show the systray icon"
+msgstr ""
+
+#: main.cpp:38
+msgid "Display the default view and exit (non daemon mode)"
+msgstr ""
+
+#: main.cpp:63
+msgid "Kompose"
+msgstr ""

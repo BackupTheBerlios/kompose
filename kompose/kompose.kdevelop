@@ -21,7 +21,7 @@
   <kdevautoproject>
     <general>
       <activetarget>src/kompose</activetarget>
-      <useconfiguration>debug</useconfiguration>
+      <useconfiguration>default</useconfiguration>
     </general>
     <run>
       <mainprogram>src/kompose</mainprogram>

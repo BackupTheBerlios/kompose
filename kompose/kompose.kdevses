@@ -1,19 +1,10 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="4" >
-  <Doc0 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposefullscreenwidget.cpp" >
-   <View0 Type="Source" />
+ <DocsAndViews NumberOfDocuments="1" >
+  <Doc0 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/main.cpp" >
+   <View0 line="24" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetaskwidget.cpp" >
-   <View0 Type="Source" />
-  </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetaskwidget.h" >
-   <View0 Type="Source" />
-  </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/main.cpp" >
-   <View0 line="56" Type="Source" />
-  </Doc3>
  </DocsAndViews>
  <pluginList>
   <kdevbookmarks>
@@ -25,8 +16,8 @@
   <kdevvalgrind>
    <executable path="" params="" />
    <valgrind path="" params="" />
-   <calltree path="/usr/bin/calltree" params="" />
-   <kcachegrind path="/usr/kde/3.3/bin/kcachegrind" />
+   <calltree path="" params="" />
+   <kcachegrind path="" />
   </kdevvalgrind>
   <kdevdebugger>
    <breakpointList/>

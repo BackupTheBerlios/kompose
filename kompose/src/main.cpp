@@ -21,6 +21,8 @@
 #include "kompose.h"
 #include "komposeglobal.h"
 
+#include <stdlib.h>
+
 #include <kapplication.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
