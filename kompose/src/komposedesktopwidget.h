@@ -41,6 +41,9 @@ public:
 //   int getWidthForHeight( int h ) const;
 //   double getAspectRatio();
 
+signals:
+  void contentsChanged();
+  
 protected:
   void paintEvent ( QPaintEvent * );
   void dragEnterEvent ( QDragEnterEvent * );
@@ -49,7 +52,8 @@ protected:
   void enterEvent ( QEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
   void mouseDoubleClickEvent ( QMouseEvent * e );
-  
+  void childEvent( QChildEvent * ce);
+
 private:
   QRect deskRect;
   KRootPixmap *rootpix;

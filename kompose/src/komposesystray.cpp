@@ -32,21 +32,20 @@ KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
 {
   // Actions
   //   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection() );
-  actShowWorldView = new KAction(QString("Komposé"), "background",
+  actShowWorldView = new KAction(i18n(QString("Komposé").utf8()), "background",
                                  0,
                                  KomposeTaskManager::instance(), SLOT(createWorldView()),
                                  actionCollection(), "showWorldView");
-  actShowVirtualDesktopView = new KAction(QString("Komposé (arranged by virtual desktops)"), "background",
+  actShowVirtualDesktopView = new KAction(i18n(QString("Komposé (arranged by virtual desktops)").utf8()), "background",
                                           0,
                                           KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()),
                                           actionCollection(), "showVirtualDesktopView");
-  actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()),
-                              actionCollection() );
+  actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()), actionCollection() );
 
   actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
                               actionCollection(), "options_configure_global_keybinding");
   actConfigGlobalShortcuts->setText(i18n("Configure &Global Shortcuts..."));
-  KAction *actAboutDlg      = new KAction(QString("About Komposé"), "kompose",
+  KAction *actAboutDlg      = new KAction(i18n(QString("About Komposé").utf8()), "kompose",
                                           0,
                                           this, SLOT(showAbutDlg()),
                                           actionCollection(), "showAbutDlg");

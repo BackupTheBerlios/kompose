@@ -44,6 +44,7 @@ protected:
 
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
+  void keyReleaseEvent ( QKeyEvent * e );
   
   void destroyChildWidgets();
 //   virtual void closeEvent ( QCloseEvent * e );

@@ -25,37 +25,48 @@
 
 #include "komposewidgetinterface.h"
 
+class QRect;
+
+enum LayoutType { TLAYOUT_GENERIC,  // layouts all KomposeWidgetInterface classes
+                  TLAYOUT_TASKCONTAINERS  // layouts containers only
+                };
+
 /**
 The main layout class.
 QLayout just didn't fit :(
-
+ 
 @author Hans Oischinger
 */
 class KomposeLayout : public QObject
 {
   Q_OBJECT
 public:
-  KomposeLayout( KomposeWidgetInterface *parent, int dist = 10, const char *name = 0 );
+  KomposeLayout( KomposeWidgetInterface *parent, int type = TLAYOUT_GENERIC, int dist = 10, const char *name = 0 );
 
   ~KomposeLayout();
 
   void add( KomposeWidgetInterface *w );
   void remove( KomposeWidgetInterface *w );
-
-  const QPtrList<KomposeWidgetInterface> *getManagedWidgets() { return &list; }
+  void setType( int t) { layoutType = t; }
+  int getType() { return layoutType; }
   
+  const QPtrList<KomposeWidgetInterface> *getManagedWidgets() { return &list; }
+  int getNumofChilds() { return list.count(); }
+
 public slots:
   void arrangeLayout();
 
 protected:
   void rearrangeContents();
+  void rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidgetInterface> widgets, int rows = -1, int columns = -1 );
 
 private:
   QPtrList<KomposeWidgetInterface> list;
   QSize currentSize;
+  int layoutType;
   int spacing;
   bool widgetsChanged;
-  
+
   KomposeWidgetInterface* parentWidget;
 };
 

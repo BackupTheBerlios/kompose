@@ -1,19 +1,34 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="4" >
-  <Doc0 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetask.h" >
-   <View0 line="94" Type="Source" />
+ <DocsAndViews NumberOfDocuments="9" >
+  <Doc0 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposedesktopwidget.cpp" >
+   <View0 line="129" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetask.cpp" >
-   <View0 line="321" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposewidget.cpp" >
+   <View0 line="65" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetaskmanager.cpp" >
-   <View0 line="295" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposedesktopwidget.h" >
+   <View0 line="55" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetaskmanager.h" >
-   <View0 line="79" Type="Source" />
+  <Doc3 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposefullscreenwidget.cpp" >
+   <View0 line="102" Type="Source" />
   </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposewidget.h" >
+   <View0 line="51" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetaskmanager.cpp" >
+   <View0 line="158" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposetaskwidget.cpp" >
+   <View0 line="63" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposelayout.cpp" >
+   <View0 line="152" Type="Source" />
+  </Doc7>
+  <Doc8 NumberOfViews="1" URL="file:/home/oisch/dokumente/Projekte/kompose/src/komposeglwidget.cpp" >
+   <View0 line="67" Type="Source" />
+  </Doc8>
  </DocsAndViews>
  <pluginList>
   <kdevbookmarks>

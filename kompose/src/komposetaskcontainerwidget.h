@@ -14,8 +14,7 @@
 
 #include "komposewidget.h"
 #include "komposetask.h"
-
-class KomposeLayout;
+#include "komposelayout.h"
 
 /**
  * This abstract class contains some functions only usable for
@@ -38,6 +37,7 @@ public:
   
   void setDesktop( int desk ) { desktop = desk; }
   int getDesktop() { return desktop; }
+  int getNumofChilds() { return layout->getNumofChilds(); }
   
 protected slots:
   void createTaskWidgets();

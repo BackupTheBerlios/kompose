@@ -72,10 +72,8 @@ void KomposeTaskWidget::slotTaskDestroyed()
   disconnect( task, SIGNAL( stateChanged() ), this, SLOT( repaint() ) );
   if (KomposeTaskManager::instance()->hasActiveView())
   {
-//     prefWidget->close();
+    parent()->removeChild( this );
     close();
-    //     Q_CHECK_PTR(parent());
-    //     parent()->removeChild( this );
   }
 }
 

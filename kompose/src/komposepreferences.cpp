@@ -28,20 +28,20 @@
 #include <kcolorbutton.h>
 
 KomposePreferences::KomposePreferences()
-    : KDialogBase(IconList, QString("Komposé Preferences"), Ok|Apply|Cancel, Ok)
+    : KDialogBase(IconList, i18n(QString("Komposé Preferences").utf8()), Ok|Apply|Cancel, Ok)
 {
   QFrame *page1 = addPage( i18n("Behaviour"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
 
   QVBoxLayout *page1Layout = new QVBoxLayout( page1, 0, KDialog::spacingHint() );
 
-  defaultViewBtnGroup = new QButtonGroup( 2, Horizontal, "Default View", page1 );
+  defaultViewBtnGroup = new QButtonGroup( 2, Horizontal, i18n("Default View"), page1 );
   defaultViewBtnGroup->setExclusive( true );
   QString defaultViewBtnGroupHelp = i18n("Determines which View should be started by default (e.g. when you click on the systray icon).");
   QWhatsThis::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
   QToolTip::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
-  defaultViewWorld = new QCheckBox(QString("Exposé-style View"), defaultViewBtnGroup );
-  QString defaultViewWorldHelp = QString("Fullscreen View that shows all tasks in the way Apple's Exposé does it.");
+  defaultViewWorld = new QCheckBox(i18n("Unordered View"), defaultViewBtnGroup );
+  QString defaultViewWorldHelp = i18n("Fullscreen View that shows all tasks in no specific order");
   QWhatsThis::add( defaultViewWorld, defaultViewWorldHelp );
   QToolTip::add( defaultViewWorld, defaultViewWorldHelp );
   defaultViewVirtualDesks = new QCheckBox(i18n("Arranged by Virtual Desktops"), defaultViewBtnGroup );
@@ -51,10 +51,10 @@ KomposePreferences::KomposePreferences()
   page1Layout->addWidget(defaultViewBtnGroup);
   
   
-  QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, "Screenshots", page1 );
+  QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, i18n("Screenshots"), page1 );
   
   passiveScreenshots = new QCheckBox(i18n("Passive Screenshots"), screenshotsGroupBox);
-  QString passiveScreenshotsHelp = QString("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.");
+  QString passiveScreenshotsHelp = i18n(QString("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.").utf8());
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
   QToolTip::add( passiveScreenshots, passiveScreenshotsHelp );
 

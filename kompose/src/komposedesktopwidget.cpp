@@ -32,6 +32,7 @@
 #include <qcursor.h>
 #include <qtooltip.h>
 
+#include <klocale.h>
 #include <krootpixmap.h>
 #include <kwin.h>
 #include <kwinmodule.h> 
@@ -47,7 +48,7 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
   KWinModule kwinmodule( this, 1 );
 
-  QToolTip::add( this, QString("Desktop %1 - %2").arg(desktop).arg(kwinmodule.desktopName(desktop+1)) );
+  QToolTip::add( this, i18n("Desktop %1 - %2").arg(desktop).arg(kwinmodule.desktopName(desktop+1)) );
   
   rootpix = new KRootPixmap (this);
   if ( KomposeSettings::instance()->getTintVirtDesks() )
@@ -150,5 +151,11 @@ void KomposeDesktopWidget::dropEvent ( QDropEvent * e )
   }
 }
 
+
+void KomposeDesktopWidget::childEvent ( QChildEvent * ce)
+{
+  KomposeWidget::childEvent( ce );  
+  emit contentsChanged();
+}
 
 #include "komposedesktopwidget.moc"

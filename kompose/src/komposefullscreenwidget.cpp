@@ -31,12 +31,10 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
     type(displayType)
 {
   //   if ( QT_VERSION < 0x030300 )
-  //   {
-  setWindowState(Qt::WindowMaximized | Qt::WindowActive);
+  
+  /* use showMaximized instead of setWindowState to make it compile on qt 3.1 or whatever */
+  showMaximized();
   showFullScreen();
-  //   } else {
-  //     setWindowState(Qt::WindowFullScreen | Qt::WindowActive);
-  //   }
 
   rootpix = new KRootPixmap (this);
   initView();
@@ -76,11 +74,13 @@ void KomposeFullscreenWidget::initView()
 
   if ( type == KOMPOSEDISPLAY_VIRTUALDESKS )
   {
+    layout->setType( TLAYOUT_TASKCONTAINERS );
     createDesktopWidgets();
     disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
   else if ( type == KOMPOSEDISPLAY_WORLD )
   {
+    layout->setType( TLAYOUT_GENERIC );
     setDesktop( -1 );
     createTaskWidgets();
     connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
@@ -100,6 +100,7 @@ void KomposeFullscreenWidget::createDesktopWidgets()
     int col = i % 2;
     //qDebug("rc %d %d", row, col);
     KomposeDesktopWidget *desktop = new KomposeDesktopWidget(i, this );
+    connect(desktop, SIGNAL(contentsChanged()), layout, SLOT(arrangeLayout()) );
     desktop->show();
   }
 }
@@ -125,6 +126,22 @@ void KomposeFullscreenWidget::mousePressEvent ( QMouseEvent * e )
     // nothing
     break;
   }
+}
+
+void KomposeFullscreenWidget::keyReleaseEvent ( QKeyEvent * e )
+{
+  if ( e->key() == Qt::Key_Escape )
+  {
+    qDebug("KomposeFullscreenWidget::keyReleaseEvent - Esc key pressed - Closing view");
+    KomposeTaskManager::instance()->closeCurrentView();
+    e->accept();
+  }
+  else
+  {
+    qDebug("KomposeFullscreenWidget::keyReleaseEvent - ignored...");
+    e->ignore();
+  }
+
 }
 
 int KomposeFullscreenWidget::getHeightForWidth ( int w ) const

@@ -23,14 +23,15 @@
 #include <kshortcut.h>
 #include <kiconloader.h>
 #include <kapplication.h>
+#include <klocale.h>
 
 #include <qiconset.h>
 
 KomposeTaskPrefsWidget::KomposeTaskPrefsWidget(KomposeTaskWidget *parent, const char *name)
     : QDockArea(Qt::Horizontal , QDockArea::Normal, parent, name)
 {
-  KToolBar* pToolBar = new KToolBar( this, "Task Actions" );
-  pToolBar->setLabel("Task");
+  KToolBar* pToolBar = new KToolBar( this, i18n("Task Actions") );
+  pToolBar->setLabel(i18n("Task"));
   pToolBar->setResizeEnabled ( false );
   pToolBar->setMovingEnabled ( false );
   pToolBar->setHorizontallyStretchable ( false );
@@ -39,10 +40,10 @@ KomposeTaskPrefsWidget::KomposeTaskPrefsWidget(KomposeTaskWidget *parent, const 
 
   KActionCollection *actColl = new KActionCollection( this );
 
-  actCloseTask = new KAction( trUtf8("Close"), "fileclose", Key_Delete , parent->getTask(),
+  actCloseTask = new KAction( i18n("Close"), "fileclose", Key_Delete , parent->getTask(),
                               SLOT( close() ), actColl, "closeTask" );
-                              actCloseTask->setToolTip("Close");
-  actMinimizeRestoreTask = new KAction( trUtf8("Minimize/Restore"), "", KShortcut() , this,
+                              actCloseTask->setToolTip(i18n("Close"));
+  actMinimizeRestoreTask = new KAction( i18n("Minimize/Restore"), "", KShortcut() , this,
                                         SLOT( slotMinimizeRestoreToggled() ), actColl, "minimizeRestoreTask" );
 
   actMinimizeRestoreTask->plug(pToolBar);
