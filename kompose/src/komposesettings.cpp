@@ -11,6 +11,7 @@
 //
 #include "komposesettings.h"
 
+#include "komposeviewmanager.h"
 #include "komposetaskmanager.h"
 #include "komposepreferences.h"
 
@@ -49,11 +50,11 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
   globalAccel->insert( "showAllTasksView", i18n("Show Kompose (ungrouped)"),
                        i18n("Displays all windows unsorted"),
                        CTRL+SHIFT+Key_J, KKey::QtWIN+CTRL+SHIFT+Key_J,
-                       KomposeTaskManager::instance(), SLOT(createWorldView()) );
+                       KomposeViewManager::instance(), SLOT(createWorldView()) );
   globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose (grouped by virtual desktops)"),
                        i18n("Displays all windows sorted by virtual desktops"),
                        CTRL+SHIFT+Key_I, KKey::QtWIN+CTRL+SHIFT+Key_I,
-                       KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()) );
+                       KomposeViewManager::instance(), SLOT(createVirtualDesktopView()) );
 
   // read Settings from cfg file
   readConfig();
@@ -86,7 +87,6 @@ void KomposeSettings::readConfig()
   defaultView = kapp->config()->readNumEntry("defaultView", KOMPOSEDISPLAY_VIRTUALDESKS);
   
   passiveScreenshots = kapp->config()->readBoolEntry("passiveScreenshots", true);
-//   onlyOneScreenshot = kapp->config()->readBoolEntry("onlyOneScreenshot", false);
   screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400000000);
 
   dynamicVirtDeskLayout = kapp->config()->readBoolEntry("dynamicVirtDeskLayout", true);
@@ -110,7 +110,9 @@ void KomposeSettings::readConfig()
   desktopTitleFont = kapp->config()->readFontEntry("desktopTitleFont", new QFont( "arial", 10 ) );
   desktopTitleFontColor = kapp->config()->readColorEntry("desktopTitleFontColor", new QColor(Qt::gray) );
   desktopTitleFontHighlightColor = kapp->config()->readColorEntry("desktopTitleFontHighlightColor", new QColor(Qt::black) );
-  
+
+  cacheScaledPixmaps = kapp->config()->readBoolEntry("cacheScaledPixmaps", false);
+    
   emit settingsChanged();
 }
 
@@ -149,6 +151,9 @@ void KomposeSettings::writeConfig()
   kapp->config()->writeEntry("desktopTitleFont", desktopTitleFont);
   kapp->config()->writeEntry("desktopTitleFontColor", desktopTitleFontColor);
   kapp->config()->writeEntry("desktopTitleFontHighlightColor", desktopTitleFontHighlightColor);
+  
+  kapp->config()->writeEntry("cacheScaledPixmaps", cacheScaledPixmaps);
+  
   
   kapp->config()->sync();
 

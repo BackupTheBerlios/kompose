@@ -23,17 +23,10 @@
 #include <qobject.h>
 #include <qptrlist.h>
 
-#include <dcopobject.h> 
-
-#include "komposetask.h"
-#include "komposefullscreenwidget.h"
-#include "komposetaskmgrdcopiface.h"
 
 class KWinModule;
-class KomposeLayout;
-class QWidget;
-class KomposeDesktopWidget;
 class KomposeTaskManager;
+class KomposeTask;
 
 typedef QPtrList<KomposeTask> TaskList;
 
@@ -41,61 +34,44 @@ typedef QPtrList<KomposeTask> TaskList;
 /**
 @author Hans Oischinger
 */
-class KomposeTaskManager : public QObject, virtual public KomposeTaskMgrDcopIface
+class KomposeTaskManager : public QObject
 {
   Q_OBJECT
 protected:
   KomposeTaskManager();
 
   ~KomposeTaskManager();
+  
 public:
+  static KomposeTaskManager *instance();
 
   bool isOnTop(const KomposeTask* task );
-
-  static KomposeTaskManager *instance();
-  QWidget* getViewWidget() { return viewWidget; }
   int getNumDesktops() { return numDesks; }
   TaskList getTasks() const { return tasklist; }
   
-  // Dcop functions
-  void createDefaultView();
-  
-public slots:
-  void createView( int type = -1 ); // -1 means the user's default
-  void createVirtualDesktopView();
-  void createWorldView();
-  void closeCurrentView();
-  bool hasActiveView() { return activeView; }
-  
-  void setCurrentDesktop( int desknum );
-  void activateTask( KomposeTask* task );
+public slots:  
+  bool processX11Event( XEvent *event );
+  void slotUpdateScreenshots();
 
-protected slots:
   void slotStartWindowListeners();
   
-  void slotUpdateScreenshots();
-  void slotUpdateScreenshot(WId);
-  
+  void slotTaskActivated(WId);
   void slotWindowAdded( WId w );
   void slotWindowRemoved( WId w );
-  void slotWindowChanged( WId w, unsigned int properties);
-  void slotDesktopCountChanged(int d);
+  void slotWindowChanged( WId, unsigned int );
+  void slotDesktopCountChanged(int);
+  void slotCurrentDesktopChanged(int);
   
 signals:
   void newTask( KomposeTask* task );
-  void viewClosed();
 
 protected:
-  KomposeTask* findTask(WId w);
-//   bool process(const QCString &fun, const QByteArray &data, QCString &replyType, QByteArray &replyData);
+  KomposeTask* findTask(WId w, bool wmFrameIds = false);
   
 private:
-  KWinModule* kwinmodule;
-  KomposeFullscreenWidget *viewWidget;    // the widget where all action takes place
-  bool activeView;        // used to check if a view is active
+  KWinModule* kwin_module;
   TaskList tasklist;      // list of tasks handled by the WM
 
-  int deskBeforeSnaps;    // the virtual desk we were on befor screenshots were taken
   int numDesks;           // total num of desks
 };
 

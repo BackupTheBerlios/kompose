@@ -5,8 +5,8 @@ INCLUDES = $(all_includes) -I `imlib2-config --cflags`
 noinst_HEADERS = kompose.h komposetaskmanager.h komposetask.h komposewidget.h \
 	komposetaskwidget.h komposedesktopwidget.h komposelayout.h komposesystray.h \
 	komposefullscreenwidget.h komposesettings.h komposepreferences.h komposetaskprefswidget.h \
-	komposewidgetinterface.h komposeglobal.h komposetaskcontainerwidget.h komposetaskmgrdcopiface.h \
-	komposeimage.h
+	komposeglobal.h komposetaskcontainerwidget.h komposeimage.h komposetaskvisualizer.h \
+	komposeviewmanager.h komposedcopiface.h
 
 # let automoc handle all of the meta source files (moc)
 METASOURCES = AUTO
@@ -27,8 +27,8 @@ bin_PROGRAMS = kompose
 kompose_SOURCES = main.cpp kompose.cpp komposetaskmanager.cpp komposetask.cpp \
 	komposewidget.cpp komposetaskwidget.cpp komposedesktopwidget.cpp komposelayout.cpp \
 	komposesystray.cpp komposefullscreenwidget.cpp komposesettings.cpp komposepreferences.cpp \
-	komposetaskprefswidget.cpp komposewidgetinterface.cpp komposeglobal.cpp \
-	komposetaskcontainerwidget.cpp komposetaskmgrdcopiface.skel komposeimage.cpp
+	komposetaskprefswidget.cpp komposeglobal.cpp komposetaskcontainerwidget.cpp komposeimage.cpp \
+	komposetaskvisualizer.cpp komposeviewmanager.cpp komposedcopiface.skel
 #kompose_LDFLAGS = $(KDE_RPATH) $(all_libraries) -lX11 -lXext -lm `pkg-config xft xrender xcomposite xdamage xfixes --libs` `imlib2-config --libs`
 kompose_LDFLAGS = $(KDE_RPATH) $(all_libraries) -lX11 -lXext -lm `imlib2-config --libs`
 kompose_LDADD = $(LIB_KDEUI) $(LIB_XRENDER)

@@ -21,15 +21,14 @@
 #define KOMPOSEWIDGET_H
 
 #include <qwidget.h>
-#include "komposewidgetinterface.h"
-#include "komposelayout.h"
 
+class KomposeLayout;
 
 /**
 This base class for all Kompose Widgets glues the Layout and the widget together:
 @author Hans Oischinger
 */
-class KomposeWidget : public QWidget, public KomposeWidgetInterface
+class KomposeWidget : public QWidget
 {
 Q_OBJECT
 public:
@@ -38,11 +37,7 @@ public:
   virtual ~KomposeWidget();
 
   // KomposeWidgetInterface:
-  virtual KomposeWidgetInterface* getParentWidget() const;
-  virtual void setGeom( const QRect & );
-  virtual void setGeom( const QSize & );
-  virtual QSize getSize() const;
-  virtual QRect getRect() const;
+  virtual KomposeWidget* getParentWidget() const;
   virtual int getHeightForWidth( int w ) const = 0;
   virtual int getWidthForHeight( int h ) const = 0;
   virtual double getAspectRatio() = 0;

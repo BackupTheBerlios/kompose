@@ -23,28 +23,33 @@
 #include "komposedesktopwidget.h"
 #include "komposesettings.h"
 #include "komposetaskwidget.h"
-#include "komposefullscreenwidget.h"
 #include "komposeglobal.h"
+#include "komposetask.h"
+#include "komposeviewmanager.h"
 
+#include <qtimer.h>
+#include <qimage.h>
+#include <qpixmap.h>
+
+#include <kapplication.h>
 #include <kwinmodule.h>
 #include <netwm.h>
 #include <kwin.h>
 #include <kapplication.h>
 
-#include <qtimer.h>
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qapplication.h>
-
 #ifdef COMPOSITE
- #include <X11/extensions/Xrender.h>
- #include <X11/extensions/Xcomposite.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+// #include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+// #include <X11/extensions/Xdamage.h>
+// #include <X11/extensions/Xrender.h>
 #endif
 
 static KomposeTaskManager* taskManagerInstance = 0;
 
 
-/*
+/**
  * Taskmanager is a singleton
  */
 KomposeTaskManager* KomposeTaskManager::instance()
@@ -59,69 +64,64 @@ KomposeTaskManager* KomposeTaskManager::instance()
 
 
 KomposeTaskManager::KomposeTaskManager()
-    : QObject(), DCOPObject( "KomposeTaskMgrDcopIface" ),
-    viewWidget(),
-    activeView(0)
+    : QObject()
 {
   taskManagerInstance = this;
-  qDebug("KomposeTaskManager::KomposeTaskManager()");
-
-#ifdef COMPOSITE
-  // Enable offscreen rendering for all Rootwins
-  Display *dpy = QPaintDevice::x11AppDisplay();
-  for ( int i = 0; i < ScreenCount( dpy ); i++ )
-    XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ),
-                                  CompositeRedirectAutomatic );
-  // End of XComposite stuff
-#endif  
-  
-  kwinmodule = new KWinModule(this, 2);
+  kwin_module = new KWinModule();
   numDesks = KWin::numberOfDesktops();
 
-  // Added and removed wil alwasy be connected
-  connect( kwinmodule, SIGNAL(windowAdded(WId)), this, SLOT(slotWindowAdded(WId)) );
-  connect( kwinmodule, SIGNAL(windowRemoved(WId)), this, SLOT(slotWindowRemoved(WId)) );
+#ifdef COMPOSITE
+  // Redirect all root windows to offscreen buffers
+  if ( KomposeGlobal::instance()->hasXcomposite() )
+  {
+    Display *dpy = QPaintDevice::x11AppDisplay();
+    for ( int i = 0; i < ScreenCount( dpy ); i++ )
+      XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
+  }
+#endif
 
-  connect( kwinmodule, SIGNAL(numberOfDesktopsChanged(int)), this, SLOT(slotDesktopCountChanged(int)) );
-  // The other slots depend on user's settings
+
+  // Listeners for KWinmodule signals
+  connect( kwin_module, SIGNAL(windowAdded(WId)), this, SLOT(slotWindowAdded(WId)) );
+  connect( kwin_module, SIGNAL(windowRemoved(WId)), this, SLOT(slotWindowRemoved(WId)) );
+  connect( kwin_module, SIGNAL(numberOfDesktopsChanged(int)), this, SLOT(slotDesktopCountChanged(int)) );
+  connect( kwin_module, SIGNAL(currentDesktopChanged(int)), this, SLOT(slotCurrentDesktopChanged(int)) );
+
   connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(slotStartWindowListeners()) );
 
   // register existing windows
-  const QValueList<WId> windows = kwinmodule->windows();
+  const QValueList<WId> windows = kwin_module->windows();
   for (QValueList<WId>::ConstIterator it = windows.begin(); it != windows.end(); ++it )
     slotWindowAdded(*it);
 
-  if (KomposeSettings::instance()->getPassiveScreenshots())
-  {
-    qDebug("KomposeTaskManager::KomposeTaskManager() - Grabbing Screenshots passively");
-    connect( kwinmodule, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotUpdateScreenshot(WId)) );
-  }
-  else
-  {
-    qDebug("KomposeTaskManager::KomposeTaskManager() - Passive Screenshots disabled");
-    disconnect( kwinmodule, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotUpdateScreenshot(WId)) );
-  }
+  connect( kwin_module, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotTaskActivated(WId)) );
+  slotStartWindowListeners();
 }
 
 KomposeTaskManager::~KomposeTaskManager()
-{
-  //   delete taskManagerInstance;
-}
+{}
 
-
-void KomposeTaskManager::slotStartWindowListeners()
-{
-  connect( kwinmodule, SIGNAL(windowChanged( WId, unsigned int )), this,
-           SLOT(slotWindowChanged( WId, unsigned int )) );
-}
-
-KomposeTask* KomposeTaskManager::findTask(WId w)
+/**
+ * Helper function that finds a KomposeTask object by it's window id
+ * @param w WindowID of the Task
+ * @return Corresponding KomposeTask object
+ */
+KomposeTask* KomposeTaskManager::findTask(WId w, bool wmFrameIds )
 {
   for (KomposeTask* t = tasklist.first(); t != 0; t = tasklist.next())
-    if (t->window() == w )
+    if ((!wmFrameIds && t->window() == w) || (wmFrameIds && t->wmFrame() == w) )
       return t;
   return 0;
 }
+
+void KomposeTaskManager::slotStartWindowListeners()
+{
+  //disconnect( kwin_module, SIGNAL(windowChanged( WId, unsigned int )), this,
+  //            SLOT(slotWindowChanged( WId, unsigned int )) );
+  connect( kwin_module, SIGNAL(windowChanged( WId, unsigned int )), this,
+           SLOT(slotWindowChanged( WId, unsigned int )) );
+}
+
 
 void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
 {
@@ -147,7 +147,7 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
   // find task
   KomposeTask* t = findTask( w );
   if (!t) return;
-  
+
   // TODO: Instead of one refresh() method we could implement specific method for names and geometry, etc...
   // checked like this: if(dirty & (NET::WMDesktop|NET::WMState|NET::XAWMState))
   t->refresh();
@@ -168,7 +168,7 @@ void KomposeTaskManager::slotWindowRemoved(WId w )
 void KomposeTaskManager::slotWindowAdded(WId w )
 {
   // ignore myself
-  if ( viewWidget && w == viewWidget->winId() )
+  if ( KomposeViewManager::instance()->hasActiveView() && w == KomposeViewManager::instance()->getViewWidget()->winId() )
   {
     return;
   }
@@ -190,18 +190,17 @@ void KomposeTaskManager::slotWindowAdded(WId w )
 
   if ( !info.valid() )
     return;
-    
-  KomposeTask* t = new KomposeTask(w, kwinmodule, this);
+
+  qDebug("KomposeTaskManager::slotWindowAdded(WId %d ) - Adding KomposeTask", w);
+  KomposeTask* t = new KomposeTask(w, kwin_module, this);
   tasklist.append(t);
 
   emit newTask( t );
-
-  qDebug("KomposeTaskManager - KomposeTask added for WId: %d", w);
 }
 
 
-/*
- * Updates the screenshots for all apps
+/**
+ * Called when Komposé requires screenshots of all tasks
  */
 void KomposeTaskManager::slotUpdateScreenshots()
 {
@@ -210,26 +209,25 @@ void KomposeTaskManager::slotUpdateScreenshots()
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
 
-  // Disable passive screenshots temporarily as we want to force screenshots now
-  bool passiveScreenshots = KomposeSettings::instance()->getPassiveScreenshots();
-  KomposeSettings::instance()->setPassiveScreenshots( false );
-
-  while ( (task = it.current()) != 0 )
+  // Iterate through tasks sorted by desktops (this minimizes desktop switching if necessary)
+  for ( int desk = 1; desk <= numDesks; ++desk )
   {
-    ++it;
-    task->updateScreenshot();
+    it.toFirst();
+    while ( (task = it.current()) != 0 )
+    {
+      ++it;
+      if ( task->onDesktop() == desk )
+        task->slotUpdateScreenshot();
+    }
   }
-
-  if ( passiveScreenshots )
-    KomposeSettings::instance()->setPassiveScreenshots( true );
 }
 
-/*
- * Updates the screenshot for the specified app
+/**
+ * Signals the task object that it's window has been activated
  */
-void KomposeTaskManager::slotUpdateScreenshot(WId winId)
+void KomposeTaskManager::slotTaskActivated(WId winId)
 {
-  qDebug("KomposeTaskManager::slotUpdateScreenshot( %d )", winId);
+  qDebug("KomposeTaskManager::slotTaskActivated ( %d )", winId);
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -237,123 +235,24 @@ void KomposeTaskManager::slotUpdateScreenshot(WId winId)
     ++it;
     if ( winId == task->window() )
     {
-      task->updateScreenshot();
+      task->slotActivated();
       return;
     }
   }
 }
 
 
-void KomposeTaskManager::createView( int type )
-{
-  if (type == -1)
-    type = KomposeSettings::instance()->getDefaultView();
-    
-  switch(type)
-  {
-  case KOMPOSEDISPLAY_VIRTUALDESKS:
-    createVirtualDesktopView();
-    break;
-  case KOMPOSEDISPLAY_WORLD:
-    createWorldView();
-    break;
-  }
-}
-
-
-void KomposeTaskManager::createVirtualDesktopView()
-{
-  // Set activeView to false during this funcion as it will be checked by the layout
-  int tmp_activeview = activeView;
-  activeView = false;
-
-  if ( !tmp_activeview  )
-  {
-    // Remember current desktop
-    deskBeforeSnaps = KWin::currentDesktop();
-    // Update screenshot of the current window to be more up2date
-    slotUpdateScreenshot( kwinmodule->activeWindow() );
-    // Update all other
-    slotUpdateScreenshots();
-  }
-
-  qDebug("KomposeTaskManager::createVirtualDesktopView - Creating View");
-
-  if ( !tmp_activeview  )
-    viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_VIRTUALDESKS );
-  else
-    viewWidget->setType( KOMPOSEDISPLAY_VIRTUALDESKS );
-
-  KWin::forceActiveWindow( viewWidget->winId() );
-
-  activeView = true;
-
-  slotStartWindowListeners();
-}
-
-
-void KomposeTaskManager::createWorldView()
-{
-  // Set activeView to false during this funcion as it will be checked by the layout
-  int tmp_activeview = activeView;
-  activeView = false;
-
-  if ( !tmp_activeview )
-  {
-    // Remember current desktop
-    deskBeforeSnaps = KWin::currentDesktop();
-    // Update screenshot of the current window to be more up2date
-    slotUpdateScreenshot( kwinmodule->activeWindow() );
-  }
-
-  qDebug("KomposeTaskManager::createWorldView - Creating View");
-
-  if ( !tmp_activeview )
-    viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_WORLD );
-  else
-    viewWidget->setType( KOMPOSEDISPLAY_WORLD );
-
-  KWin::forceActiveWindow( viewWidget->winId() );
-
-  activeView = true;
-
-  slotStartWindowListeners();
-}
-
-
-void KomposeTaskManager::closeCurrentView()
-{
-  if ( !activeView )
-    return;
-
-  activeView = false;
-
-  viewWidget->setUpdatesEnabled( false );
-  viewWidget->close(true);
-  viewWidget = 0;
-
-  emit viewClosed();
-
-  if ( KomposeGlobal::instance()->getSingleShot() )
-    kapp->quit();
-
-  // Reset old Desktop
-  KWin::setCurrentDesktop( deskBeforeSnaps );
-}
-
 void KomposeTaskManager::slotDesktopCountChanged(int d)
 {
   numDesks = d;
 }
 
-
-
 bool KomposeTaskManager::isOnTop(const KomposeTask* task)
 {
   if(!task) return false;
 
-  for (QValueList<WId>::ConstIterator it = kwinmodule->stackingOrder().fromLast();
-       it != kwinmodule->stackingOrder().end(); --it )
+  for (QValueList<WId>::ConstIterator it = kwin_module->stackingOrder().fromLast();
+       it != kwin_module->stackingOrder().end(); --it )
   {
     for (KomposeTask* t = tasklist.first(); t != 0; t = tasklist.next() )
     {
@@ -370,40 +269,45 @@ bool KomposeTaskManager::isOnTop(const KomposeTask* task)
   return false;
 }
 
-void KomposeTaskManager::setCurrentDesktop( int desknum )
+
+/**
+ * The kapp x11EventFilter method redirect to this method
+ * @param event 
+ * @return 
+ */
+bool KomposeTaskManager::processX11Event( XEvent *event )
 {
-  closeCurrentView();
-  KWin::setCurrentDesktop(desknum+1);
+#ifdef COMPOSITE
+  if ( KomposeGlobal::instance()->hasXcomposite() )
+  {
+    if ( event->type == ConfigureNotify )
+    {
+      XConfigureEvent *e = &event->xconfigure;
+
+      KomposeTask* t = findTask( e->window, true );
+      if (!t)
+        return false;
+      t->slotX11ConfigureNotify();
+    }
+  }
+#endif
+  return false;
 }
 
-void KomposeTaskManager::activateTask( KomposeTask *task )
+void KomposeTaskManager::slotCurrentDesktopChanged(int d)
 {
-  closeCurrentView();
-  task->activate();
+#ifdef COMPOSITE
+  if ( KomposeGlobal::instance()->hasXcomposite() )
+  {
+    // Strangely a ConfigureNotify is only sent when I click on a window on the new desktop
+    // and not when I cahnge the desktop, although the windows get mapped at this point.
+    // Is this a X bug? However the following hack helps:
+    // Do as if we received a ConfigureNotify event to update all backing pixmaps
+    for (KomposeTask* t = tasklist.first(); t != 0; t = tasklist.next())
+      if ( t->onDesktop() == d )
+        t->slotX11ConfigureNotify();
+  }
+#endif
 }
-
-void KomposeTaskManager::createDefaultView()
-{
-  createView();
-}
-
-// bool KomposeTaskManager::process(const QCString &fun, const QByteArray &data, QCString &replyType, QByteArray &replyData)
-// {}
-// {
-//   if (fun == "createDefaultView()")
-//   {
-// //     QString result = createView();
-// //     QDataStream reply(replyData, IO_WriteOnly);
-// //     reply << result;
-// //     replyType = "QString";
-//      createView();
-//      return true;
-//   }
-//   else
-//   {
-//     qDebug("unknown function call to KomposeTaskManager::process()");
-//     return false;
-//   }
-// }
 
 #include "komposetaskmanager.moc"

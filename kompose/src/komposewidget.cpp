@@ -22,6 +22,8 @@
 
 #include <qtimer.h>
 
+#include "komposelayout.h"
+
 /*
  * The constructor accepts a custom layout, if none is specified a defaultlayout is used
  */
@@ -53,12 +55,12 @@ void KomposeWidget::childEvent ( QChildEvent * ce)
   if ( ce->inserted() )
   {
     qDebug("KomposeWidget::childEvent : Added widget %s to %s", ce->child()->className(), className() );
-    layout->add( dynamic_cast<KomposeWidgetInterface*>(ce->child()) );
+    layout->add( dynamic_cast<KomposeWidget*>(ce->child()) );
   }
   else if ( ce->removed() )
   {
     qDebug("KomposeWidget::childEvent : Removed widget %s from %s", ce->child()->className(), className() );
-    layout->remove( dynamic_cast<KomposeWidgetInterface*>(ce->child()) );
+    layout->remove( dynamic_cast<KomposeWidget*>(ce->child()) );
   }
 
   // Whenever a child is added/removed: rearrange layout
@@ -76,56 +78,16 @@ void KomposeWidget::resizeEvent ( QResizeEvent * e )
 }
 
 
-// Redirect these functions to QWidget
-
-void KomposeWidget::setGeom ( const QRect &rect )
+KomposeWidget* KomposeWidget::getParentWidget() const
 {
-  setGeometry( rect );
-}
-
-void KomposeWidget::setGeom ( const QSize &size )
-{
-  QWidget::resize( size );
-}
-
-QSize KomposeWidget::getSize() const
-{
-  return QWidget::size();
-}
-
-QRect KomposeWidget::getRect() const
-{
-  return QWidget::geometry();
-}
-
-KomposeWidgetInterface* KomposeWidget::getParentWidget() const
-{
-  if ( QWidget::parent()->inherits("KomposeWidgetInterface") )
-    return (KomposeWidgetInterface*)QWidget::parent();
+  if ( QWidget::parent()->inherits("KomposeWidget") )
+    return (KomposeWidget*)QWidget::parent();
   else
   {
-    qDebug("KomposeWidget::getParentWidget() - QWidget::parent() does not inherit (KomposeWidgetInterface)");
+    qDebug("KomposeWidget::getParentWidget() - QWidget::parent() does not inherit (KomposeWidget)");
     return NULL;
   }
 }
 
-
-// int KomposeWidget::getHeightForWidth( int w ) const
-// { 
-//   qDebug("KomposeWidget::getHeightForWidth()");
-//   return 100;
-// }
-// 
-// int KomposeWidget::getWidthForHeight( int h ) const
-// {
-//   qDebug("KomposeWidget::getHeightForWidth()");
-//   return 100; 
-// }
-// 
-// double KomposeWidget::getAspectRatio()
-// { 
-//   qDebug("KomposeWidget::getAspectRatio()");
-//   return 1.0; 
-// }
 
 #include "komposewidget.moc"

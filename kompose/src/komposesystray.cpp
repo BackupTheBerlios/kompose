@@ -11,7 +11,7 @@
 //
 #include "komposesystray.h"
 
-#include "komposetaskmanager.h"
+#include "komposeviewmanager.h"
 #include "komposefullscreenwidget.h"
 #include "komposesettings.h"
 #include "komposeglobal.h"
@@ -51,7 +51,7 @@ void KomposeSysTray::mousePressEvent ( QMouseEvent * e )
   switch ( e->button() )
   {
   case LeftButton:
-    KomposeTaskManager::instance()->createView( KomposeSettings::instance()->getDefaultView() );
+    KomposeViewManager::instance()->createView( KomposeSettings::instance()->getDefaultView() );
     break;
   case MidButton:
     // fall through

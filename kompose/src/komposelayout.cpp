@@ -19,7 +19,8 @@
  ***************************************************************************/
 #include "komposelayout.h"
 
-#include "komposewidgetinterface.h"
+#include "komposewidget.h"
+#include "komposeviewmanager.h"
 #include "komposetaskmanager.h"
 #include "komposefullscreenwidget.h"
 
@@ -28,7 +29,7 @@
 #include <kwin.h>
 
 
-KomposeLayout::KomposeLayout( KomposeWidgetInterface *parent, int type, int dist, const char *name )
+KomposeLayout::KomposeLayout( KomposeWidget *parent, int type, int dist, const char *name )
     : QObject(),
     spacing(dist),
     widgetsChanged(false),
@@ -52,15 +53,15 @@ void KomposeLayout::setType( int t )
 }
 
 
-void KomposeLayout::add( KomposeWidgetInterface *w )
+void KomposeLayout::add( KomposeWidget *w )
 {
   //qDebug("KomposeLayout::add()@%s - Added widget to layout", parent()->className());
-  qDebug("KomposeLayout::add() - Added widget to layout");
+  //qDebug("KomposeLayout::add() - Added widget to layout");
   list.append( w );
   widgetsChanged = true;
 }
 
-void KomposeLayout::remove( KomposeWidgetInterface *w )
+void KomposeLayout::remove( KomposeWidget *w )
 {
   list.remove( w );
   widgetsChanged = true;
@@ -69,14 +70,14 @@ void KomposeLayout::remove( KomposeWidgetInterface *w )
 
 void KomposeLayout::arrangeLayout()
 {
-  qDebug("KomposeLayout::arrangeLayout()");
+  //qDebug("KomposeLayout::arrangeLayout()");
   rearrangeContents();
 }
 
 void KomposeLayout::rearrangeContents()
 {
   // Check if we have a valid view (so we don't rearrange when no view is shown)
-  if ( !KomposeTaskManager::instance()->hasActiveView() )
+  if ( !KomposeViewManager::instance()->hasActiveView() )
     return;
   // Check or empty list
   if (list.count() == 0)
@@ -93,8 +94,8 @@ void KomposeLayout::rearrangeContents()
     emptyContainers.clear();
 
     // Check for empty containers
-    QPtrListIterator<KomposeWidgetInterface> it( list );
-    KomposeWidgetInterface *task;
+    QPtrListIterator<KomposeWidget> it( list );
+    KomposeWidget *task;
     while ( (task = it.current()) != 0 )
     {
       ++it;
@@ -113,15 +114,15 @@ void KomposeLayout::rearrangeContents()
     // Arrange filled containers
     QRect filledRect( 0,
                       0,
-                      parentWidget->getSize().width(),
-                      parentWidget->getSize().height() - ( 40 + 2*spacing ) );
+                      parentWidget->width(),
+                      parentWidget->height() - ( 40 + 2*spacing ) );
     // arrange the filled desktops taking 90% of the screen
     rearrangeContents( filledRect, filledContainers );
 
     // Arrange empty containers
     QRect emptyRect( 0,
-                     parentWidget->getSize().height() - ( 40 + 2*spacing ),
-                     parentWidget->getSize().width(),
+                     parentWidget->height() - ( 40 + 2*spacing ),
+                     parentWidget->width(),
                      ( 40 + 2*spacing ) );
     // arrange the empty widget in one row
     rearrangeContents( emptyRect, emptyContainers, 1, -1, false );
@@ -132,13 +133,13 @@ void KomposeLayout::rearrangeContents()
   {
     QRect availRect( 0,
                      0,
-                     parentWidget->getSize().width(),
-                     parentWidget->getSize().height());
+                     parentWidget->width(),
+                     parentWidget->height());
     rearrangeContents( availRect, list );
   }
 
 
-  currentSize = parentWidget->getSize();
+  currentSize = parentWidget->size();
   widgetsChanged = false;
 }
 
@@ -147,7 +148,7 @@ void KomposeLayout::rearrangeContents()
  * availRect specifies the size&pos of the contents
  * Specify either rows or cols to set a fixed number of those (setting both won't work correctly)
  */
-void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidgetInterface> widgets, int rows, int columns, bool setMemberRowsCols )
+void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidget> widgets, int rows, int columns, bool setMemberRowsCols )
 {
   // Check or empty list
   if (widgets.count() == 0)
@@ -156,7 +157,7 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
     return;
   }
 
-  QPtrListIterator<KomposeWidgetInterface> it( widgets );
+  QPtrListIterator<KomposeWidget> it( widgets );
 
   // Calculate grid's rows & cols
   if ( rows != -1 )         // rows have been specified
@@ -195,7 +196,7 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
     // Process columns
     for ( int j=0; j<columns; ++j )
     {
-      KomposeWidgetInterface *task;
+      KomposeWidget *task;
 
       // Check for end of List
       if ( (task = it.current()) == 0)
@@ -236,7 +237,7 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
                   widgetw, widgeth );
       qDebug("KomposeLayout::rearrangeContents() - Put item %s at x: %d y: %d with size: %dx%d",
              (dynamic_cast<QObject*>(task))->className(), geom.x(), geom.y(), widgetw, widgeth );
-      task->setGeom( geom );
+      task->setGeometry( geom );
 
       ++it;
     }
@@ -254,13 +255,13 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
 /*
  * Search for neighbour (called from outside)
  */
-KomposeWidgetInterface* KomposeLayout::getNeighbour( const KomposeWidgetInterface* widget, int direction, int wrap )
+KomposeWidget* KomposeLayout::getNeighbour( const KomposeWidget* widget, int direction, int wrap )
 {
   qDebug("KomposeLayout::getNeighbour() - Called with list.count: %d", list.count());
 
   if (layoutType==TLAYOUT_TASKCONTAINERS)
   {
-    KomposeWidgetInterface* neighbour;
+    KomposeWidget* neighbour;
     if ( filledContainers.containsRef(widget) )
     {
       if ( ( neighbour = getNeighbour( filledContainers, widget, direction, WLAYOUT_HORIZONTAL ) ) == 0 )
@@ -287,16 +288,16 @@ KomposeWidgetInterface* KomposeLayout::getNeighbour( const KomposeWidgetInterfac
 /*
  * Search for neighbour in the given list (called from inside)
  */
-KomposeWidgetInterface* KomposeLayout::getNeighbour(
-  QPtrList<KomposeWidgetInterface> listToSearch,
-  const KomposeWidgetInterface* widget,
+KomposeWidget* KomposeLayout::getNeighbour(
+  QPtrList<KomposeWidget> listToSearch,
+  const KomposeWidget* widget,
   int direction,
   int wrap )
 {
-  QPtrListIterator<KomposeWidgetInterface> it( listToSearch );
+  QPtrListIterator<KomposeWidget> it( listToSearch );
 
-  KomposeWidgetInterface *task;
-  KomposeWidgetInterface *neighbour;
+  KomposeWidget *task;
+  KomposeWidget *neighbour;
   int index = 0;
 
   if (widget == 0)

@@ -13,6 +13,7 @@
 
 #include "komposedesktopwidget.h"
 #include "komposetaskwidget.h"
+#include "komposeviewmanager.h"
 #include "komposetaskmanager.h"
 #include "komposeglobal.h"
 #include "komposelayout.h"
@@ -71,8 +72,8 @@ void KomposeFullscreenWidget::initMenu()
 void KomposeFullscreenWidget::destroyChildWidgets()
 {
   setUpdatesEnabled( false );
-  KomposeWidgetInterface *child;
-  QPtrListIterator<KomposeWidgetInterface> it( *(layout->getManagedWidgets()));
+  KomposeWidget *child;
+  QPtrListIterator<KomposeWidget> it( *(layout->getManagedWidgets()));
   while ( (child = it.current()) != 0 )
   {
     ++it;
@@ -150,7 +151,7 @@ void KomposeFullscreenWidget::keyReleaseEvent ( QKeyEvent * e )
   if ( e->key() == Qt::Key_Escape )
   {
     qDebug("KomposeFullscreenWidget::keyReleaseEvent - Esc key pressed - Closing view");
-    KomposeTaskManager::instance()->closeCurrentView();
+    KomposeViewManager::instance()->closeCurrentView();
     e->accept();
   }
   else

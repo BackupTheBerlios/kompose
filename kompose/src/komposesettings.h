@@ -89,6 +89,10 @@ public:
   const QColor& getDesktopTitleFontHighlightColor() const { return desktopTitleFontHighlightColor; }
   void setDesktopTitleFontHighlightColor( QColor c ) { desktopTitleFontHighlightColor = c; }
   
+  bool getCacheScaledPixmaps() const { return cacheScaledPixmaps; }
+  void setCacheScaledPixmaps( bool b ) { cacheScaledPixmaps = b; }
+  
+  
 public slots:
   void showPreferencesDlg();
 
@@ -124,6 +128,8 @@ private:
   QFont desktopTitleFont;
   QColor desktopTitleFontColor;
   QColor desktopTitleFontHighlightColor;
+
+  bool cacheScaledPixmaps;
 };
 
 #endif

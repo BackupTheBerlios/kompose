@@ -23,11 +23,11 @@
 #include <qobject.h>
 #include <qptrlist.h>
 
-#include "komposewidgetinterface.h"
+#include "komposewidget.h"
 
 class QRect;
 
-enum LayoutType { TLAYOUT_GENERIC,  // layouts all KomposeWidgetInterface classes
+enum LayoutType { TLAYOUT_GENERIC,  // layouts all KomposeWidget classes
                   TLAYOUT_TASKCONTAINERS  // layouts containers only
                 };
 
@@ -45,42 +45,42 @@ class KomposeLayout : public QObject
 {
   Q_OBJECT
 public:
-  KomposeLayout( KomposeWidgetInterface *parent, int type = TLAYOUT_GENERIC, int dist = 10, const char *name = 0 );
+  KomposeLayout( KomposeWidget *parent, int type = TLAYOUT_GENERIC, int dist = 10, const char *name = 0 );
 
   ~KomposeLayout();
 
-  void add( KomposeWidgetInterface *w );
-  void remove( KomposeWidgetInterface *w );
+  void add( KomposeWidget *w );
+  void remove( KomposeWidget *w );
   void setType( int t );
-  int getType() { return layoutType; }
+int getType() { return layoutType; }
 
-  const QPtrList<KomposeWidgetInterface> *getManagedWidgets() { return &list; }
+  const QPtrList<KomposeWidget> *getManagedWidgets() { return &list; }
   int getNumofChilds() { return list.count(); }
-  KomposeWidgetInterface* getNeighbour( const KomposeWidgetInterface* widget,
-                                        int direction = DLAYOUT_RIGHT,
-                                        int wrap = WLAYOUT_NONE );
+  KomposeWidget* getNeighbour( const KomposeWidget* widget,
+                               int direction = DLAYOUT_RIGHT,
+                               int wrap = WLAYOUT_NONE );
 
 public slots:
   void arrangeLayout();
 
 protected:
-  KomposeWidgetInterface* getNeighbour( QPtrList<KomposeWidgetInterface> listToSearch,
-                                        const KomposeWidgetInterface* widget,
-                                        int direction = DLAYOUT_RIGHT,
-                                        int wrap = WLAYOUT_NONE );
+  KomposeWidget* getNeighbour( QPtrList<KomposeWidget> listToSearch,
+                               const KomposeWidget* widget,
+                               int direction = DLAYOUT_RIGHT,
+                               int wrap = WLAYOUT_NONE );
   void rearrangeContents();
   void rearrangeContents( const QRect& availRect,
-                          const QPtrList<KomposeWidgetInterface> widgets,
+                          const QPtrList<KomposeWidget> widgets,
                           int rows = -1,
                           int columns = -1,
                           bool setMemberRowsCols = true );
 
 private:
   // List of all managed childs
-  QPtrList<KomposeWidgetInterface> list;
+  QPtrList<KomposeWidget> list;
   // List of container childs seperated by empty/full
-  QPtrList<KomposeWidgetInterface> filledContainers;
-  QPtrList<KomposeWidgetInterface> emptyContainers;
+  QPtrList<KomposeWidget> filledContainers;
+  QPtrList<KomposeWidget> emptyContainers;
 
   QSize currentSize;
   int layoutType;
@@ -89,7 +89,7 @@ private:
   int currentRows;
   int currentColumns;
 
-  KomposeWidgetInterface* parentWidget;
+  KomposeWidget* parentWidget;
 };
 
 #endif

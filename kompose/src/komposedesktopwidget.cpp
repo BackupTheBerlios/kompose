@@ -21,6 +21,7 @@
 #include "komposelayout.h"
 #include "komposetask.h"
 #include "komposetaskwidget.h"
+#include "komposeviewmanager.h"
 #include "komposetaskmanager.h"
 #include "komposesettings.h"
 
@@ -128,7 +129,7 @@ void KomposeDesktopWidget::mouseReleaseEvent ( QMouseEvent * e )
 {
   if ( !rect().contains( e->pos() ) )
     return;
-  KomposeTaskManager::instance()->setCurrentDesktop(desktop);
+  KomposeViewManager::instance()->setCurrentDesktop(desktop);
 }
 
 
@@ -136,7 +137,7 @@ void KomposeDesktopWidget::mouseDoubleClickEvent ( QMouseEvent * e )
 {
   if ( !rect().contains( e->pos() ) )
     return;
-  KomposeTaskManager::instance()->setCurrentDesktop(desktop);
+  KomposeViewManager::instance()->setCurrentDesktop(desktop);
 }
 
 
@@ -200,7 +201,7 @@ void KomposeDesktopWidget::keyReleaseEvent ( QKeyEvent * e )
   if ( e->key() == Qt::Key_Return || e->key() == Qt::Key_Space )
   {
     qDebug("KomposeDesktopWidget::keyReleaseEvent - Switching to Desktop!");
-    KomposeTaskManager::instance()->setCurrentDesktop(desktop);
+    KomposeViewManager::instance()->setCurrentDesktop(desktop);
     e->accept();
   }
   else

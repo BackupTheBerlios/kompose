@@ -21,15 +21,12 @@
 #define KOMPOSETASK_H
 
 #include <qobject.h>
-#include <qimage.h>
-#include <qpixmap.h>
-
+#include <qrect.h>
 #include <kwin.h>
-
-typedef unsigned long   Picture;
+//typedef unsigned long Drawable; //FIXME!!!
 
 class KWinModule;
-class KomposeImage;
+class KomposeTaskVisualizer;
 
 /**
 @author Hans Oischinger
@@ -57,25 +54,27 @@ public:
   bool isValid() const { return windowInfo.valid(); }
 
   WId window() const { return windowID; }
+  WId wmFrame() const { return wmframeID; }
   QString name() const { return windowInfo.name(); }
   QString visibleName() const { return windowInfo.visibleName(); }
   QString visibleNameWithState() const { return windowInfo.visibleNameWithState(); }
-
+  QRect getGeometry() const { return windowInfo.geometry(); }
+  
   QPixmap getIcon( int size );
-  KomposeImage* getScreenshot() { return screenshot; }
   double getAspectRatio();
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
-  int getWidth();
-  int getHeight();
+  
+  KomposeTaskVisualizer* getVisualizer() { return visualizer; }
   
 protected:
   void paintEvent ( QPaintEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
-  void captureScreenshot();
+  void findWmFrame();
   
 signals:
   void stateChanged();
+  void x11ConfigureNotify();
   void closed();
   
 public slots:
@@ -97,17 +96,17 @@ public slots:
   void toggleShaded();
 
   void refresh();
-  void updateScreenshot();
+  void slotX11ConfigureNotify();
+  void slotActivated();
+  void slotUpdateScreenshot();
 
 private:
   KWinModule* kwinmodule;
   WId windowID;
+  WId wmframeID;
   KWin::WindowInfo windowInfo;
-  bool hasAlpha;
   
-  // XComposite
-  Picture picture;
-  KomposeImage *screenshot;
+  KomposeTaskVisualizer* visualizer;
   
   bool active;
 };

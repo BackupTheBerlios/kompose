@@ -58,6 +58,7 @@ private:
   
   QCheckBox *passiveScreenshots;
   QCheckBox *dynamicVirtDeskLayout;
+  QCheckBox *cacheScaledPixmaps;
   
   QCheckBox *imageEffects;
   QCheckBox *tintVirtDesks;

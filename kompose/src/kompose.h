@@ -25,19 +25,23 @@
 // #include <config.h>
 // #endif
 
-#include <qobject.h>
+#include <kuniqueapplication.h>
 
 
 /**
- * @short Application Main entry point
+ * @short Application Main entry point and x11 Event Receiver
  * @author Hans Oischinger <oisch@sourceforge.net>
  */
-class Kompose : public QObject
+class Kompose : public KApplication
 {
   Q_OBJECT
 public:
   Kompose();
   virtual ~Kompose();
+  
+protected:
+  bool x11EventFilter (XEvent *);
+
 };
 
 #endif // _KOMPOSE_H_

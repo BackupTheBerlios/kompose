@@ -46,7 +46,6 @@ public:
   static KomposeGlobal *instance();
   KomposeSysTray* getSysTray() { return systray; }
   void initGui();
-  void initImlib();
   
   void setHideSystray( bool b ) { hideSystray = b; }
   void setSingleShot( bool b ) { singleShot = b; }
@@ -63,15 +62,18 @@ public:
 
 protected:
   void initActions();
+  void initImlib();
+  void initCompositeExt();
 
 protected slots:
   void showGlobalShortcutsSettingsDialog();
-  void showAbutDlg();
+  void showAboutDlg();
 
 private:
   bool hideSystray;
   bool singleShot;
   bool xcomposite;
+  
   KomposeSysTray* systray;
   KActionCollection* actionCollection;
 

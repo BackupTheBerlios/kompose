@@ -23,11 +23,9 @@
 
 #include <stdlib.h>
 
-#include <kapplication.h>
 #include <kaboutdata.h>
 #include <kcmdlineargs.h>
 #include <klocale.h>
-#include <kuniqueapplication.h>
 
 
 static const char description[] = 
@@ -65,16 +63,16 @@ int main(int argc, char **argv)
   
   KAboutData about("kompose", I18N_NOOP("Kompose"), version, description,
                    KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "", "http://developer.berlios.de/projects/kompose", "oisch@sourceforge.net");
-  about.addAuthor( "Hans Oischinger", 0, "oisch@sourceforge.net" );
+  about.addAuthor( "Hans Oischinger", 0, "oisch@users.berlios.de" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
 
-  KApplication app;
-  //KUniqueApplication app;
-  Kompose *mainWin = 0;
+  Kompose *app = 0;
 
   // no session.. just start up normally
   KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
+  
+  new Kompose();
 
   if ( !args->isSet("systray") )
     KomposeGlobal::instance()->setHideSystray(true);
@@ -84,13 +82,11 @@ int main(int argc, char **argv)
     KomposeGlobal::instance()->setSingleShot(true);
   }
 
-  mainWin = new Kompose();
   //app.setMainWidget( mainWin );
-  //mainWin->show();
 
   args->clear();
 
   // mainWin has WDestructiveClose flag by default, so it will delete itself.
-  return app.exec();
+  return app->exec();
 }
 

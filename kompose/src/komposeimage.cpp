@@ -55,7 +55,6 @@ KomposeImage::~KomposeImage()
  */
 void KomposeImage::clearCached()
 {
-  myQPixmap.resize(0,0);
   if ( bhasSourcePixmap && bhasImage)
   {
     // Delete image as it takes a lot of ram
@@ -63,7 +62,12 @@ void KomposeImage::clearCached()
     imlib_context_set_image( myIm );
     imlib_free_image();
   }
-  myIsDirty = true;
+  
+  if ( !KomposeSettings::instance()->getCacheScaledPixmaps() )
+  {
+    myQPixmap.resize(0,0);
+    myIsDirty = true;
+  }
 }
 
 void KomposeImage::init()
@@ -98,6 +102,7 @@ void KomposeImage::setImage( Imlib_Image &im )
     imlib_context_set_image( myIm );
     myOrigWidth    = imlib_image_get_width();
     myOrigHeight   = imlib_image_get_height();
+    qDebug("KomposeTask::setImage() - Set Image: size:%dx%d", myWidth, myHeight );
   }
 
   myIsDirty  = true;
@@ -111,6 +116,8 @@ void KomposeImage::setImage( QPixmap &pm )
 
   myOrigWidth  = pm.width();
   myOrigHeight = pm.height();
+  
+  myIsDirty = true;
 }
 
 void KomposeImage::createImageFromPixmap()

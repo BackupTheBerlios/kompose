@@ -65,11 +65,6 @@ KomposePreferences::KomposePreferences()
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
   QToolTip::add( passiveScreenshots, passiveScreenshotsHelp );
 
-  //   onlyOneScreenshot = new QCheckBox(i18n("Only grab a screenshot when none exists"), screenshotsGroupBox);
-  //   QString onlyOneScreenshotHelp = i18n("When disabled new screenshots will be taken whenever possible.\nEnabling will only create a screenshot once the application is first activated and will never update it.");
-  //   QWhatsThis::add( onlyOneScreenshot, onlyOneScreenshotHelp );
-  //   QToolTip::add( onlyOneScreenshot, onlyOneScreenshotHelp );
-  
   QHBox *hLayScreenshotGrabDelay = new QHBox(screenshotsGroupBox);
   QLabel *screenshotGrabDelayLabel = new QLabel(i18n("Delay between screenshots (ms):"), hLayScreenshotGrabDelay);
   screenshotGrabDelay = new QSpinBox(0, 2000, 1, hLayScreenshotGrabDelay);
@@ -80,6 +75,11 @@ KomposePreferences::KomposePreferences()
   QWhatsThis::add( screenshotGrabDelayLabel, screenshotGrabDelayHelp );
   QToolTip::add( screenshotGrabDelayLabel, screenshotGrabDelayHelp );
 
+  cacheScaledPixmaps = new QCheckBox(i18n("Cache scaled Screenshots"), screenshotsGroupBox);
+  QString cacheScaledPixmapsHelp = i18n("This may avoid some scaling operations to be called repeatedly when Komposé has been displayed before and the screenshot's size didn't change.\nIt will however increase memory usage quite a bit.");
+  QWhatsThis::add( cacheScaledPixmaps, cacheScaledPixmapsHelp );
+  QToolTip::add( cacheScaledPixmaps, cacheScaledPixmapsHelp );
+  
   page1Layout->addWidget(screenshotsGroupBox);
 
   page1Layout->insertStretch(-1);
@@ -99,7 +99,7 @@ KomposePreferences::KomposePreferences()
   
   QHBox *hBoxWindowTitles = new QHBox(windowTitleGroupBox);
   showWindowTitles = new QCheckBox(i18n("Show window titles"), hBoxWindowTitles);
-  windowTitleFontBtn = new QPushButton(i18n("Select font..."), hBoxWindowTitles);
+  windowTitleFontBtn = new QPushButton(i18n("Select Font..."), hBoxWindowTitles);
   QString showWindowTitlesHelp = i18n( QString::fromUtf8("Display the name of every window in Komposé") );
   QWhatsThis::add( showWindowTitles, showWindowTitlesHelp );
   QToolTip::add( showWindowTitles, showWindowTitlesHelp );
@@ -161,7 +161,7 @@ KomposePreferences::KomposePreferences()
   
   page3Layout->addWidget(virtDesksLayoutGroupBox);
 
-  desktopTitleFontBtn = new QPushButton(i18n("Select desktop names font..."), virtDesksLayoutGroupBox);  
+  desktopTitleFontBtn = new QPushButton(i18n("Select Desktop Names Font..."), virtDesksLayoutGroupBox);  
   connect( desktopTitleFontBtn, SIGNAL(clicked()), this, SLOT(showDesktopTitleFontDialog()) );
   
   page3Layout->insertStretch(-1);
@@ -219,6 +219,7 @@ void KomposePreferences::fillPages()
 
   passiveScreenshots->setChecked( KomposeSettings::instance()->getPassiveScreenshots() );
   screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() / 1000000 );
+  cacheScaledPixmaps->setChecked( KomposeSettings::instance()->getCacheScaledPixmaps() );
   dynamicVirtDeskLayout->setChecked( KomposeSettings::instance()->getDynamicVirtDeskLayout() );
 
   imageEffects->setChecked( KomposeSettings::instance()->getImageEffects() );
@@ -258,6 +259,7 @@ void KomposePreferences::slotApply()
 
   KomposeSettings::instance()->setPassiveScreenshots( passiveScreenshots->isChecked() );
   KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() * 1000000 );
+  KomposeSettings::instance()->setCacheScaledPixmaps( cacheScaledPixmaps->isChecked() );
   KomposeSettings::instance()->setDynamicVirtDeskLayout( dynamicVirtDeskLayout->isChecked() );
   KomposeSettings::instance()->setImageEffects( imageEffects->isChecked() );
   KomposeSettings::instance()->setTintVirtDesks( tintVirtDesks->isChecked() );

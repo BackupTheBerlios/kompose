@@ -63,7 +63,6 @@ protected:
   void initToolbar();
   
 protected slots:
-  void scaleScreenshot();
   void slotTaskDestroyed();
   void drawWidget();
   void drawWidgetAndRepaint();
@@ -71,11 +70,8 @@ protected slots:
   void setGeometry( const QRect &rect );
   
 private:
-  QImage scaledScreenshot;      // The original screenshot scaled to the desired size
-  QImage scaledMinimizedScreenshot;
-  QImage scaledSelectedScreenshot;
   QPixmap pm_dbBackground;
-  
+
   bool highlight; // Highlight widget?
   QFont titleFont;
   

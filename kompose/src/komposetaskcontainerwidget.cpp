@@ -128,7 +128,7 @@ bool KomposeTaskContainerWidget::focusNeighbourChild( int direction )
   else
   {
     KomposeWidget *widget;
-    if ( ( widget = dynamic_cast<KomposeWidget*>(layout->getNeighbour( dynamic_cast<KomposeWidgetInterface*>(focusWidget()), direction, WLAYOUT_BOTH ) ) ) != 0 )
+    if ( ( widget = layout->getNeighbour( dynamic_cast<KomposeWidget*>(focusWidget()), direction, WLAYOUT_BOTH  ) ) != 0 )
     {
       qDebug("KomposeTaskContainerWidget::keyReleaseEvent - Focussing %s", widget->className() );
       widget->setFocus();
@@ -143,7 +143,6 @@ bool KomposeTaskContainerWidget::focusNeighbourChild( int direction )
 void KomposeTaskContainerWidget::createTaskWidgets()
 {
   TaskList tl = KomposeTaskManager::instance()->getTasks();
-  qDebug("KomposeTaskContainerWidget::createTaskWidgets() on %d tasks", tl.count());
   QPtrListIterator<KomposeTask> it( tl );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -159,7 +158,8 @@ void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task )
 {
   if ( desktop == -1 || desktop == task->onDesktop()-1 )
   {
-    qDebug("KomposeTaskContainerWidget::createTaskWidget()" );
+    qDebug("KomposeTaskContainerWidget::createTaskWidget() (Container: %s, WId: %d, onDesktop: %d)",
+     this->className(), task->window(), task->onDesktop() );
     KomposeTaskWidget *taskwidget = new KomposeTaskWidget( task, this );
     taskwidget->show();
   }
