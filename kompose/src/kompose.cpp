@@ -28,7 +28,7 @@
 Kompose::Kompose()
     : QObject( 0, "Kompose" )
 {
-  KomposeGlobal::instance();
+  KomposeGlobal::instance()->initGui();
 }
 
 Kompose::~Kompose()

@@ -33,7 +33,9 @@ KomposeLayout::KomposeLayout( KomposeWidgetInterface *parent, int type, int dist
     layoutType(type),
     spacing(dist),
     widgetsChanged(false),
-    parentWidget(parent)
+    parentWidget(parent),
+    currentRows(0),
+    currentColumns(0)
 {
   currentSize = QSize( 1, 1 );
 }
@@ -60,9 +62,6 @@ void KomposeLayout::arrangeLayout()
 {
   qDebug("KomposeLayout::arrangeLayout()");
   rearrangeContents();
-  //mainWidget()->setUpdatesEnabled( FALSE );
-  //rearrangeContents();
-  //mainWidget()->setUpdatesEnabled( TRUE );
 }
 
 void KomposeLayout::rearrangeContents()
@@ -81,8 +80,8 @@ void KomposeLayout::rearrangeContents()
   // Check for layout Type and do the work
   if (layoutType==TLAYOUT_TASKCONTAINERS)
   {
-    QPtrList<KomposeWidgetInterface> filledContainers;
-    QPtrList<KomposeWidgetInterface> emptyContainers;
+    filledContainers.clear();
+    emptyContainers.clear();
 
     // Check for empty containers
     QPtrListIterator<KomposeWidgetInterface> it( list );
@@ -103,26 +102,30 @@ void KomposeLayout::rearrangeContents()
     }
 
     // Arrange filled containers
-    QRect filledRect( parentWidget->getRect().x(),
-                      parentWidget->getRect().y(),
-                      parentWidget->getRect().width(),
-                      parentWidget->getRect().height() - ( 40 + 2*spacing ) );
+    QRect filledRect( 0,
+                      0,
+                      parentWidget->getSize().width(),
+                      parentWidget->getSize().height() - ( 40 + 2*spacing ) );
     // arrange the filled desktops taking 90% of the screen
     rearrangeContents( filledRect, filledContainers );
 
     // Arrange empty containers
-    QRect emptyRect( parentWidget->getRect().x(),
-                     parentWidget->getRect().y() + parentWidget->getRect().height() - ( 40 + 2*spacing ),
-                     parentWidget->getRect().width(),
+    QRect emptyRect( 0,
+                     parentWidget->getSize().height() - ( 40 + 2*spacing ),
+                     parentWidget->getSize().width(),
                      ( 40 + 2*spacing ) );
     // arrange the empty widget in one row
-    rearrangeContents( emptyRect, emptyContainers, 1 );
+    rearrangeContents( emptyRect, emptyContainers, 1, -1, false );
 
 
   }
   else  // default type (generic)
   {
-    rearrangeContents( parentWidget->getRect(), list );
+    QRect availRect( 0,
+                     0,
+                     parentWidget->getSize().width(),
+                     parentWidget->getSize().height());
+    rearrangeContents( availRect, list );
   }
 
 
@@ -135,15 +138,16 @@ void KomposeLayout::rearrangeContents()
  * availRect specifies the size&pos of the contents
  * Specify either rows or cols to set a fixed number of those (setting both won't work correctly)
  */
-void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidgetInterface> widgets, int rows, int columns )
+void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidgetInterface> widgets, int rows, int columns, bool setMemberRowsCols )
 {
+  qDebug("REARRANGE %d %d %d %d", availRect.x(), availRect.y(), availRect.width(), availRect.y() );
   // Check or empty list
   if (widgets.count() == 0)
   {
     qDebug("KomposeLayout::rearrangeContents() - empty list... skipping!");
     return;
   }
-  
+
   QPtrListIterator<KomposeWidgetInterface> it( widgets );
 
   // Calculate grid's rows & cols
@@ -157,13 +161,15 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
   }
   else                      // neither rows nor cols have been specified
   {
-    double parentRatio = (double)parentWidget->getRect().width() / (double)parentWidget->getRect().height();
+    double parentRatio = (double)availRect.width() / (double)availRect.height();
     // Use more columns than rows when parent's width > parent's height
     if ( parentRatio > 1 )
     {
       columns = ceil( sqrt(widgets.count()) );
       rows = ceil( (double)widgets.count() / (double)columns );
-    } else {
+    }
+    else
+    {
       rows = ceil( sqrt(widgets.count()) );
       columns = ceil( (double)widgets.count() / (double)rows );
     }
@@ -227,6 +233,126 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
       ++it;
     }
   }
+
+  // Sync cols/rows member vars to current cols/rows
+  if ( setMemberRowsCols )
+  {
+    currentRows = rows;
+    currentColumns = columns;
+  }
 }
+
+
+/*
+ * Search for neighbour (called from outside)
+ */
+KomposeWidgetInterface* KomposeLayout::getNeighbour( const KomposeWidgetInterface* widget, int direction, int wrap )
+{
+  qDebug("KomposeLayout::getNeighbour() - Called with list.count: %d", list.count());
+
+  if (layoutType==TLAYOUT_TASKCONTAINERS)
+  {
+    KomposeWidgetInterface* neighbour;
+    if ( filledContainers.containsRef(widget) )
+    {
+      if ( ( neighbour = getNeighbour( filledContainers, widget, direction, WLAYOUT_HORIZONTAL ) ) == 0 )
+        return emptyContainers.first();
+    } else if ( emptyContainers.containsRef(widget) ) {
+      if ( ( neighbour = getNeighbour( emptyContainers, widget, direction, WLAYOUT_HORIZONTAL ) ) == 0 )
+        if ( direction == DLAYOUT_TOP )
+          return filledContainers.last();
+        else
+          return filledContainers.first();
+    }
+    return neighbour;   
+  } else if (layoutType==TLAYOUT_GENERIC)
+    return getNeighbour( list, widget, direction, wrap );
+
+  qDebug("KomposeLayout::getNeighbour() - this should never happen!");
+  return NULL;
+}
+
+
+/*
+ * Search for neighbour in the given list (called from inside)
+ */
+KomposeWidgetInterface* KomposeLayout::getNeighbour(
+  QPtrList<KomposeWidgetInterface> listToSearch,
+  const KomposeWidgetInterface* widget,
+  int direction,
+  int wrap )
+{
+  QPtrListIterator<KomposeWidgetInterface> it( listToSearch );
+
+  KomposeWidgetInterface *task;
+  KomposeWidgetInterface *neighbour;
+  int index = 0;
+
+  if (widget == 0)
+  {
+    qDebug("KomposeLayout::getNeighbour() - NULL startWidget given. using first()");
+    return listToSearch.first();
+  }
+
+  while ( (task = it.current()) != 0 )
+  {
+    if ( task == widget )
+    {
+      switch ( direction )
+      {
+      case DLAYOUT_RIGHT:
+        ++it;
+        if ( (index)%currentColumns == currentColumns-1 || ( neighbour = it.current() ) == 0 )
+        {
+          if (wrap == WLAYOUT_HORIZONTAL || wrap == WLAYOUT_BOTH )
+            return listToSearch.at(index+1-currentColumns);
+          qDebug("KomposeLayout::getNeighbour() - No valid neighbour available");
+          return NULL;
+        }
+        return neighbour;
+      case DLAYOUT_LEFT:
+        --it;
+        if ( index%currentColumns == 0 || ( neighbour = it.current() ) == 0 )
+        {
+          if (wrap == WLAYOUT_HORIZONTAL || wrap == WLAYOUT_BOTH )
+            if ( index+currentColumns-1 < listToSearch.count() )
+              return listToSearch.at(index+currentColumns-1);
+            else
+              return listToSearch.last();
+          qDebug("KomposeLayout::getNeighbour() - No valid neighbour available");
+          return NULL;
+        }
+        return neighbour;
+      case DLAYOUT_TOP:
+        if ( index < currentColumns || (neighbour = listToSearch.at( index - currentColumns )) == 0)
+        {
+          if (wrap == WLAYOUT_VERTICAL || wrap == WLAYOUT_BOTH )
+            if ( listToSearch.count()%currentColumns == 0 || listToSearch.count()%currentColumns > index )
+              return listToSearch.at( (currentRows-1)*currentColumns + index );
+            else
+              return listToSearch.at( (currentRows-2)*currentColumns + index );
+          qDebug("KomposeLayout::getNeighbour() - No valid neighbour available");
+          return NULL;
+        }
+        return neighbour;
+      case DLAYOUT_BOTTOM:
+        if ( listToSearch.count() <= index + currentColumns || (neighbour = listToSearch.at( index + currentColumns )) == 0)
+        {
+          if (wrap == WLAYOUT_VERTICAL || wrap == WLAYOUT_BOTH )
+            return listToSearch.at( index%currentColumns );
+          qDebug("KomposeLayout::getNeighbour() - No valid neighbour available");
+          return NULL;
+        }
+        return neighbour;
+      }
+    }
+    ++index;
+    ++it;
+  }
+
+  qDebug("KomposeLayout::getNeighbour() - this should never happen!");
+  return NULL;
+}
+
 
 #include "komposelayout.moc"

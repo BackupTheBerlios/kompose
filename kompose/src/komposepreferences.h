@@ -21,12 +21,16 @@ class QFrame;
 class QSpinBox;
 class KColorButton;
 class QButtonGroup;
+class QSlider;
+class QPushButton;
+class QFont;
 
 /**
 @author Hans Oischinger
 */
 class KomposePreferences : public KDialogBase
 {
+Q_OBJECT
 public:
   KomposePreferences();
 
@@ -39,6 +43,8 @@ protected:
 protected slots:
   void slotApply();
   void slotOk();
+  void updateIconSliderDesc( int );
+  void showFontDialog();
 
 private:
   QFrame *page1;
@@ -49,12 +55,25 @@ private:
   QCheckBox *defaultViewVirtualDesks;
   
   QCheckBox *passiveScreenshots;
-  QCheckBox *onlyOneScreenshot;
-  QCheckBox *highlightWindows;
+//   QCheckBox *onlyOneScreenshot;
+  QCheckBox *imageEffects;
   QCheckBox *tintVirtDesks;
   KColorButton *tintVirtDesksColor;
   
   QSpinBox *screenshotGrabDelay;
+  
+  QCheckBox *showIcons;
+  QSlider *iconSize;
+  QLabel *iconSizeDescription;
+  
+  QCheckBox *showWindowTitles;
+  QPushButton *windowTitleFontBtn;
+  QFont *windowTitleFont;
+  
+  KColorButton *windowTitleFontColor;
+  QCheckBox *showWindowTitleShadow;
+  KColorButton *windowTitleFontShadowColor;
+  QLabel *windowTitleFontColorLabel;
 };
 
 #endif

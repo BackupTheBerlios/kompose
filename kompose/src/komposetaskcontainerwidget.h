@@ -42,9 +42,12 @@ public:
 protected slots:
   void createTaskWidgets();
   void createTaskWidget( KomposeTask* task);
-
+  bool focusNeighbourChild( int direction );
+  
 protected:
-  int desktop; // -1 for all desktops
+  void keyReleaseEvent ( QKeyEvent * e );
+  void keyPressEvent ( QKeyEvent * e );
+  int desktop;
 };
 
 #endif

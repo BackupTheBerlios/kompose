@@ -26,7 +26,9 @@
 
 #include <kwin.h>
 
+
 class KWinModule;
+class KomposeImage;
 
 /**
 @author Hans Oischinger
@@ -51,18 +53,20 @@ public:
   bool isAlwaysOnTop() const;
   bool isActive() const;
   bool isModified() const;
+  bool isValid() const { return windowInfo.valid(); }
 
   WId window() const { return windowID; }
-  QString name() const { return windowInfo.name; }
-  QString visibleName() const { return windowInfo.visibleName; }
+  QString name() const { return windowInfo.name(); }
+  QString visibleName() const { return windowInfo.visibleName(); }
   QString visibleNameWithState() const { return windowInfo.visibleNameWithState(); }
 
-    
-  QPixmap& getScreenshotPix() { return pm_screenshot; }
-  QImage& getScreenshotImg();
+  QPixmap getIcon( int size );
+  KomposeImage* getScreenshot() { return screenshot; }
   double getAspectRatio();
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
+  int getWidth();
+  int getHeight();
   
 protected:
   void paintEvent ( QPaintEvent * );
@@ -92,17 +96,13 @@ public slots:
 
   void refresh();
   void updateScreenshot();
-  void emptyImageCache();
 
 private:
   KWinModule* kwinmodule;
-  
   WId windowID;
-  KWin::Info windowInfo;
+  KWin::WindowInfo windowInfo;
 
-  QPixmap pm_screenshot;
-  QImage img_screenshot;
-  bool imageNeedsUpdate;
+  KomposeImage *screenshot;
   
   bool active;
 };

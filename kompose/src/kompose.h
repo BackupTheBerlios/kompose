@@ -27,7 +27,6 @@
 
 #include <qobject.h>
 
-class KomposeSysTray;
 
 /**
  * @short Application Main entry point
@@ -39,9 +38,6 @@ class Kompose : public QObject
 public:
   Kompose();
   virtual ~Kompose();
-
-private:
-  KomposeSysTray *systray;
 };
 
 #endif // _KOMPOSE_H_

@@ -34,9 +34,12 @@
 #include <qiconset.h>
 #include <qtimer.h>
 #include <qcolor.h>
+#include <qfont.h>
 
 #include <kimageeffect.h>
 
+#include "komposeimage.h"
+// #include "imlibiface.h"
 
 KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLayout *l, const char *name)
     : KomposeWidget(parent, l, name),
@@ -51,25 +54,36 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
 
   QToolTip::add( this, task->visibleNameWithState() );
 
+  pm_dbBackground.setOptimization( QPixmap::BestOptim );
+
+  //   screenshot = new KomposeImage( imIface, task->getScreenshotImage() );
   prefWidget = new KomposeTaskPrefsWidget( this, "Task prefs" );
   prefWidget->hide();
 
   //connect( t, SIGNAL( destroyed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
-  connect( t, SIGNAL( stateChanged() ), this, SLOT( repaint() ) );
+  connect( t, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
 
+  //setFocusPolicy(QWidget::ClickFocus);
   setFocusPolicy(QWidget::StrongFocus);
+
+  initFonts();
+  //   hide();
 }
 
 
 KomposeTaskWidget::~KomposeTaskWidget()
+{}
+
+void KomposeTaskWidget::initFonts()
 {
+  titleFont = KomposeSettings::instance()->getWindowTitleFont();
 }
 
 void KomposeTaskWidget::slotTaskDestroyed()
 {
   disconnect( task, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
-  disconnect( task, SIGNAL( stateChanged() ), this, SLOT( repaint() ) );
+  disconnect( task, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
   if (KomposeTaskManager::instance()->hasActiveView())
   {
     parent()->removeChild( this );
@@ -84,22 +98,9 @@ void KomposeTaskWidget::scaleScreenshot()
     qDebug("KomposeTaskWidget::scaleScreenshot() - no change in size... won't scale %s", name());
     return;
   }
+  // qDebug("KomposeTaskWidget::scaleScreenshot() - scaling... %s to %dx%d", name(), width(), height());
 
-  qDebug("KomposeTaskWidget::scaleScreenshot() - scaling... %s to %dx%d", name(), width(), height());
-  //scaledScreenshot = task->getScreenshotImg().copy();
-  scaledScreenshot = task->getScreenshotImg().smoothScale( size() );
-  //ImageEffect::scale( scaledScreenshot, width(), height() );
-
-  scaledMinimizedScreenshot = scaledScreenshot.copy();
-  KImageEffect::intensity( scaledMinimizedScreenshot, -0.3 );
-
-  if ( KomposeSettings::instance()->getHighlightWindows() )
-  {
-    scaledSelectedScreenshot = scaledScreenshot.copy();
-    KImageEffect::selectedImage( scaledSelectedScreenshot, Qt::white );
-  }
-
-  show();
+  task->getScreenshot()->resize(width(), height());
   repaint();
 }
 
@@ -108,44 +109,89 @@ void KomposeTaskWidget::resizeEvent ( QResizeEvent * e )
 {
   if ( e->oldSize() != e->size())
   {
-    // Delaying scaling as we want it to block everything
-    QTimer::singleShot( 200, this, SLOT( scaleScreenshot() ) );
-    //scaleScreenshot();
+    scaleScreenshot();
     prefWidget->move(width() - prefWidget->width() - 3, 3);
+    drawWidget();
   }
+  KomposeWidget::resizeEvent( e );
+
 }
 
 
 void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
 {
-  if ( !KomposeTaskManager::instance()->hasActiveView() )
+  if ( pm_dbBackground.isNull() )
+    drawWidget();
+  bitBlt( this, 0, 0, &pm_dbBackground, 0, 0, width(), height() );
+}
+
+void KomposeTaskWidget::drawWidgetAndRepaint()
+{
+  drawWidget();
+  repaint();
+}
+
+void KomposeTaskWidget::drawWidget()
+{
+  if ( !KomposeTaskManager::instance()->hasActiveView() || !isShown() )
     return;
 
-  //QWidget::paintEvent(e);
-  QPainter p;
+  pm_dbBackground.resize( width(), height() );
+  pm_dbBackground.fill(white);
 
-  int xpos = ( width() - scaledScreenshot.width() ) / 2;
-  int ypos = ( height() - scaledScreenshot.height() ) / 2;
+  QPainter p( &pm_dbBackground );
+  int xpos = 0;
+  int ypos = 0;
 
-  p.begin( this );
-  if ( highlight && KomposeSettings::instance()->getHighlightWindows() )
+  int effect = IEFFECT_NONE;
+
+  if ( KomposeSettings::instance()->getShowWindowTitles() && !task->isIconified() )
+    effect = IEFFECT_TITLE;
+  if ( KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
+    effect = IEFFECT_MINIMIZED_AND_TITLE;
+  if ( !KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
+    effect = IEFFECT_MINIMIZED;
+  //   if ( highlight )               // I hate it, so I disable it!
+  //     effect = IEFFECT_HIGHLIGHT;
+
+  p.drawPixmap(xpos,ypos, *(task->getScreenshot()->qpixmap( effect )) );
+
+
+  // Icon
+  QPoint titleTextPos( 6, KomposeSettings::instance()->getWindowTitleFontHeight() + 1);
+  if ( KomposeSettings::instance()->getShowIcons() )
   {
-    //qDebug("KomposeTaskWidget::paintEvent - Painting highlighted window");
-    p.drawImage( xpos,ypos, scaledSelectedScreenshot);
-  }
-  else
-  {
-    if ( task->isIconified() )
+    QPixmap icon = task->getIcon( KomposeSettings::instance()->getIconSizePixels() );
+
+    // Place the icon left or under the text, according to it's size
+    if ( KomposeSettings::instance()->getIconSize() < 2 || icon.height() < 50 )
     {
-      // qDebug("KomposeTaskWidget::paintEvent - Painting minimized window");
-      p.drawImage( xpos,ypos, scaledMinimizedScreenshot);
+      // Medium sized or tiny Icon
+      p.drawPixmap( QPoint(5, 5), icon );
+      titleTextPos.setX(icon.width() + 10);
     }
     else
     {
-      // qDebug("KomposeTaskWidget::paintEvent - Painting normal window");
-      p.drawImage( xpos,ypos, scaledScreenshot);
+      // Big Icon
+      p.drawPixmap( QPoint(5, 5), icon );
+      //       titleTextPos.setX(icon.width());
     }
   }
+
+  // Title
+  if ( KomposeSettings::instance()->getShowWindowTitles() )
+  {
+    p.setFont(titleFont);
+    if ( KomposeSettings::instance()->getShowWindowTitleShadow() )
+    {
+      p.setPen( KomposeSettings::instance()->getWindowTitleFontShadowColor() );
+      p.drawText( titleTextPos, task->visibleNameWithState() );
+    }
+    p.setPen( KomposeSettings::instance()->getWindowTitleFontColor() );
+    p.drawText( QPoint( titleTextPos.x()-2, titleTextPos.y()-2 ), task->visibleNameWithState() );
+  }
+
+  // Border
   if (!highlight)
   {
     QPen     pen( gray, 1, Qt::SolidLine );
@@ -158,6 +204,7 @@ void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
     p.setPen( pen );
     p.drawRect( QRect( 1, 1, rect().width()-1, rect().height()-1 ) );
   }
+
   p.end();
 }
 
@@ -174,12 +221,12 @@ void KomposeTaskWidget::mouseMoveEvent ( QMouseEvent * e )
     startDrag();
 }
 
-void KomposeTaskWidget::mouseDoubleClickEvent ( QMouseEvent * e )
-{
-  if ( !rect().contains( e->pos() ) )
-    return;
-  KomposeTaskManager::instance()->activateTask( task );
-}
+// void KomposeTaskWidget::mouseDoubleClickEvent ( QMouseEvent * e )
+// {
+//   if ( !rect().contains( e->pos() ) )
+//     return;
+//   KomposeTaskManager::instance()->activateTask( task );
+// }
 
 void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
 {
@@ -192,13 +239,13 @@ void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
   else if ( e->key() == Qt::Key_C )
   {
     qDebug("KomposeTaskWidget::keyReleaseEvent - closing Task!");
-    KomposeTaskManager::instance()->activateTask( task );
+    KomposeTaskManager::instance()->activateTask( task ); //FIXME: do sth usefull
     e->accept();
   }
   else if ( e->key() == Qt::Key_M )
   {
     qDebug("KomposeTaskWidget::keyReleaseEvent - toggling state!");
-    KomposeTaskManager::instance()->activateTask( task );
+    KomposeTaskManager::instance()->activateTask( task ); //FIXME: do sth usefull
     e->accept();
   }
   else
@@ -206,17 +253,16 @@ void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
     qDebug("KomposeTaskWidget::keyReleaseEvent - ignored...");
     e->ignore();
   }
-
+  KomposeWidget::keyReleaseEvent(e);
 }
 
 void KomposeTaskWidget::leaveEvent ( QEvent * e )
 {
   highlight = false;
   unsetCursor();
-  repaint();
+  drawWidgetAndRepaint();
 
   prefWidget->hide();
-
 }
 
 void KomposeTaskWidget::enterEvent ( QEvent * e )
@@ -224,7 +270,7 @@ void KomposeTaskWidget::enterEvent ( QEvent * e )
   setFocus();
   setCursor( Qt::PointingHandCursor );
   highlight = true;
-  repaint();
+  drawWidgetAndRepaint();
 
   prefWidget->show();
 }
@@ -232,13 +278,13 @@ void KomposeTaskWidget::enterEvent ( QEvent * e )
 void KomposeTaskWidget::focusInEvent ( QFocusEvent * e)
 {
   highlight = true;
-  repaint();
+  drawWidgetAndRepaint();
 }
 
 void KomposeTaskWidget::focusOutEvent ( QFocusEvent * e)
 {
   highlight = false;
-  repaint();
+  drawWidgetAndRepaint();
 }
 
 int KomposeTaskWidget::getHeightForWidth ( int w ) const
@@ -266,6 +312,20 @@ void KomposeTaskWidget::startDrag()
   QDragObject *d = new QTextDrag( "toDesktop()", this );
   d->dragCopy();
 }
+
+void KomposeTaskWidget::setGeometry( const QRect &rect )
+{
+  int width = task->getWidth();
+  int height = task->getHeight();
+  
+  // Don't scale images bigger than they actually are
+  if ( rect.width() > width || rect.height() > height )
+  {
+    QWidget::setGeometry( QRect( rect.left(), rect.top(), width, height ) );
+  } else
+    QWidget::setGeometry( rect );
+}
+
 
 
 #include "komposetaskwidget.moc"

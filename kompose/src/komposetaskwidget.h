@@ -24,9 +24,13 @@
 #include "komposetaskprefswidget.h"
 
 #include <qimage.h>
+#include <qpixmap.h>
+
 
 class KomposeTask;
 class KomposeLayout;
+class titleFont;
+class KomposeImage;
 
 /**
 @author Hans Oischinger
@@ -48,7 +52,7 @@ public:
 protected:
   void paintEvent ( QPaintEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
-  void mouseDoubleClickEvent ( QMouseEvent * e );
+//   void mouseDoubleClickEvent ( QMouseEvent * e );
   void mouseMoveEvent ( QMouseEvent * e );
   void leaveEvent ( QEvent * );
   void enterEvent ( QEvent * );
@@ -63,12 +67,20 @@ protected:
 protected slots:
   void scaleScreenshot();
   void slotTaskDestroyed();
+  void drawWidget();
+  void drawWidgetAndRepaint();
+  void initFonts();
+  void setGeometry( const QRect &rect );
   
 private:
   QImage scaledScreenshot;      // The original screenshot scaled to the desired size
   QImage scaledMinimizedScreenshot;
   QImage scaledSelectedScreenshot;
+  QPixmap pm_dbBackground;
+  
+  KomposeImage *screenshot;
   bool highlight; // Highlight widget?
+  QFont titleFont;
   
   KomposeTask* task;
   KomposeTaskPrefsWidget *prefWidget;

@@ -36,28 +36,28 @@
 #include <netwm.h>
 #include <time.h>
 
-
+#include "komposeimage.h"
 
 KomposeTask::KomposeTask(WId win, KWinModule *kwinmod, QObject *parent, const char *name)
     : QObject(parent, name),
     kwinmodule(kwinmod),
-    active(false), windowID(win),
-    pm_screenshot(),
-    img_screenshot(),
-    imageNeedsUpdate(true)
+    active(false),
+    windowID(win)
 {
-  windowInfo = KWin::info(windowID);
-  
+  windowInfo = KWin::windowInfo(windowID);
+
+  screenshot = new KomposeImage();
+
   // This will empty our image cache after the view has been closed (saves a lot of ram)
-  connect( KomposeTaskManager::instance(), SIGNAL(viewClosed()), this, SLOT(emptyImageCache()) );
+  connect( KomposeTaskManager::instance(), SIGNAL(viewClosed()), screenshot, SLOT(clearCached()) );
 }
 
 
 KomposeTask::~KomposeTask()
 {
+  delete screenshot;
   emit closed();
 }
-
 
 bool KomposeTask::isOnTop() const
 {
@@ -72,7 +72,7 @@ bool KomposeTask::isActive() const
 
 bool KomposeTask::isMaximized() const
 {
-  return (windowInfo.state & NET::Max);
+  return (windowInfo.state() & NET::Max);
 }
 
 bool KomposeTask::isIconified() const
@@ -83,34 +83,34 @@ bool KomposeTask::isIconified() const
 
 bool KomposeTask::isAlwaysOnTop() const
 {
-  return (windowInfo.state & NET::StaysOnTop);
+  return (windowInfo.state() & NET::StaysOnTop);
 }
 
 bool KomposeTask::isShaded() const
 {
-  return (windowInfo.state & NET::Shaded);
+  return (windowInfo.state() & NET::Shaded);
 }
 
 bool KomposeTask::isOnCurrentDesktop() const
 {
-  return (windowInfo.onAllDesktops || windowInfo.desktop == kwinmodule->currentDesktop());
+  return (windowInfo.onAllDesktops() || windowInfo.desktop() == kwinmodule->currentDesktop());
 }
 
 int KomposeTask::onDesktop() const
 {
-  return windowInfo.desktop;
+  return windowInfo.desktop();
 }
 
 bool KomposeTask::isOnAllDesktops() const
 {
-  return windowInfo.onAllDesktops;
+  return windowInfo.onAllDesktops();
 }
 
 
 bool KomposeTask::isModified() const
 {
   static QString modStr = QString::fromUtf8("[") + i18n("modified") + QString::fromUtf8("]");
-  int modStrPos = windowInfo.visibleName.find(modStr);
+  int modStrPos = windowInfo.visibleName().find(modStr);
 
   return ( modStrPos != -1 );
 }
@@ -121,7 +121,7 @@ void KomposeTask::maximize()
   NETWinInfo ni( qt_xdisplay(),  windowID, qt_xrootwin(), NET::WMState);
   ni.setState( NET::Max, NET::Max );
 
-  if (windowInfo.mappingState == NET::Iconic)
+  if (windowInfo.mappingState() == NET::Iconic)
     activate();
 }
 
@@ -162,8 +162,7 @@ void KomposeTask::lower()
 
 void KomposeTask::activate()
 {
-  NETRootInfo ri( qt_xdisplay(), 0 );
-  ri.setActiveWindow( windowID );
+  KWin::forceActiveWindow(windowID);
 }
 
 void KomposeTask::activateOrRaise()
@@ -188,7 +187,7 @@ void KomposeTask::minimizeOrRestore()
   {
     iconify();
   }
-  
+
   refresh();
 }
 
@@ -244,7 +243,15 @@ void KomposeTask::toggleShaded()
 void KomposeTask::refresh()
 {
   qDebug("KomposeTask::refresh() - Window parameters have changed");
-  windowInfo = KWin::info(windowID);
+  windowInfo = KWin::windowInfo(windowID);
+
+  if ( !windowInfo.valid() )
+  {
+    qDebug("KomposeTask::refresh() - Invalid window Info. window closed?!");
+    // TODO: Find out what I have todo when this happens ( it does! )
+    //deleteLater();
+    return;
+  }
 
   if ( !KomposeTaskManager::instance()->hasActiveView() )
     return;
@@ -256,12 +263,13 @@ void KomposeTask::updateScreenshot()
 {
   bool iconifyLater = false;
 
-  if ( !pm_screenshot.isNull() )
+  if ( screenshot->isValid() )
   {
-    if ( ( !KomposeSettings::instance()->getPassiveScreenshots() && KomposeSettings::instance()->getOnlyOneScreenshot() ) ||
-         ( KomposeSettings::instance()->getPassiveScreenshots() &&
-           ( ( !KomposeSettings::instance()->getOnlyOneScreenshot() && !isOnTop() )
-             || KomposeSettings::instance()->getOnlyOneScreenshot() ) ) )
+    if ( KomposeSettings::instance()->getPassiveScreenshots() && isOnTop() )
+    {
+      qDebug("KomposeTask::updateScreenshot() - Screenshot already exists, but passive mode on - Grabbing new one.");
+    }
+    else
     {
       qDebug("KomposeTask::updateScreenshot() - Screenshot already exists... skipping.");
       return;
@@ -273,22 +281,16 @@ void KomposeTask::updateScreenshot()
     qDebug("KomposeTask::updateScreenshot() - Window iconified... we have to raise it and iconify it again later.");
     iconifyLater = true;
   }
-  else
-    qDebug("KomposeTask::updateScreenshot() - Window NOT iconified... easy...");
 
-  activateOrRaise();
-
-  if ( !isOnCurrentDesktop() )
+  if ( !KomposeSettings::instance()->getPassiveScreenshots() || !(screenshot->isValid()) )
   {
-    qDebug("KomposeTask::updateScreenshot() - Error: !isOnCurrentDesktop()");
-  }
-  if ( !isActive() )
-  {
-    qDebug("KomposeTask::updateScreenshot() - Error: !isActive()");
+    qDebug("KomposeTask::updateScreenshot() - Forcing activation (no screenshot exists)");
+    activateOrRaise();
   }
 
+  // Grab a screenshot
   QWidget *rootWin = qApp->desktop();
-  QRect geom = windowInfo.geometry;
+  QRect geom = windowInfo.geometry();
 
   struct timespec req, rem;
   req.tv_sec = 0;
@@ -296,56 +298,91 @@ void KomposeTask::updateScreenshot()
   while(nanosleep(&req, &rem))
     req = rem;
 
-  // TODO: Find a function that grabs windows and stores them as QImage. so conversion won't be needed
-  //   pm_screenshot = QPixmap::grabWindow( rootWin->winId(), geom.x(), geom.y(), geom.width(), geom.height() );
-  pm_screenshot = QPixmap::grabWindow( windowID );
-  imageNeedsUpdate = true;
-  //   while(nanosleep(&req, &rem))
-  //     req = rem;
+  // pm_screenshot = QPixmap::grabWindow( rootWin->winId(), geom.x(), geom.y(), geom.width(), geom.height() );
+  QPixmap   pm_screenshot = QPixmap::grabWindow( windowID );
+
+  screenshot->setImage( pm_screenshot );
+
+  /* Code to create a screenshot directly as an Imlib image
+   
+    Display *disp;
+    Visual *vis;
+    Colormap cm;
+    int screen;
+   
+    //get display information
+    disp = XOpenDisplay(0);
+    screen = DefaultScreen(disp);
+    vis = DefaultVisual(disp, screen);
+    cm = DefaultColormap(disp, screen);
+   
+    //set imlib properties
+    imlib_context_set_display(disp);
+    imlib_context_set_visual(vis);
+    imlib_context_set_colormap(cm);
+    imlib_context_set_drawable(RootWindow(disp, screen));
+    imlib_context_set_anti_alias(1);
+    imlib_context_set_blend(0);
+   
+    Imlib_Image img = imlib_create_image_from_drawable((Pixmap)0,geom.x(), geom.y(), geom.width(), geom.height(),1);
+   
+    screenshot->setImage( img );
+   
+    XCloseDisplay(disp);*/
 
   if ( iconifyLater )
     QTimer::singleShot( 1000, this, SLOT( iconify() ) );
 
-  qDebug("KomposeTask::updateScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), geom.width(), geom.height() );
+  qDebug("KomposeTask::updateScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
+
 }
 
 
 int KomposeTask::getHeightForWidth ( int w ) const
 {
-  qDebug("KomposeTask::getHeightForWidth(%d) - Screenshot w: %d, h: %d", w, pm_screenshot.width(), pm_screenshot.height());
-  return ((double)w / (double)pm_screenshot.width()) * pm_screenshot.height();
+  qDebug("KomposeTask::getHeightForWidth(%d) - Screenshot w: %d, h: %d", w, screenshot->originalWidth(), screenshot->originalHeight());
+  return ((double)w / (double)screenshot->originalWidth()) * screenshot->originalHeight();
 }
 
 int KomposeTask::getWidthForHeight ( int h ) const
 {
-  qDebug("KomposeTask::getWidthForHeight(%d) - Screenshot w: %d, h: %d", h, pm_screenshot.width(), pm_screenshot.height());
-  return ((double)h / (double)pm_screenshot.height()) * pm_screenshot.width();
+  qDebug("KomposeTask::getWidthForHeight(%d) - Screenshot w: %d, h: %d", h, screenshot->originalWidth(), screenshot->originalHeight());
+  return ((double)h / (double)screenshot->originalHeight()) * screenshot->originalWidth();
 }
 
 double KomposeTask::getAspectRatio()
 {
-  qDebug("KomposeTask::getAspectRatio() - Screenshot w: %d, h: %d", pm_screenshot.width(), pm_screenshot.height());
-  return (double)(pm_screenshot.width()) / (double)(pm_screenshot.height());
+  qDebug("KomposeTask::getAspectRatio() - Screenshot w: %d, h: %d", screenshot->originalWidth(), screenshot->originalHeight());
+  return (double)(screenshot->originalWidth()) / (double)(screenshot->originalHeight());
 }
 
-QImage& KomposeTask::getScreenshotImg()
+int KomposeTask::getWidth()
+{ 
+  return screenshot->originalWidth();
+}
+
+int KomposeTask::getHeight()
 {
-  //TODO: Make a config option to choose between storing images or dropping them (later is default, cause it uses less memory (pixmaps are much better compressed than images)
-  if ( pm_screenshot.isNull() )
-    return img_screenshot;
-
-  if ( imageNeedsUpdate )
-  {
-    // Check if update is needed
-    img_screenshot = KomposeSettings::instance()->getPixmapIO()->convertToImage( pm_screenshot );
-  }
-  return img_screenshot;
+  return screenshot->originalHeight();
 }
 
-void KomposeTask::emptyImageCache()
+QPixmap KomposeTask::getIcon( int size )
 {
-   if ( !pm_screenshot.isNull() )
-    img_screenshot.reset();
+  // Cache the icons???
+  //   if ( pm_icon.isNull() || pm_icon.width() != size )
+  //   {
+  //     if (size == -1)
+  //       pm_icon = KWin::icon( windowID );
+  //     else
+  //       pm_icon = KWin::icon( windowID, size, size, true );
+  //   }
+  //
+  //   return pm_icon;
+  if (size == -1)
+    return KWin::icon( windowID );
+  else
+    return KWin::icon( windowID, size, size, true );
 }
+
 
 #include "komposetask.moc"

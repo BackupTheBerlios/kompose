@@ -30,14 +30,14 @@
 static const char description[] =
   I18N_NOOP("A KDE Fullscreen TaskManager");
 
-static const char version[] = "0.3";
+static const char version[] = "0.43";
 
 static KCmdLineOptions options[] =
   {
-    //    { "+[URL]", I18N_NOOP( "Document to open." ), 0 },
+    { "nosystray", I18N_NOOP( "Don't show the systray icon" ), 0 },
+    { "singleshot", I18N_NOOP( "Display the default view and exit (non daemon mode)" ), 0 },
     KCmdLineLastOption
   };
-
 
 int main(int argc, char **argv)
 {
@@ -46,19 +46,26 @@ int main(int argc, char **argv)
   about.addAuthor( "Hans Oischinger", 0, "oisch@sourceforge.net" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
-  KApplication app;
-//   KUniqueApplication app;
+  
+  // KApplication app;
+  KUniqueApplication app;
   Kompose *mainWin = 0;
 
   // no session.. just start up normally
   KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-
-  /// @todo do something with the command line args here
-
+  
+  if ( !args->isSet("systray") )
+    KomposeGlobal::instance()->setHideSystray(true);
+  if ( args->isSet("singleshot") )
+  {
+    KomposeGlobal::instance()->setHideSystray(true);
+    KomposeGlobal::instance()->setSingleShot(true);
+  }
+  
   mainWin = new Kompose();
   //app.setMainWidget( mainWin );
   //mainWin->show();
-
+  
   args->clear();
 
   // mainWin has WDestructiveClose flag by default, so it will delete itself.

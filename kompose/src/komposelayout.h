@@ -31,6 +31,10 @@ enum LayoutType { TLAYOUT_GENERIC,  // layouts all KomposeWidgetInterface classe
                   TLAYOUT_TASKCONTAINERS  // layouts containers only
                 };
 
+enum LayoutDirections { DLAYOUT_LEFT, DLAYOUT_RIGHT, DLAYOUT_TOP, DLAYOUT_BOTTOM };
+
+enum WrapDirections { WLAYOUT_NONE, WLAYOUT_HORIZONTAL, WLAYOUT_VERTICAL, WLAYOUT_BOTH };
+
 /**
 The main layout class.
 QLayout just didn't fit :(
@@ -47,25 +51,43 @@ public:
 
   void add( KomposeWidgetInterface *w );
   void remove( KomposeWidgetInterface *w );
-  void setType( int t) { layoutType = t; }
+void setType( int t) { layoutType = t; }
   int getType() { return layoutType; }
-  
+
   const QPtrList<KomposeWidgetInterface> *getManagedWidgets() { return &list; }
   int getNumofChilds() { return list.count(); }
+  KomposeWidgetInterface* getNeighbour( const KomposeWidgetInterface* widget,
+                                        int direction = DLAYOUT_RIGHT,
+                                        int wrap = WLAYOUT_NONE );
 
 public slots:
   void arrangeLayout();
 
 protected:
+  KomposeWidgetInterface* getNeighbour( QPtrList<KomposeWidgetInterface> listToSearch,
+                                        const KomposeWidgetInterface* widget,
+                                        int direction = DLAYOUT_RIGHT,
+                                        int wrap = WLAYOUT_NONE );
   void rearrangeContents();
-  void rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidgetInterface> widgets, int rows = -1, int columns = -1 );
+  void rearrangeContents( const QRect& availRect,
+                          const QPtrList<KomposeWidgetInterface> widgets,
+                          int rows = -1,
+                          int columns = -1,
+                          bool setMemberRowsCols = true );
 
 private:
+  // List of all managed childs
   QPtrList<KomposeWidgetInterface> list;
+  // List of container childs seperated by empty/full
+  QPtrList<KomposeWidgetInterface> filledContainers;
+  QPtrList<KomposeWidgetInterface> emptyContainers;
+
   QSize currentSize;
   int layoutType;
   int spacing;
   bool widgetsChanged;
+  int currentRows;
+  int currentColumns;
 
   KomposeWidgetInterface* parentWidget;
 };

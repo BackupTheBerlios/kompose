@@ -24,11 +24,12 @@
 #include "komposesettings.h"
 #include "komposetaskwidget.h"
 #include "komposefullscreenwidget.h"
-// #include "komposeglfullscreenwidget.h"
+#include "komposeglobal.h"
 
 #include <kwinmodule.h>
 #include <netwm.h>
 #include <kwin.h>
+#include <kapplication.h>
 
 #include <qtimer.h>
 #include <qimage.h>
@@ -53,12 +54,12 @@ KomposeTaskManager* KomposeTaskManager::instance()
 
 
 KomposeTaskManager::KomposeTaskManager()
-    : QObject(),
+    : QObject(), DCOPObject( "KomposeTaskMgrDcopIface" ),
     viewWidget(),
     activeView(0)
 {
   taskManagerInstance = this;
-  
+
   qDebug("KomposeTaskManager::KomposeTaskManager()");
   kwinmodule = new KWinModule(this, 2);
   numDesks = KWin::numberOfDesktops();
@@ -80,7 +81,9 @@ KomposeTaskManager::KomposeTaskManager()
   {
     qDebug("KomposeTaskManager::KomposeTaskManager() - Grabbing Screenshots passively");
     connect( kwinmodule, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotUpdateScreenshot(WId)) );
-  } else {
+  }
+  else
+  {
     qDebug("KomposeTaskManager::KomposeTaskManager() - Passive Screenshots disabled");
     disconnect( kwinmodule, SIGNAL(activeWindowChanged(WId)), this, SLOT(slotUpdateScreenshot(WId)) );
   }
@@ -88,7 +91,7 @@ KomposeTaskManager::KomposeTaskManager()
 
 KomposeTaskManager::~KomposeTaskManager()
 {
-//   delete taskManagerInstance;
+  //   delete taskManagerInstance;
 }
 
 
@@ -197,6 +200,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
 void KomposeTaskManager::slotUpdateScreenshots()
 {
   qDebug("KomposeTaskManager::slotUpdateScreenshots()");
+  
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -228,25 +232,31 @@ void KomposeTaskManager::slotUpdateScreenshot(WId winId)
 
 void KomposeTaskManager::createView( int type )
 {
+  if (type == -1)
+    type = KomposeSettings::instance()->getDefaultView();
+
   switch(type)
   {
-    case KOMPOSEDISPLAY_VIRTUALDESKS:
-      createVirtualDesktopView();
-      break;
-    case KOMPOSEDISPLAY_WORLD:
-      createWorldView();
-      break;
+  case KOMPOSEDISPLAY_VIRTUALDESKS:
+    createVirtualDesktopView();
+    break;
+  case KOMPOSEDISPLAY_WORLD:
+    createWorldView();
+    break;
   }
 }
 
 
 void KomposeTaskManager::createVirtualDesktopView()
 {
+  // Remember current desktop
+  deskBeforeSnaps = KWin::currentDesktop();
+  
   if ( !activeView )
     slotUpdateScreenshots();
 
   qDebug("KomposeTaskManager::createVirtualDesktopView - Creating View");
-  
+
   if ( !activeView )
     viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_VIRTUALDESKS );
   else
@@ -255,7 +265,7 @@ void KomposeTaskManager::createVirtualDesktopView()
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;
-  viewWidget->show();
+//   viewWidget->show();
 
   slotStartWindowListeners();
 }
@@ -263,11 +273,14 @@ void KomposeTaskManager::createVirtualDesktopView()
 
 void KomposeTaskManager::createWorldView()
 {
+  // Remember current desktop
+  deskBeforeSnaps = KWin::currentDesktop();
+
   if ( !activeView )
     slotUpdateScreenshots();
 
   qDebug("KomposeTaskManager::createWorldView - Creating View");
-  
+
   if ( !activeView )
     viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_WORLD );
   else
@@ -276,7 +289,7 @@ void KomposeTaskManager::createWorldView()
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;
-  viewWidget->show();
+//   viewWidget->show();
 
   slotStartWindowListeners();
 }
@@ -288,12 +301,17 @@ void KomposeTaskManager::closeCurrentView()
     return;
 
   activeView = false;
-  
+
   viewWidget->setUpdatesEnabled( false );
   viewWidget->close(true);
   viewWidget = 0;
-  
+
   emit viewClosed();
+  if ( KomposeGlobal::instance()->getSingleShot() )
+    kapp->quit();
+  
+  // Reset old Desktop
+  KWin::setCurrentDesktop( deskBeforeSnaps );
 }
 
 void KomposeTaskManager::slotDesktopCountChanged(int d)
@@ -327,15 +345,38 @@ bool KomposeTaskManager::isOnTop(const KomposeTask* task)
 
 void KomposeTaskManager::setCurrentDesktop( int desknum )
 {
-  KWin::setCurrentDesktop(desknum+1);
   closeCurrentView();
+  KWin::setCurrentDesktop(desknum+1);
 }
 
 void KomposeTaskManager::activateTask( KomposeTask *task )
 {
-  task->activate();
   closeCurrentView();
+  task->activate();
 }
 
+void KomposeTaskManager::createDefaultView()
+{
+  createView();
+}
+
+// bool KomposeTaskManager::process(const QCString &fun, const QByteArray &data, QCString &replyType, QByteArray &replyData)
+// {}
+// {
+//   if (fun == "createDefaultView()")
+//   {
+// //     QString result = createView();
+// //     QDataStream reply(replyData, IO_WriteOnly);
+// //     reply << result;
+// //     replyType = "QString";
+//      createView();
+//      return true;
+//   }
+//   else
+//   {
+//     qDebug("unknown function call to KomposeTaskManager::process()");
+//     return false;
+//   }
+// }
 
 #include "komposetaskmanager.moc"

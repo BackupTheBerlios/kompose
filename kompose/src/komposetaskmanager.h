@@ -23,8 +23,11 @@
 #include <qobject.h>
 #include <qptrlist.h>
 
+#include <dcopobject.h> 
+
 #include "komposetask.h"
 #include "komposefullscreenwidget.h"
+#include "komposetaskmgrdcopiface.h"
 
 class KWinModule;
 class KomposeLayout;
@@ -38,7 +41,7 @@ typedef QPtrList<KomposeTask> TaskList;
 /**
 @author Hans Oischinger
 */
-class KomposeTaskManager : public QObject
+class KomposeTaskManager : public QObject, virtual public KomposeTaskMgrDcopIface
 {
   Q_OBJECT
 protected:
@@ -54,8 +57,11 @@ public:
   int getNumDesktops() { return numDesks; }
   TaskList getTasks() const { return tasklist; }
   
+  // Dcop functions
+  void createDefaultView();
+  
 public slots:
-  void createView( int type );
+  void createView( int type = -1 ); // -1 means the user's default
   void createVirtualDesktopView();
   void createWorldView();
   void closeCurrentView();
@@ -81,14 +87,16 @@ signals:
 
 protected:
   KomposeTask* findTask(WId w);
+//   bool process(const QCString &fun, const QByteArray &data, QCString &replyType, QByteArray &replyData);
   
 private:
   KWinModule* kwinmodule;
   KomposeFullscreenWidget *viewWidget;    // the widget where all action takes place
   bool activeView;        // used to check if a view is active
   TaskList tasklist;      // list of tasks handled by the WM
-  
-  int numDesks;          // total num of desks
+
+  int deskBeforeSnaps;    // the virtual desk we were on befor screenshots were taken
+  int numDesks;           // total num of desks
 };
 
 #endif

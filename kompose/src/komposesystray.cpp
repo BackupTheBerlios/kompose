@@ -18,49 +18,22 @@
 
 #include <kapplication.h>
 #include <kaction.h>
-#include <klocale.h>
 #include <kpopupmenu.h>
-#include <kiconloader.h>
-#include <kaccel.h>
-#include <kkeydialog.h>
-
-#include <kaboutapplication.h> 
 
 
 KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
     : KSystemTray(parent, name)
 {
-  // Actions
-  //   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection() );
-  actShowWorldView = new KAction(i18n(QString("Komposé").utf8()), "background",
-                                 0,
-                                 KomposeTaskManager::instance(), SLOT(createWorldView()),
-                                 actionCollection(), "showWorldView");
-  actShowVirtualDesktopView = new KAction(i18n(QString("Komposé (arranged by virtual desktops)").utf8()), "background",
-                                          0,
-                                          KomposeTaskManager::instance(), SLOT(createVirtualDesktopView()),
-                                          actionCollection(), "showVirtualDesktopView");
-  actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()), actionCollection() );
-
-  actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
-                              actionCollection(), "options_configure_global_keybinding");
-  actConfigGlobalShortcuts->setText(i18n("Configure &Global Shortcuts..."));
-  KAction *actAboutDlg      = new KAction(i18n(QString("About Komposé").utf8()), "kompose",
-                                          0,
-                                          this, SLOT(showAbutDlg()),
-                                          actionCollection(), "showAbutDlg");
-
   // Create Menu
   menu = contextMenu();
   move( -1000, -1000 );
   // Fill Menu
-  actShowWorldView->plug(menu);
-  actShowVirtualDesktopView->plug(menu);
+  KomposeGlobal::instance()->getActShowWorldView()->plug(menu);
+  KomposeGlobal::instance()->getActShowVirtualDesktopView()->plug(menu);
   menu->insertSeparator();
-  actPreferencesDialog->plug(menu);
-  actConfigGlobalShortcuts->plug(menu);
-  actAboutDlg->plug(menu);
-
+  KomposeGlobal::instance()->getActPreferencesDialog()->plug(menu);
+  KomposeGlobal::instance()->getActConfigGlobalShortcuts()->plug(menu);
+  KomposeGlobal::instance()->getActAboutDlg()->plug(menu);
 }
 
 
@@ -92,17 +65,5 @@ void KomposeSysTray::mousePressEvent ( QMouseEvent * e )
   }
 }
 
-void KomposeSysTray::showGlobalShortcutsSettingsDialog()
-{
-  KKeyDialog::configure( KomposeSettings::instance()->getGlobalAccel() );
-  KomposeSettings::instance()->writeConfig();
-}
-
-
-void KomposeSysTray::showAbutDlg()
-{
-  KAboutApplication* kabout = new KAboutApplication(this);
-  kabout->show();
-}
 
 #include "komposesystray.moc"

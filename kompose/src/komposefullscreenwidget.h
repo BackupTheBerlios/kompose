@@ -19,6 +19,7 @@
 
 class KRootPixmap;
 class KomposeDesktopWidget;
+class KPopupMenu;
 
 /**
 @author Hans Oischinger
@@ -40,11 +41,13 @@ public:
   
 protected:
   void initView();
+  void initMenu();
   void createDesktopWidgets();
 
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
   void keyReleaseEvent ( QKeyEvent * e );
+//   void showEvent (QShowEvent * e);
   
   void destroyChildWidgets();
 //   virtual void closeEvent ( QCloseEvent * e );
@@ -52,7 +55,7 @@ protected:
 private:
   KRootPixmap *rootpix;
   int type;
-  
+  KPopupMenu *menu;
 };
 
 #endif

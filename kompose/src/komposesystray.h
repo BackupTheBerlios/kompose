@@ -33,19 +33,9 @@ public:
 protected:
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
-
-protected slots:
-  void showAbutDlg();
-  
-public slots:
-  void showGlobalShortcutsSettingsDialog();
   
 private:
   KPopupMenu *menu;
-  KAction *actConfigGlobalShortcuts;
-  KAction *actPreferencesDialog;
-  KAction *actShowVirtualDesktopView;
-  KAction *actShowWorldView;
 };
 
 #endif

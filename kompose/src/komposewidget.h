@@ -22,8 +22,8 @@
 
 #include <qwidget.h>
 #include "komposewidgetinterface.h"
+#include "komposelayout.h"
 
-class KomposeLayout;
 
 /**
 This base class for all Kompose Widgets glues the Layout and the widget together:
@@ -46,6 +46,8 @@ public:
   virtual int getHeightForWidth( int w ) const = 0;
   virtual int getWidthForHeight( int h ) const = 0;
   virtual double getAspectRatio() = 0;
+  
+  KomposeLayout* getLayout() { return layout; }
   
 protected:
   void childEvent( QChildEvent * ce);

@@ -1,1 +1,12 @@
+Komposé README
 
+Command line options:
+  --nosystray               Don't show the systray icon
+  --singleshot              Display the default view and exit (non daemon mode)
+
+Keyboard shortcuts:
+ Cancel                                      ESC
+ Navigation between tasks 
+   (within the view of the current desktop)  arrow keys, WASD keys or tab key
+ Navigation between virtual desktops         Ctrl + arrow keys or WASD keys
+ Selection of a window                       Return or Space

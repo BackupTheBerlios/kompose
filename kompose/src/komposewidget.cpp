@@ -80,7 +80,7 @@ void KomposeWidget::resizeEvent ( QResizeEvent * e )
 
 void KomposeWidget::setGeom ( const QRect &rect )
 {
-  QWidget::setGeometry( rect );
+  setGeometry( rect );
 }
 
 void KomposeWidget::setGeom ( const QSize &size )
@@ -95,7 +95,7 @@ QSize KomposeWidget::getSize() const
 
 QRect KomposeWidget::getRect() const
 {
-  return QWidget::rect();
+  return QWidget::geometry();
 }
 
 KomposeWidgetInterface* KomposeWidget::getParentWidget() const

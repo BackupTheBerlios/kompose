@@ -53,10 +53,15 @@ protected:
   void mouseReleaseEvent ( QMouseEvent * e );
   void mouseDoubleClickEvent ( QMouseEvent * e );
   void childEvent( QChildEvent * ce);
+  void focusInEvent ( QFocusEvent * );
+  void focusOutEvent ( QFocusEvent * );
+  void keyReleaseEvent ( QKeyEvent * e );
 
 private:
   QRect deskRect;
   KRootPixmap *rootpix;
+  QString deskName;
+  bool highlight; // Highlight widget?
 };
 
 #endif
