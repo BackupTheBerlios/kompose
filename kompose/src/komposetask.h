@@ -85,7 +85,7 @@ public slots:
   void raise();
   void lower();
   void activate();
-  void activateOrRaise();
+//   void activateOrRaise();
   void minimizeOrRestore();
   
   void toDesktop(int desk);
@@ -107,8 +107,6 @@ private:
   KWin::WindowInfo windowInfo;
   
   KomposeTaskVisualizer* visualizer;
-  
-  bool active;
 };
 
 #endif

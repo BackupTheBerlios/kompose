@@ -44,9 +44,9 @@ public:
 
 protected:
   void initXComposite();
-  void captureScreenshot_GrabWindow();
 
 protected slots:
+  void captureScreenshot_GrabWindow();
   void updateXCompositeNamedPixmap();
   void renderScaledScreenshot( QSize size );
   void clearCached();

@@ -43,7 +43,6 @@
 KomposeTask::KomposeTask(WId win, KWinModule *kwinmod, QObject *parent, const char *name)
     : QObject(parent, name),
     kwinmodule(kwinmod),
-    active(false),
     windowID(win)
 {
   findWmFrame();
@@ -103,7 +102,7 @@ bool KomposeTask::isOnTop() const
 
 bool KomposeTask::isActive() const
 {
-  return active;
+  return ( kwinmodule->activeWindow() & windowID );
 }
 
 bool KomposeTask::isMaximized() const
@@ -201,17 +200,17 @@ void KomposeTask::activate()
   KWin::forceActiveWindow(windowID);
 }
 
-void KomposeTask::activateOrRaise()
-{
-  if ( !isActive() || isIconified() )
-  {
-    activate();
-  }
-  else if ( !isOnTop() )
-  {
-    raise();
-  }
-}
+// void KomposeTask::activateOrRaise()
+// {
+//   if ( !isActive() || isIconified() )
+//   {
+//     activate();
+//   }
+//   else if ( !isOnTop() )
+//   {
+//     raise();
+//   }
+// }
 
 void KomposeTask::minimizeOrRestore()
 {

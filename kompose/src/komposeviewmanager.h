@@ -42,16 +42,21 @@ public slots:
 
   void closeCurrentView();
   bool hasActiveView() { return activeView; }
+  bool getBlockScreenshots() { return blockScreenshots; }
   
   void setCurrentDesktop( int desknum );
   void activateTask( KomposeTask* task );
 
+protected slots:
+  void toggleBlockScreenshots();
+  
 signals:
   void viewClosed();
 
 private:
   KomposeFullscreenWidget *viewWidget;    // the widget where all action takes place
   bool activeView;        // used to check if a view is active
+  bool blockScreenshots;   // no screenshots when true
   int deskBeforeSnaps;    // the virtual desk we were on befor screenshots were taken
 
 };

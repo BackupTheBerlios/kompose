@@ -15,6 +15,8 @@
 #include "komposeglobal.h"
 #include "komposesettings.h"
 
+#include <qtimer.h>
+
 #include <kwin.h>
 #include <kapplication.h>
 
@@ -38,7 +40,8 @@ KomposeViewManager::KomposeViewManager():
     QObject(),
     DCOPObject( "KomposeDcopIface" ),
     viewWidget(),
-    activeView(0)
+    activeView(0),
+    blockScreenshots(0)
 {
   viewManagerInstance = this;
 }
@@ -127,7 +130,8 @@ void KomposeViewManager::closeCurrentView()
 {
   if ( !activeView )
     return;
-
+  
+  blockScreenshots = true;
   activeView = false;
 
   viewWidget->setUpdatesEnabled( false );
@@ -141,6 +145,14 @@ void KomposeViewManager::closeCurrentView()
 
   // Reset old Desktop
   KWin::setCurrentDesktop( deskBeforeSnaps );
+  
+  // A short delay until we allow screenshots again (would cause overlapping else
+  QTimer::singleShot( 1500, this, SLOT( toggleBlockScreenshots() ) );
+}
+
+void KomposeViewManager::toggleBlockScreenshots()
+{
+  blockScreenshots = !blockScreenshots;
 }
 
 void KomposeViewManager::setCurrentDesktop( int desknum )
