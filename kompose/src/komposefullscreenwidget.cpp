@@ -71,12 +71,13 @@ void KomposeFullscreenWidget::initMenu()
 
   KomposeGlobal::instance()->getActShowWorldView()->plug(menu);
   KomposeGlobal::instance()->getActShowVirtualDesktopView()->plug(menu);
+  KomposeGlobal::instance()->getActShowCurrentDesktopView()->plug(menu);
   menu->insertSeparator();
   KomposeGlobal::instance()->getActPreferencesDialog()->plug(menu);
   KomposeGlobal::instance()->getActConfigGlobalShortcuts()->plug(menu);
   KomposeGlobal::instance()->getActAboutDlg()->plug(menu);
-  menu->insertSeparator();
-  KomposeGlobal::instance()->getActQuit()->plug(menu);
+  //menu->insertSeparator();
+  //KomposeGlobal::instance()->getActQuit()->plug(menu);
 }
 
 
@@ -113,8 +114,14 @@ void KomposeFullscreenWidget::initView()
     createTaskWidgets();
     connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
-
-  //rootpix->start();
+  else if ( type == KOMPOSEDISPLAY_CURRENTDESK )
+  {
+    layout->setType( TLAYOUT_GENERIC );
+    setDesktop( KomposeViewManager::instance()->getDesktopBeforeSnaps() );
+    createTaskWidgets();
+    connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+  }
+  
   unsetCursor();
 }
 

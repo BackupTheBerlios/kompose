@@ -83,6 +83,7 @@ KomposeGlobal::~KomposeGlobal()
   delete actConfigGlobalShortcuts;
   delete actPreferencesDialog;
   delete actShowVirtualDesktopView;
+  delete actShowCurrentDesktopView;
   delete actShowWorldView;
   delete actAboutDlg;
   delete actQuit;
@@ -143,8 +144,13 @@ void KomposeGlobal::initActions()
                                           0,
                                           KomposeViewManager::instance(), SLOT(createVirtualDesktopView()),
                                           actionCollection, "showVirtualDesktopView");
-  actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()), actionCollection );
+  actShowCurrentDesktopView = new KAction(i18n(QString::fromUtf8("Komposé (current virtual desktop)").utf8()), "kompose",
+                                          0,
+                                          KomposeViewManager::instance(), SLOT(createCurrentDesktopView()),
+                                          actionCollection, "showCurrentDesktopView");
 
+  actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()), actionCollection );
+  
   actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
                               actionCollection, "options_configure_global_keybinding");
   actConfigGlobalShortcuts->setText(i18n("Configure &Global Shortcuts..."));
@@ -195,20 +201,20 @@ void KomposeGlobal::slotDone(bool success)
 void KomposeGlobal::enablePixmapExports()
 {
 #ifdef Q_WS_X11
-    qDebug("KomposeGlobal::enablePixmapExports()");
-    DCOPClient *client = kapp->dcopClient();
-    if (!client->isAttached())
-	client->attach();
-    QByteArray data;
-    QDataStream args( data, IO_WriteOnly );
-    args << 1;
+  qDebug("KomposeGlobal::enablePixmapExports()");
+  DCOPClient *client = kapp->dcopClient();
+  if (!client->isAttached())
+    client->attach();
+  QByteArray data;
+  QDataStream args( data, IO_WriteOnly );
+  args << 1;
 
-    QCString appname( "kdesktop" );
-    int screen_number = DefaultScreen(qt_xdisplay());
-    if ( screen_number )
-        appname.sprintf("kdesktop-screen-%d", screen_number );
+  QCString appname( "kdesktop" );
+  int screen_number = DefaultScreen(qt_xdisplay());
+  if ( screen_number )
+    appname.sprintf("kdesktop-screen-%d", screen_number );
 
-    client->send( appname, "KBackgroundIface", "setExport(int)", data );
+  client->send( appname, "KBackgroundIface", "setExport(int)", data );
 #endif
 }
 

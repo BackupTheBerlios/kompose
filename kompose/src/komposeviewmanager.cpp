@@ -51,8 +51,8 @@ KomposeViewManager::KomposeViewManager():
   cursorUpdateTimer = new QTimer();
   slotStartCursorUpdateTimer();
 
-  // dirtyy hack. see sickNothingWorksAndIamDrunkAnywayInitFunction()
-  QTimer::singleShot( 1000, this, SLOT( sickNothingWorksAndIamDrunkAnywayInitFunction() ) );
+  // dirty hack. see uglyQtHackInitFunction()
+  QTimer::singleShot( 1000, this, SLOT( uglyQtHackInitFunction() ) );
 }
 
 
@@ -65,7 +65,7 @@ KomposeViewManager::~KomposeViewManager()
 /**
  * This is a hack that should be called by a timer as this connect won't work in the constructor
  */
-void KomposeViewManager::sickNothingWorksAndIamDrunkAnywayInitFunction()
+void KomposeViewManager::uglyQtHackInitFunction()
 {
   connect( KomposeSettings::instance(), SIGNAL( settingsChanged() ), SLOT( slotStartCursorUpdateTimer() ) );
 }
@@ -120,78 +120,31 @@ void KomposeViewManager::createView( int type )
 {
   if (type == -1)
     type = KomposeSettings::instance()->getDefaultView();
+  
+  qDebug("KomposeViewManager::createView( type %d )", type);
 
-  switch(type)
-  {
-  case KOMPOSEDISPLAY_VIRTUALDESKS:
-    createVirtualDesktopView();
-    break;
-  case KOMPOSEDISPLAY_WORLD:
-    createWorldView();
-    break;
-  }
-}
-
-
-void KomposeViewManager::createVirtualDesktopView()
-{
-  // Set activeView to false during this funcion as it will be checked by the layout
-  int tmp_activeview = activeView;
-  activeView = false;
-
-  if ( !tmp_activeview  )
+  if ( !activeView )
   {
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
+    qDebug("KomposeViewManager::createView() - Remembering desktop %d ", deskBeforeSnaps);
     // Update screenshot of the current window to be more up2date
-    // FIXME: make this configurable for faster Komposé show?
-    //KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
+    // KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
     // Update all other
     blockScreenshots = true;
-    KomposeTaskManager::instance()->slotUpdateScreenshots();
+    if ( type == KOMPOSEDISPLAY_CURRENTDESK )
+      KomposeTaskManager::instance()->slotUpdateScreenshots( false );
+    else
+      KomposeTaskManager::instance()->slotUpdateScreenshots();
     blockScreenshots = false;
   }
-
-  qDebug("KomposeViewManager::createVirtualDesktopView - Creating View");
-
-  if ( !tmp_activeview  )
-    viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_VIRTUALDESKS );
+  
+  if ( !activeView )
+    viewWidget = new KomposeFullscreenWidget( type );
   else
-    viewWidget->setType( KOMPOSEDISPLAY_VIRTUALDESKS );
-
+    viewWidget->setType( type );
+    
   KWin::forceActiveWindow( viewWidget->winId() );
-
-  activeView = true;
-}
-
-
-void KomposeViewManager::createWorldView()
-{
-  // Set activeView to false during this funcion as it will be checked by the layout
-  int tmp_activeview = activeView;
-  activeView = false;
-
-  if ( !tmp_activeview )
-  {
-    // Remember current desktop
-    deskBeforeSnaps = KWin::currentDesktop();
-    // Update screenshot of the current window to be more up2date
-    //KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
-    // Update all other
-    blockScreenshots = true;
-    KomposeTaskManager::instance()->slotUpdateScreenshots();
-    blockScreenshots = false;
-  }
-
-  qDebug("KomposeViewManager::createWorldView - Creating View");
-
-  if ( !tmp_activeview )
-    viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_WORLD );
-  else
-    viewWidget->setType( KOMPOSEDISPLAY_WORLD );
-
-  KWin::forceActiveWindow( viewWidget->winId() );
-
   activeView = true;
 }
 
@@ -237,10 +190,6 @@ void KomposeViewManager::activateTask( KomposeTask *task )
   task->activate();
 }
 
-void KomposeViewManager::createDefaultView()
-{
-  createView();
-}
 
 
 #include "komposeviewmanager.moc"

@@ -58,6 +58,10 @@ KomposePreferences::KomposePreferences()
   QString defaultViewVirtualDesksHelp = i18n("Fullscreen layout that shows a representation of your virtual desktops\n and places the windows inside.");
   QWhatsThis::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
   QToolTip::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
+  defaultViewCurrentDesk = new QRadioButton(i18n("Current virtual desktop"), defaultViewBtnGroup );
+  QString defaultViewCurrentDeskHelp = i18n("Fullscreen layout that shows the windows of the desktop you're currently working on.");
+  QWhatsThis::add( defaultViewCurrentDesk, defaultViewCurrentDeskHelp );
+  QToolTip::add( defaultViewCurrentDesk, defaultViewCurrentDeskHelp );
   page1Layout->addWidget(defaultViewBtnGroup);
 
 
@@ -243,6 +247,9 @@ void KomposePreferences::fillPages()
     break;
   case KOMPOSEDISPLAY_WORLD:
     defaultViewWorld->setChecked( true );
+    break;
+  case KOMPOSEDISPLAY_CURRENTDESK:
+    defaultViewCurrentDesk->setChecked( true );
     break;
   }
 

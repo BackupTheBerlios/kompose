@@ -21,8 +21,6 @@
 #include <kactioncollection.h>
 #include <kaction.h>
 #include <kshortcut.h>
-#include <kiconloader.h>
-#include <kapplication.h>
 #include <klocale.h>
 
 #include <qiconset.h>
@@ -37,20 +35,10 @@ KomposeTaskPrefsWidget::KomposeTaskPrefsWidget(KomposeTaskWidget *parent, const 
   pToolBar->setHorizontallyStretchable ( false );
   pToolBar->setVerticallyStretchable ( false );
   pToolBar->setIconSize( 16 );
-
-  KActionCollection *actColl = new KActionCollection( this );
-
-  actCloseTask = new KAction( i18n("Close"), "fileclose", Key_Delete , parent->getTask(),
-                              SLOT( close() ), actColl, "closeTask" );
-                              actCloseTask->setToolTip(i18n("Close"));
-  actMinimizeRestoreTask = new KAction( i18n("Minimize/Restore"), "", KShortcut() , this,
-                                        SLOT( slotMinimizeRestoreToggled() ), actColl, "minimizeRestoreTask" );
-
-  actMinimizeRestoreTask->plug(pToolBar);
-  actCloseTask->plug(pToolBar);
   
-  setActionIcons();
-
+  parent->getActMinimizeRestoreTask()->plug(pToolBar);
+  parent->getActCloseTask()->plug(pToolBar);
+  
   lineUp(false);
 
   resize(pToolBar->size());
@@ -60,26 +48,6 @@ KomposeTaskPrefsWidget::KomposeTaskPrefsWidget(KomposeTaskWidget *parent, const 
 KomposeTaskPrefsWidget::~KomposeTaskPrefsWidget()
 {}
 
-/*
- * Set the toggle icons for some actions
- *
- * The inverse flag is a hack to allow toggling of the icons when the minimized/restored event
- * hasn't yet reached the Task object ( which is the case on buttonpress)
- */
-void KomposeTaskPrefsWidget::setActionIcons( bool inverse )
-{
-  if ( ( ((KomposeTaskWidget *)parentWidget())->getTask()->isIconified() && !inverse ) ||
-       ( !((KomposeTaskWidget *)parentWidget())->getTask()->isIconified() && inverse ) )
-    actMinimizeRestoreTask->setIconSet( kapp->iconLoader()->loadIconSet ( "up", KIcon::NoGroup, 16 ) );
-  else
-    actMinimizeRestoreTask->setIconSet( kapp->iconLoader()->loadIconSet ( "bottom", KIcon::NoGroup, 16 ) );
-}
-
-void KomposeTaskPrefsWidget::slotMinimizeRestoreToggled()
-{
-  setActionIcons( true );
-  ((KomposeTaskWidget *)parentWidget())->getTask()->minimizeOrRestore();
-}
 
 
 #include "komposetaskprefswidget.moc"

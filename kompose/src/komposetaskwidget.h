@@ -29,6 +29,9 @@
 
 class KomposeTask;
 class KomposeLayout;
+class KPopupMenu;
+class KAction;
+class KActionCollection;
 
 /**
 @author Hans Oischinger
@@ -46,11 +49,13 @@ public:
   double getAspectRatio();
   
   KomposeTask* getTask() const { return task; };
-
+  KAction* getActMinimizeRestoreTask() { return actMinimizeRestoreTask; }
+  KAction* getActCloseTask() { return actCloseTask; }
+  
 protected:
   void paintEvent ( QPaintEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
-//   void mouseDoubleClickEvent ( QMouseEvent * e );
+  void mousePressEvent ( QMouseEvent * e );
   void mouseMoveEvent ( QMouseEvent * e );
   void leaveEvent ( QEvent * );
   void enterEvent ( QEvent * );
@@ -60,7 +65,8 @@ protected:
   void keyReleaseEvent ( QKeyEvent * e );
 
   void startDrag();
-  void initToolbar();
+  void initActions();
+  void initMenu();
   
 protected slots:
   void slotTaskDestroyed();
@@ -68,6 +74,9 @@ protected slots:
   void drawWidgetAndRepaint();
   void initFonts();
   void setGeometry( const QRect &rect );
+  
+  void slotMinimizeRestoreToggled();
+  void setActionIcons( bool inverse=false );
   
 private:
   QPixmap pm_dbBackground;
@@ -77,6 +86,11 @@ private:
   
   KomposeTask* task;
   KomposeTaskPrefsWidget *prefWidget;
+  KPopupMenu *menu;
+  
+  KActionCollection *taskActionCollection;
+  KAction *actMinimizeRestoreTask;
+  KAction *actCloseTask;
 };
 
 #endif

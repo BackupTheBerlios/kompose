@@ -144,7 +144,7 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
         slotWindowAdded( w );
     }
   }
-
+  
   // check if any state we are interested in is marked dirty
   if(!(dirty & (NET::WMVisibleName|NET::WMVisibleIconName|NET::WMName|NET::WMState|NET::WMIcon|NET::XAWMState|NET::WMDesktop)) )
     return;
@@ -153,9 +153,14 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
   KomposeTask* t = findTask( w );
   if (!t) return;
 
+  int oldTaskDesktop = t->onDesktop();
   // TODO: Instead of one refresh() method we could implement specific method for names and geometry, etc...
   // checked like this: if(dirty & (NET::WMDesktop|NET::WMState|NET::XAWMState))
   t->refresh();
+
+  // Finally check if the window has been moved to a different virtual desktop  
+  if( (dirty & NET::WMDesktop ) && ( oldTaskDesktop != t->onDesktop() ) )
+    emit taskDesktopChanged( t, oldTaskDesktop, t->onDesktop() );
 }
 
 
@@ -207,7 +212,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
 /**
  * Called when Komposé requires screenshots of all tasks
  */
-void KomposeTaskManager::slotUpdateScreenshots()
+void KomposeTaskManager::slotUpdateScreenshots( bool switchDesktops )
 {
   qDebug("KomposeTaskManager::slotUpdateScreenshots()");
 
@@ -218,7 +223,7 @@ void KomposeTaskManager::slotUpdateScreenshots()
   for ( int desk = -1; desk <= numDesks; ++desk )
   {
     // Desk == 0 should not be possible, however -1 means on all desks
-    if (desk==0)
+    if (desk==0 || ( !switchDesktops && desk != KomposeViewManager::instance()->getDesktopBeforeSnaps()+1 ) )
       continue;
       
     it.toFirst();
@@ -286,6 +291,11 @@ bool KomposeTaskManager::isOnTop(const KomposeTask* task)
     }
   }
   return false;
+}
+
+QString KomposeTaskManager::getDesktopName(int desk) const
+{
+  return kwin_module->desktopName(desk);
 }
 
 

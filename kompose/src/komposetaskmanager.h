@@ -46,12 +46,15 @@ public:
   static KomposeTaskManager *instance();
 
   bool isOnTop(const KomposeTask* task );
-  int getNumDesktops() { return numDesks; }
+  
+  int getNumDesktops() const { return numDesks; }
+  QString getDesktopName(int desk) const;
+  
   TaskList getTasks() const { return tasklist; }
   
 public slots:  
   bool processX11Event( XEvent *event );
-  void slotUpdateScreenshots();
+  void slotUpdateScreenshots( bool switchDesktops=true );
   void simulatePasvScreenshotEvent();
 
   void slotStartWindowListeners();
@@ -67,6 +70,7 @@ protected slots:
   
 signals:
   void newTask( KomposeTask* task );
+  void taskDesktopChanged( KomposeTask* task, int fromDesktop, int toDesktop );
 
 protected:
   KomposeTask* findTask(WId w, bool wmFrameIds = false);

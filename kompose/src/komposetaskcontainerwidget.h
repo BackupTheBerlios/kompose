@@ -42,6 +42,7 @@ public:
 protected slots:
   void createTaskWidgets();
   void createTaskWidget( KomposeTask* task);
+  void reparentTaskWidget( KomposeTask* task, int fromDesktop, int toDesktop );
   bool focusNeighbourChild( int direction );
   
 protected:

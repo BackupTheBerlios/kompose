@@ -58,6 +58,7 @@ public:
   KAction *getActConfigGlobalShortcuts() { return actConfigGlobalShortcuts; }
   KAction *getActPreferencesDialog() { return actPreferencesDialog; }
   KAction *getActShowVirtualDesktopView() { return actShowVirtualDesktopView; }
+  KAction *getActShowCurrentDesktopView() { return actShowCurrentDesktopView; }
   KAction *getActShowWorldView() { return actShowWorldView; }
   KAction *getActAboutDlg() { return actAboutDlg; }
   KAction *getActQuit() { return actQuit; }
@@ -91,6 +92,7 @@ private:
   KAction *actConfigGlobalShortcuts;
   KAction *actPreferencesDialog;
   KAction *actShowVirtualDesktopView;
+  KAction *actShowCurrentDesktopView;
   KAction *actShowWorldView;
   KAction *actAboutDlg;
   KAction *actQuit;

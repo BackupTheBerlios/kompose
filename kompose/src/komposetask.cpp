@@ -59,6 +59,7 @@ KomposeTask::KomposeTask(WId win, KWinModule *kwinmod, QObject *parent, const ch
 KomposeTask::~KomposeTask()
 {
   emit closed();
+  visualizer->deleteLater();
 }
 
 void KomposeTask::findWmFrame()

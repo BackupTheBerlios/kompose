@@ -30,6 +30,7 @@ KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
   // Fill Menu
   KomposeGlobal::instance()->getActShowWorldView()->plug(menu);
   KomposeGlobal::instance()->getActShowVirtualDesktopView()->plug(menu);
+  KomposeGlobal::instance()->getActShowCurrentDesktopView()->plug(menu);
   menu->insertSeparator();
   KomposeGlobal::instance()->getActPreferencesDialog()->plug(menu);
   KomposeGlobal::instance()->getActConfigGlobalShortcuts()->plug(menu);

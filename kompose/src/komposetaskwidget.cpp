@@ -38,7 +38,13 @@
 #include <qcolor.h>
 #include <qfont.h>
 
-#include <kcursor.h> 
+#include <kcursor.h>
+#include <klocale.h>
+#include <kpopupmenu.h>
+#include <kactioncollection.h>
+#include <kaction.h>
+#include <kapplication.h>
+#include <kiconloader.h>
 
 #include "komposetaskvisualizer.h"
 
@@ -55,10 +61,12 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   pm_dbBackground.setOptimization( QPixmap::BestOptim );
   setBackgroundMode( Qt::NoBackground );
   //setBackgroundPixmap(pm_dbBackground);
-  
-  //   screenshot = new KomposeImage( imIface, task->getScreenshotImage() );
+
+  initActions();
+  initMenu();
   prefWidget = new KomposeTaskPrefsWidget( this, "Task prefs" );
   prefWidget->hide();
+  setActionIcons();
 
   //connect( t, SIGNAL( destroyed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
@@ -74,12 +82,18 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   setFocusPolicy(QWidget::StrongFocus);
 
   initFonts();
-  //   hide();
 }
 
 
 KomposeTaskWidget::~KomposeTaskWidget()
-{}
+{
+  prefWidget->deleteLater();
+  menu->deleteLater();
+  
+  delete actMinimizeRestoreTask;
+  delete actCloseTask;
+  delete taskActionCollection;
+}
 
 void KomposeTaskWidget::initFonts()
 {
@@ -93,7 +107,7 @@ void KomposeTaskWidget::slotTaskDestroyed()
   if (KomposeViewManager::instance()->hasActiveView())
   {
     parent()->removeChild( this );
-    close();
+    close(true);
   }
 }
 
@@ -130,7 +144,7 @@ void KomposeTaskWidget::drawWidget()
   //pm_dbBackground.fill(white);
 
   QPainter p( &pm_dbBackground );
-  
+
   int effect = IEFFECT_NONE;
 
   if ( KomposeSettings::instance()->getShowWindowTitles() && !task->isIconified() )
@@ -306,15 +320,95 @@ void KomposeTaskWidget::setGeometry( const QRect &rect )
 {
   int width = task->getGeometry().width();
   int height = task->getGeometry().height();
-  
+
   // Don't scale images bigger than they actually are
   if ( rect.width() > width || rect.height() > height )
   {
     QWidget::setGeometry( QRect( rect.left(), rect.top(), width, height ) );
-  } else
+  }
+  else
     QWidget::setGeometry( rect );
 }
 
+void KomposeTaskWidget::initActions()
+{
+  taskActionCollection = new KActionCollection( this );
 
+  actCloseTask = new KAction( i18n("Close"), "fileclose", Key_Delete , task,
+                              SLOT( close() ), taskActionCollection, "closeTask" );
+  actCloseTask->setToolTip(i18n("Close"));
+  actMinimizeRestoreTask = new KAction( i18n("Minimize/Restore"), "", KShortcut() , this,
+                                        SLOT( slotMinimizeRestoreToggled() ), taskActionCollection, "minimizeRestoreTask" );
+}
+
+void KomposeTaskWidget::initMenu()
+{
+  menu = new KPopupMenu();
+
+  actMinimizeRestoreTask->plug(menu);
+
+  // toDesktop menu
+  QPopupMenu* m = new QPopupMenu( this );
+  m->setCheckable( true );
+
+  int id = m->insertItem( i18n("&All Desktops"), task, SLOT( toDesktop(int) ) );
+  m->setItemParameter( id, 0 ); // 0 means all desktops
+  m->setItemChecked( id, task->isOnAllDesktops() );
+
+  m->insertSeparator();
+
+  for( int i = 1; i <= KomposeTaskManager::instance()->getNumDesktops(); i++ )
+  {
+    QString name = QString( "&%1 %2" ).arg( i ).arg( KomposeTaskManager::instance()->getDesktopName( i ).replace( '&', "&&" ) );
+    id = m->insertItem( name, task, SLOT( toDesktop(int) ) );
+    m->setItemParameter( id, i );
+    m->setItemChecked( id, !task->isOnAllDesktops() && task->onDesktop() == i );
+  }
+  menu->insertItem(i18n("To &Desktop"), m);
+  
+  menu->insertSeparator();
+  actCloseTask->plug(menu);
+
+}
+
+/**
+ * Set the toggle icons for some actions
+ *
+ * The inverse flag is a hack to allow toggling of the icons when the minimized/restored event
+ * hasn't yet reached the Task object ( which is the case on buttonpress)
+ */
+void KomposeTaskWidget::setActionIcons( bool inverse )
+{
+  if ( ( task->isIconified() && !inverse ) || ( !task->isIconified() && inverse ) )
+    actMinimizeRestoreTask->setIconSet( kapp->iconLoader()->loadIconSet ( "up", KIcon::NoGroup, 16 ) );
+  else
+    actMinimizeRestoreTask->setIconSet( kapp->iconLoader()->loadIconSet ( "bottom", KIcon::NoGroup, 16 ) );
+}
+
+void KomposeTaskWidget::slotMinimizeRestoreToggled()
+{
+  setActionIcons( true );
+  task->minimizeOrRestore();
+}
+
+void KomposeTaskWidget::mousePressEvent ( QMouseEvent * e )
+{
+  if ( !rect().contains( e->pos() ) )
+    return;
+
+  switch ( e->button() )
+  {
+  case LeftButton:
+    break;
+  case MidButton:
+    // fall through
+  case RightButton:
+    menu->popup( e->globalPos() );
+    break;
+  default:
+    // nothing
+    break;
+  }
+}
 
 #include "komposetaskwidget.moc"

@@ -38,13 +38,15 @@ public:
 
 public slots:
   void createView( int type = -1 ); // -1 means the user's default
-  void createVirtualDesktopView();
-  void createWorldView();
-  void createDefaultView();
+  void createVirtualDesktopView() { createView( KOMPOSEDISPLAY_VIRTUALDESKS ); }
+  void createCurrentDesktopView() { createView( KOMPOSEDISPLAY_CURRENTDESK ); }
+  void createWorldView() { createView( KOMPOSEDISPLAY_WORLD ); }
+  void createDefaultView() { createView(); }
 
   void closeCurrentView();
   bool hasActiveView() { return activeView; }
   bool getBlockScreenshots() { return blockScreenshots; }
+  int getDesktopBeforeSnaps() { return deskBeforeSnaps - 1; }  
   
   void setCurrentDesktop( int desknum );
   void activateTask( KomposeTask* task );
@@ -53,7 +55,7 @@ protected slots:
   void toggleBlockScreenshots();
   void checkCursorPos();
   
-  void sickNothingWorksAndIamDrunkAnywayInitFunction();
+  void uglyQtHackInitFunction();
   void slotStartCursorUpdateTimer();
     
 signals:

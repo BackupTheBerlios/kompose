@@ -47,14 +47,22 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
   
   // Init global shortcut object
   globalAccel = new KGlobalAccel( this );
-  globalAccel->insert( "showAllTasksView", i18n("Show Kompose (ungrouped)"),
+  globalAccel->insert( "showDefaultView", i18n("Show Komposé (default view)"),
+                       i18n("Displays the view you have configured as default"),
+                       KKey::QtWIN+Key_Tab, KKey::QtWIN+CTRL+SHIFT+Key_Tab,
+                       KomposeViewManager::instance(), SLOT(createDefaultView()) );
+  globalAccel->insert( "showWorldView", i18n("Show Komposé (ungrouped)"),
                        i18n("Displays all windows unsorted"),
                        CTRL+SHIFT+Key_J, KKey::QtWIN+CTRL+SHIFT+Key_J,
                        KomposeViewManager::instance(), SLOT(createWorldView()) );
-  globalAccel->insert( "showVirtualDesktopView", i18n("Show Kompose (grouped by virtual desktops)"),
+  globalAccel->insert( "showVirtualDesktopView", i18n("Show Komposé (grouped by virtual desktops)"),
                        i18n("Displays all windows sorted by virtual desktops"),
                        CTRL+SHIFT+Key_I, KKey::QtWIN+CTRL+SHIFT+Key_I,
                        KomposeViewManager::instance(), SLOT(createVirtualDesktopView()) );
+  globalAccel->insert( "showCurrentDesktopView", i18n("Show Komposé (current virtual desktop)"),
+                       i18n("Displays all windows on the current desktop"),
+                       CTRL+SHIFT+Key_K, KKey::QtWIN+CTRL+SHIFT+Key_K,
+                       KomposeViewManager::instance(), SLOT(createCurrentDesktopView()) );
 
   // read Settings from cfg file
   readConfig();

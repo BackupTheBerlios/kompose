@@ -62,7 +62,7 @@ void KomposeWidget::childEvent ( QChildEvent * ce)
     qDebug("KomposeWidget::childEvent : Removed widget %s from %s", ce->child()->className(), className() );
     layout->remove( dynamic_cast<KomposeWidget*>(ce->child()) );
   }
-
+//layout->arrangeLayout();
   // Whenever a child is added/removed: rearrange layout
   // FIXME: sometimes widget's aren't added in time, so we have to add a short delay:
   QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );

@@ -191,8 +191,8 @@ void KomposeDesktopWidget::dropEvent ( QDropEvent * e )
     qDebug("KomposeDesktopWidget::dropEvent - Received Task drop");
     KomposeTaskWidget* dropWidget = dynamic_cast<KomposeTaskWidget*>(e->source());
     dropWidget->getTask()->toDesktop( desktop + 1);
-    if ( dropWidget->parentWidget() != this)
-      dropWidget->reparent( this, QPoint(0,0), true );
+    //if ( dropWidget->parentWidget() != this)
+    //  dropWidget->reparent( this, QPoint(0,0), true );
 
     e->accept();
   }

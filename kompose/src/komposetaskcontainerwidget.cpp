@@ -17,6 +17,7 @@
 
 #include <qobjectlist.h>
 #include <qwidget.h>
+#include <qtimer.h>
 
 static bool controlHold = false; // is the control key pressed
 
@@ -24,12 +25,50 @@ KomposeTaskContainerWidget::KomposeTaskContainerWidget( int desk, QWidget *paren
     : KomposeWidget(parent, l, name),
     desktop( desk )
 {
+  connect(KomposeTaskManager::instance(), SIGNAL(taskDesktopChanged(KomposeTask*, int, int )), 
+    SLOT(reparentTaskWidget(KomposeTask*, int, int )) );
 }
 
 
 KomposeTaskContainerWidget::~KomposeTaskContainerWidget()
 {}
 
+void KomposeTaskContainerWidget::reparentTaskWidget( KomposeTask* task, int fromDesktop, int toDesktop )
+{
+  // Ignore to all desktops
+  if (toDesktop==-1)
+    return;
+  
+  qDebug("KomposeTaskContainerWidget::reparentTaskWidget()");
+  
+  // Delete from current
+  if ( desktop == fromDesktop -1 )
+  {
+    KomposeTaskWidget *child;
+    QPtrListIterator<KomposeWidget> it( *(layout->getManagedWidgets()));
+    while ( (child = dynamic_cast<KomposeTaskWidget*>(it.current()) ) != 0 )
+    {
+      ++it;
+      if (child->getTask() == task)
+      {
+        removeChild( task );
+        layout->remove(child);
+        child->deleteLater();
+        //child->close(true);
+        QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
+        return;
+      }
+    }
+  }
+  
+  // Delete from current
+  if ( desktop == toDesktop -1 )
+  {
+    createTaskWidget( task );
+    QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
+//        layout->arrangeLayout();
+  }
+}
 
 void KomposeTaskContainerWidget::keyPressEvent ( QKeyEvent * e )
 {

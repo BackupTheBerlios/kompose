@@ -15,7 +15,6 @@
 #include <qdockarea.h> 
 
 class KomposeTaskWidget;
-class KAction;
 
 /**
 @author Hans Oischinger
@@ -28,13 +27,6 @@ public:
 
   ~KomposeTaskPrefsWidget();
 
-protected slots:
-  void slotMinimizeRestoreToggled();
-  void setActionIcons( bool inverse=false );
-  
-private:  
-  KAction *actMinimizeRestoreTask;
-  KAction *actCloseTask;
 };
 
 #endif

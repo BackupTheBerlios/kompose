@@ -56,6 +56,7 @@ private:
   QButtonGroup *defaultViewBtnGroup;
   QRadioButton *defaultViewWorld;
   QRadioButton *defaultViewVirtualDesks;
+  QRadioButton *defaultViewCurrentDesk;
   
   QCheckBox *useComposite;
   
