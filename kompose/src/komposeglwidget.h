@@ -1,0 +1,66 @@
+/***************************************************************************
+ *   Copyright (C) 2004 by Hans Oischinger                                 *
+ *   oisch@sourceforge.net                                                 *
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ *   This program is distributed in the hope that it will be useful,       *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+ *   GNU General Public License for more details.                          *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the                         *
+ *   Free Software Foundation, Inc.,                                       *
+ *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
+ ***************************************************************************/
+#ifndef KOMPOSEGLWIDGET_H
+#define KOMPOSEGLWIDGET_H
+
+#include <qobject.h>
+#include <qrect.h>
+#include <qptrlist.h>
+
+#include "komposewidgetinterface.h"
+
+class KomposeLayout;
+class KomposeGLWidget;
+
+/**
+This base class for all Kompose Widgets glues the Layout and the widget together:
+@author Hans Oischinger
+*/
+class KomposeGLWidget : public QObject, public KomposeWidgetInterface
+{
+Q_OBJECT
+public:
+  KomposeGLWidget( QObject *parent = 0, KomposeLayout *l = 0, const char *name = 0);
+
+  virtual ~KomposeGLWidget();
+
+  virtual void draw();
+  
+  // KomposeWidgetInterface:
+  virtual KomposeWidgetInterface* getParentWidget() const;
+  virtual void removeChildWidget( KomposeWidgetInterface* obj );
+  virtual void setGeom( const QRect & );
+  virtual void setGeom( const QSize & );
+  virtual QSize getSize() const;
+  virtual QRect getRect() const;
+  virtual int getHeightForWidth( int w ) const = 0;
+  virtual int getWidthForHeight( int h ) const = 0;
+  virtual double getAspectRatio() = 0;
+
+protected:
+  void childEvent( QChildEvent * ce);
+  
+protected:
+  QPtrList<KomposeGLWidget> list;
+  KomposeLayout *layout;
+  QRect geometry;
+};
+
+#endif
