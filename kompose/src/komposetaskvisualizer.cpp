@@ -56,7 +56,6 @@ KomposeTaskVisualizer::~KomposeTaskVisualizer()
  */
 void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix)
 {
-scaledScreenshotDirty=true;
   if ( scaledScreenshotDirty || scaledScreenshot->isNull() || scaledScreenshot->size() != pix->size() )
     renderScaledScreenshot( pix->size() );
   copyBlt ( pix, 0, 0, scaledScreenshot, 0, 0, pix->width(), pix->height() );
