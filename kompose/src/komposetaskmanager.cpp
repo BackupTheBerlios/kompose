@@ -249,23 +249,27 @@ void KomposeTaskManager::createView( int type )
 
 void KomposeTaskManager::createVirtualDesktopView()
 {
-  // Remember current desktop
-  deskBeforeSnaps = KWin::currentDesktop();
+  // Set activeView to false during this funcion as it will be checked by the layout
+  int tmp_activeview = activeView;
+  activeView = false;
   
-  if ( !activeView )
+  if ( !tmp_activeview  )
+  {
+    // Remember current desktop
+    deskBeforeSnaps = KWin::currentDesktop();
     slotUpdateScreenshots();
+  }
 
   qDebug("KomposeTaskManager::createVirtualDesktopView - Creating View");
 
-  if ( !activeView )
+  if ( !tmp_activeview  )
     viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_VIRTUALDESKS );
   else
     viewWidget->setType( KOMPOSEDISPLAY_VIRTUALDESKS );
-
+    
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;
-//   viewWidget->show();
 
   slotStartWindowListeners();
 }
@@ -273,15 +277,20 @@ void KomposeTaskManager::createVirtualDesktopView()
 
 void KomposeTaskManager::createWorldView()
 {
-  // Remember current desktop
-  deskBeforeSnaps = KWin::currentDesktop();
-
-  if ( !activeView )
+  // Set activeView to false during this funcion as it will be checked by the layout
+  int tmp_activeview = activeView;
+  activeView = false;
+  
+  if ( !tmp_activeview )
+  {
+    // Remember current desktop
+    deskBeforeSnaps = KWin::currentDesktop();
     slotUpdateScreenshots();
-
+  }
+  
   qDebug("KomposeTaskManager::createWorldView - Creating View");
 
-  if ( !activeView )
+  if ( !tmp_activeview )
     viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_WORLD );
   else
     viewWidget->setType( KOMPOSEDISPLAY_WORLD );
@@ -289,7 +298,6 @@ void KomposeTaskManager::createWorldView()
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;
-//   viewWidget->show();
 
   slotStartWindowListeners();
 }
@@ -307,6 +315,7 @@ void KomposeTaskManager::closeCurrentView()
   viewWidget = 0;
 
   emit viewClosed();
+  
   if ( KomposeGlobal::instance()->getSingleShot() )
     kapp->quit();
   

@@ -42,11 +42,10 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
     : KomposeTaskContainerWidget( desktop, parent, l, name ),
     highlight(false)
 {
-  // Retrieve geometry
+// Retrieve geometry
 //   QDesktopWidget *deskwidget = new QDesktopWidget();
 //   deskRect = deskwidget->screenGeometry();
 //   delete deskwidget;
-
   KWinModule kwinmodule( this, 1 );
   deskName = kwinmodule.desktopName(desktop+1);
   

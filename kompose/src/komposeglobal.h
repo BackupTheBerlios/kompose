@@ -12,13 +12,14 @@
 #ifndef KOMPOSEGLOBAL_H
 #define KOMPOSEGLOBAL_H
 
-#include "komposesystray.h"
+class KomposeSysTray;
 
 #include <qobject.h>
 #include <qstring.h>
 
 class KPopupMenu;
 class KActionCollection;
+class KAction;
 
 /**
 @author Hans Oischinger

@@ -1,5 +1,5 @@
 # set the include path for X, qt and KDE
-INCLUDES = -I `imlib2-config --cflags` $(all_includes)
+INCLUDES = $(all_includes) -I `imlib2-config --cflags`
 
 # these are the headers for your project
 noinst_HEADERS = kompose.h komposetaskmanager.h komposetask.h komposewidget.h \

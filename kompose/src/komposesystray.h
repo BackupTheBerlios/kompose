@@ -14,7 +14,6 @@
 
 #include <ksystemtray.h>
 
-
 class KAction;
 class KGlobalAccel;
 class KPopupMenu;

@@ -47,8 +47,8 @@ int main(int argc, char **argv)
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
   
-  // KApplication app;
-  KUniqueApplication app;
+  KApplication app;
+  //KUniqueApplication app;
   Kompose *mainWin = 0;
 
   // no session.. just start up normally

@@ -14,6 +14,7 @@
 
 #include "komposetaskmanager.h"
 #include "komposesettings.h"
+#include "komposesystray.h"
 
 #include <kapplication.h>
 #include <kpopupmenu.h>

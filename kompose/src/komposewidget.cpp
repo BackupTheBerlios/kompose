@@ -71,7 +71,7 @@ void KomposeWidget::childEvent ( QChildEvent * ce)
  */
 void KomposeWidget::resizeEvent ( QResizeEvent * e )
 {
-  qDebug("KomposeWidget::resizeEvent - Size:%dx%d", e->size().width() , e->size().height());
+  qDebug("KomposeWidget(%s)::resizeEvent - Size:%dx%d", className(), e->size().width() , e->size().height());
   layout->arrangeLayout();
 }
 

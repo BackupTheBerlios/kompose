@@ -46,12 +46,13 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
   {
     controlHold = false;
     e->accept();
+    return;
   }
   
-  if ( e->key() == Qt::Key_Right || Qt::Key_D ||
-       e->key() == Qt::Key_Left  || Qt::Key_A ||
-       e->key() == Qt::Key_Up    || Qt::Key_W ||
-       e->key() == Qt::Key_Down  || Qt::Key_S )
+  if ( e->key() == Qt::Key_Right || e->key() == Qt::Key_D ||
+       e->key() == Qt::Key_Left  || e->key() == Qt::Key_A ||
+       e->key() == Qt::Key_Up    || e->key() == Qt::Key_W ||
+       e->key() == Qt::Key_Down  || e->key() == Qt::Key_S )
   {
     if ( controlHold && desktop != -1 )
     {
@@ -91,7 +92,11 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
     
     focusNeighbourChild( direction );
     e->accept();
+    
+    return;
   }
+  
+  e->ignore();
 }
 
 
@@ -156,7 +161,7 @@ void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task )
   {
     qDebug("KomposeTaskContainerWidget::createTaskWidget()" );
     KomposeTaskWidget *taskwidget = new KomposeTaskWidget( task, this );
-//     taskwidget->show();
+    taskwidget->show();
   }
 }
 

@@ -140,7 +140,6 @@ void KomposeLayout::rearrangeContents()
  */
 void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<KomposeWidgetInterface> widgets, int rows, int columns, bool setMemberRowsCols )
 {
-  qDebug("REARRANGE %d %d %d %d", availRect.x(), availRect.y(), availRect.width(), availRect.y() );
   // Check or empty list
   if (widgets.count() == 0)
   {

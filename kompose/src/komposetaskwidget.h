@@ -30,7 +30,6 @@
 class KomposeTask;
 class KomposeLayout;
 class titleFont;
-class KomposeImage;
 
 /**
 @author Hans Oischinger
@@ -78,7 +77,6 @@ private:
   QImage scaledSelectedScreenshot;
   QPixmap pm_dbBackground;
   
-  KomposeImage *screenshot;
   bool highlight; // Highlight widget?
   QFont titleFont;
   
