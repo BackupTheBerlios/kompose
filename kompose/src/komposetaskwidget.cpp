@@ -263,6 +263,8 @@ void KomposeTaskWidget::leaveEvent ( QEvent * e )
   drawWidgetAndRepaint();
 
   prefWidget->hide();
+  if ( parentWidget() )
+    parentWidget()->setFocus();
 }
 
 void KomposeTaskWidget::enterEvent ( QEvent * e )

@@ -57,11 +57,15 @@ protected:
   void focusOutEvent ( QFocusEvent * );
   void keyReleaseEvent ( QKeyEvent * e );
 
+protected slots:
+  void initFonts();
+  
 private:
   QRect deskRect;
   KRootPixmap *rootpix;
   QString deskName;
   bool highlight; // Highlight widget?
+  QFont titleFont;
 };
 
 #endif

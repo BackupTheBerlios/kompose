@@ -26,6 +26,7 @@
 #include <qslider.h>
 #include <qpushbutton.h>
 #include <qgrid.h>
+#include <qvgroupbox.h> 
 
 #include <kiconloader.h>
 #include <kcolorbutton.h>
@@ -36,20 +37,21 @@ KomposePreferences::KomposePreferences()
 {
   QFrame *page1 = addPage( i18n("Behaviour"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
+  QFrame *page3 = addPage( i18n("Layouts"), QString::null, DesktopIcon("window_list", KIcon::SizeMedium) );
 
   QVBoxLayout *page1Layout = new QVBoxLayout( page1, 0, KDialog::spacingHint() );
 
-  defaultViewBtnGroup = new QButtonGroup( 2, Horizontal, i18n("Default View"), page1 );
+  defaultViewBtnGroup = new QButtonGroup( 2, Horizontal, i18n("Default Layout"), page1 );
   defaultViewBtnGroup->setExclusive( true );
   QString defaultViewBtnGroupHelp = i18n("Determines which View should be started by default (e.g. when you click on the systray icon).");
   QWhatsThis::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
   QToolTip::add( defaultViewBtnGroup, defaultViewBtnGroupHelp );
-  defaultViewWorld = new QCheckBox(i18n("Ungrouped View"), defaultViewBtnGroup );
-  QString defaultViewWorldHelp = i18n("Fullscreen View that shows all windows in no specific order");
+  defaultViewWorld = new QCheckBox(i18n("Ungrouped"), defaultViewBtnGroup );
+  QString defaultViewWorldHelp = i18n("Fullscreen Layout that shows all windows in no specific order");
   QWhatsThis::add( defaultViewWorld, defaultViewWorldHelp );
   QToolTip::add( defaultViewWorld, defaultViewWorldHelp );
   defaultViewVirtualDesks = new QCheckBox(i18n("Grouped  by Virtual Desktops"), defaultViewBtnGroup );
-  QString defaultViewVirtualDesksHelp = i18n("Fullscreen View that shows a representation of your Virtual Desktops\n and places the windows inside.");
+  QString defaultViewVirtualDesksHelp = i18n("Fullscreen Layout that shows a representation of your Virtual Desktops\n and places the windows inside.");
   QWhatsThis::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
   QToolTip::add( defaultViewVirtualDesks, defaultViewVirtualDesksHelp );
   page1Layout->addWidget(defaultViewBtnGroup);
@@ -66,7 +68,7 @@ KomposePreferences::KomposePreferences()
   //   QString onlyOneScreenshotHelp = i18n("When disabled new screenshots will be taken whenever possible.\n Enabling will only create a screenshot once the application is first activated and will never update it.");
   //   QWhatsThis::add( onlyOneScreenshot, onlyOneScreenshotHelp );
   //   QToolTip::add( onlyOneScreenshot, onlyOneScreenshotHelp );
-
+  
   QHBox *hLayScreenshotGrabDelay = new QHBox(screenshotsGroupBox);
   screenshotGrabDelay = new QSpinBox(0, 2000, 1, hLayScreenshotGrabDelay);
   QLabel *screenshotGrabDelayLabel = new QLabel(screenshotGrabDelay, i18n("Delay between Screenshots (ms)"), hLayScreenshotGrabDelay);
@@ -84,20 +86,6 @@ KomposePreferences::KomposePreferences()
 
   QVBoxLayout *page2Layout = new QVBoxLayout( page2, 0, KDialog::spacingHint() );
 
-  QHBoxLayout *hLayTintVirtDesks = new QHBoxLayout(0, 0, 6);
-  tintVirtDesks = new QCheckBox(i18n("Tint Virtual Desktop widgets: "), page2);
-  tintVirtDesksColor = new KColorButton(Qt::blue, page2);
-  QString tintVirtDesksHelp = i18n("Colorize the transparent background of the Virtual Desktop widgets" );
-  QWhatsThis::add( tintVirtDesks, tintVirtDesksHelp );
-  QToolTip::add( tintVirtDesks, tintVirtDesksHelp );
-  QWhatsThis::add( tintVirtDesksColor, tintVirtDesksHelp );
-  QToolTip::add( tintVirtDesksColor, tintVirtDesksHelp );
-  hLayTintVirtDesks->addWidget(tintVirtDesks);
-  hLayTintVirtDesks->addWidget(tintVirtDesksColor);
-  hLayTintVirtDesks->addStretch();
-  page2Layout->addLayout(hLayTintVirtDesks);
-  connect( tintVirtDesks, SIGNAL(toggled(bool)), tintVirtDesksColor, SLOT(setEnabled(bool)) );
-
   imageEffects = new QCheckBox(i18n("Enable image effects"), page2);
   QString imageEffectsHelp = i18n("Lighten windows when the mouse moves over it or gray out minimized windows.\nDepending on your system specs this can be a bit slower." );
   QWhatsThis::add( imageEffects, imageEffectsHelp );
@@ -114,7 +102,7 @@ KomposePreferences::KomposePreferences()
   QWhatsThis::add( showWindowTitles, showWindowTitlesHelp );
   QToolTip::add( showWindowTitles, showWindowTitlesHelp );
   connect( showWindowTitles, SIGNAL(toggled(bool)), windowTitleFontBtn, SLOT(setEnabled(bool)) );
-  connect( windowTitleFontBtn, SIGNAL(clicked()), this, SLOT(showFontDialog()) );
+  connect( windowTitleFontBtn, SIGNAL(clicked()), this, SLOT(showWindowTitleFontDialog()) );
   
   QGrid *gridWindowTitlesColor = new QGrid(2, windowTitleGroupBox);
   // windowTitleFontColorLabel = new QLabel(windowTitleFontColor, i18n("Text Color: "), gridWindowTitlesColor); // FIXME: How to link to a buddy that doesn't yet exist?
@@ -130,7 +118,8 @@ KomposePreferences::KomposePreferences()
   
   page2Layout->addWidget(windowTitleGroupBox);
 
-  
+
+   
   QGroupBox *iconGroupBox = new QGroupBox( 3, Vertical, i18n("Task Icons"), page2 );
   showIcons = new QCheckBox(i18n("Show Icons"), iconGroupBox);
   iconSize = new QSlider(0, 3, 1, 0, Qt::Horizontal, iconGroupBox);
@@ -143,6 +132,39 @@ KomposePreferences::KomposePreferences()
 
   page2Layout->insertStretch(-1);
 
+  
+  
+  QVBoxLayout *page3Layout = new QVBoxLayout( page3, 0, KDialog::spacingHint() );
+  
+  QVGroupBox *virtDesksLayoutGroupBox = new QVGroupBox( i18n("grouped by Virtual Desktops"), page3 );
+  dynamicVirtDeskLayout = new QCheckBox(i18n("Layout empty Virtual Desktops minimized"), virtDesksLayoutGroupBox );
+  QString dynamicVirtDeskLayoutHelp = i18n("Check this if you want empty Virtual Desktops to take less space on the screen.\nUncheck it if you want them to be arranged statically, each of the same size.");
+  QWhatsThis::add( dynamicVirtDeskLayout, dynamicVirtDeskLayoutHelp );
+  QToolTip::add( dynamicVirtDeskLayout, dynamicVirtDeskLayoutHelp );
+  
+  QGrid *desktopColorsGroupBox = new QGrid( 2, virtDesksLayoutGroupBox );
+  desktopColorsGroupBox->setSpacing( 4 );
+  tintVirtDesks = new QCheckBox(i18n("Tint Virtual Desktop widgets: "), desktopColorsGroupBox);
+  tintVirtDesksColor = new KColorButton(Qt::blue, desktopColorsGroupBox);
+  QString tintVirtDesksHelp = i18n("Colorize the transparent background of the Virtual Desktop widgets" );
+  QWhatsThis::add( tintVirtDesks, tintVirtDesksHelp );
+  QToolTip::add( tintVirtDesks, tintVirtDesksHelp );
+  QWhatsThis::add( tintVirtDesksColor, tintVirtDesksHelp );
+  QToolTip::add( tintVirtDesksColor, tintVirtDesksHelp );
+  connect( tintVirtDesks, SIGNAL(toggled(bool)), tintVirtDesksColor, SLOT(setEnabled(bool)) );
+  desktopTitleFontColorLabel = new QLabel(i18n("Desktop frame color: "), desktopColorsGroupBox);
+  desktopTitleFontColor = new KColorButton(Qt::black, desktopColorsGroupBox);
+  desktopTitleFontHighlightColorLabel = new QLabel(i18n("Desktop frame highlight color: "), desktopColorsGroupBox);
+  desktopTitleFontHighlightColor = new KColorButton(Qt::black, desktopColorsGroupBox);
+  
+  page3Layout->addWidget(virtDesksLayoutGroupBox);
+
+  desktopTitleFontBtn = new QPushButton(i18n("Select desktop names font"), virtDesksLayoutGroupBox);  
+  connect( desktopTitleFontBtn, SIGNAL(clicked()), this, SLOT(showDesktopTitleFontDialog()) );
+  
+  page3Layout->insertStretch(-1);
+  
+  
   fillPages();
 }
 
@@ -169,10 +191,15 @@ void KomposePreferences::updateIconSliderDesc( int val )
   }
 }
 
-void KomposePreferences::showFontDialog()
+void KomposePreferences::showWindowTitleFontDialog()
 {
-  int result = KFontDialog::getFont( *windowTitleFont );
-//   if ( result == KFontDialog::Accepted )
+  KFontDialog::getFont( *windowTitleFont );
+  // if ( result == KFontDialog::Accepted )
+}
+
+void KomposePreferences::showDesktopTitleFontDialog()
+{
+  KFontDialog::getFont( *desktopTitleFont );
 }
 
 void KomposePreferences::fillPages()
@@ -190,6 +217,7 @@ void KomposePreferences::fillPages()
 
   passiveScreenshots->setChecked( KomposeSettings::instance()->getPassiveScreenshots() );
   screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() / 1000000 );
+  dynamicVirtDeskLayout->setChecked( KomposeSettings::instance()->getDynamicVirtDeskLayout() );
 
   imageEffects->setChecked( KomposeSettings::instance()->getImageEffects() );
   tintVirtDesks->setChecked( KomposeSettings::instance()->getTintVirtDesks() );
@@ -208,6 +236,9 @@ void KomposePreferences::fillPages()
   showWindowTitleShadow->setEnabled( KomposeSettings::instance()->getShowWindowTitles() );
   windowTitleFontShadowColor->setEnabled( KomposeSettings::instance()->getShowWindowTitles() || KomposeSettings::instance()->getShowWindowTitleShadow() );
     
+  desktopTitleFont = new QFont(KomposeSettings::instance()->getDesktopTitleFont());
+  desktopTitleFontColor->setColor( KomposeSettings::instance()->getDesktopTitleFontColor() );
+  desktopTitleFontHighlightColor->setColor( KomposeSettings::instance()->getDesktopTitleFontHighlightColor() );
   
   showIcons->setChecked( KomposeSettings::instance()->getShowIcons() );
   iconSize->setValue( KomposeSettings::instance()->getIconSize() );
@@ -225,7 +256,7 @@ void KomposePreferences::slotApply()
 
   KomposeSettings::instance()->setPassiveScreenshots( passiveScreenshots->isChecked() );
   KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() * 1000000 );
-
+  KomposeSettings::instance()->setDynamicVirtDeskLayout( dynamicVirtDeskLayout->isChecked() );
   KomposeSettings::instance()->setImageEffects( imageEffects->isChecked() );
   KomposeSettings::instance()->setTintVirtDesks( tintVirtDesks->isChecked() );
   KomposeSettings::instance()->setTintVirtDesksColor( tintVirtDesksColor->color() );
@@ -236,6 +267,10 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setWindowTitleFontShadowColor( windowTitleFontShadowColor->color() );
   KomposeSettings::instance()->setShowWindowTitleShadow( showWindowTitleShadow->isChecked() );
 
+  KomposeSettings::instance()->setDesktopTitleFont( *desktopTitleFont );
+  KomposeSettings::instance()->setDesktopTitleFontColor( desktopTitleFontColor->color() );
+  KomposeSettings::instance()->setDesktopTitleFontHighlightColor( desktopTitleFontHighlightColor->color() );
+  
   KomposeSettings::instance()->setShowIcons( showIcons->isChecked() );
   KomposeSettings::instance()->setIconSize( iconSize->value() );
 

@@ -276,14 +276,15 @@ void KomposeTask::updateScreenshot()
     }
   }
 
-  if ( isIconified() == true )
-  {
-    qDebug("KomposeTask::updateScreenshot() - Window iconified... we have to raise it and iconify it again later.");
-    iconifyLater = true;
-  }
-
   if ( !KomposeSettings::instance()->getPassiveScreenshots() || !(screenshot->isValid()) )
   {
+
+    if ( isIconified() == true )
+    {
+      qDebug("KomposeTask::updateScreenshot() - Window iconified... we have to raise it and iconify it again later.");
+      iconifyLater = true;
+    }
+
     qDebug("KomposeTask::updateScreenshot() - Forcing activation (no screenshot exists)");
     activateOrRaise();
   }
@@ -334,7 +335,6 @@ void KomposeTask::updateScreenshot()
     QTimer::singleShot( 1000, this, SLOT( iconify() ) );
 
   qDebug("KomposeTask::updateScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
-
 }
 
 
@@ -357,7 +357,7 @@ double KomposeTask::getAspectRatio()
 }
 
 int KomposeTask::getWidth()
-{ 
+{
   return screenshot->originalWidth();
 }
 

@@ -28,9 +28,9 @@
 #include <kuniqueapplication.h>
 
 static const char description[] =
-  I18N_NOOP("A KDE Fullscreen TaskManager");
+  I18N_NOOP("A fullscreen task manager for KDE");
 
-static const char version[] = "0.43";
+static const char version[] = "0.4.2";
 
 static KCmdLineOptions options[] =
   {
@@ -39,21 +39,40 @@ static KCmdLineOptions options[] =
     KCmdLineLastOption
   };
 
+void myMessageOutput( QtMsgType type, const char *msg )
+{
+  return;
+  switch ( type )
+  {
+  case QtDebugMsg:
+    fprintf( stderr, "Debug: %s\n", msg );
+    break;
+  case QtWarningMsg:
+    fprintf( stderr, "Warning: %s\n", msg );
+    break;
+  case QtFatalMsg:
+    fprintf( stderr, "Fatal: %s\n", msg );
+    abort();                    // deliberately core dump
+  }
+}
+
 int main(int argc, char **argv)
 {
+//   qInstallMsgHandler( myMessageOutput );
+  
   KAboutData about("kompose", I18N_NOOP("Kompose"), version, description,
-                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "This software is still in a very early stage of development, so be patient :)", "http://developer.berlios.de/projects/kompose", "oisch@sourceforge.net");
+                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "", "http://developer.berlios.de/projects/kompose", "oisch@sourceforge.net");
   about.addAuthor( "Hans Oischinger", 0, "oisch@sourceforge.net" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
-  
+
   KApplication app;
-  //KUniqueApplication app;
+//   KUniqueApplication app;
   Kompose *mainWin = 0;
 
   // no session.. just start up normally
   KCmdLineArgs *args = KCmdLineArgs::parsedArgs();
-  
+
   if ( !args->isSet("systray") )
     KomposeGlobal::instance()->setHideSystray(true);
   if ( args->isSet("singleshot") )
@@ -61,11 +80,11 @@ int main(int argc, char **argv)
     KomposeGlobal::instance()->setHideSystray(true);
     KomposeGlobal::instance()->setSingleShot(true);
   }
-  
+
   mainWin = new Kompose();
   //app.setMainWidget( mainWin );
   //mainWin->show();
-  
+
   args->clear();
 
   // mainWin has WDestructiveClose flag by default, so it will delete itself.

@@ -44,7 +44,8 @@ protected slots:
   void slotApply();
   void slotOk();
   void updateIconSliderDesc( int );
-  void showFontDialog();
+  void showDesktopTitleFontDialog();
+  void showWindowTitleFontDialog();
 
 private:
   QFrame *page1;
@@ -55,7 +56,8 @@ private:
   QCheckBox *defaultViewVirtualDesks;
   
   QCheckBox *passiveScreenshots;
-//   QCheckBox *onlyOneScreenshot;
+  QCheckBox *dynamicVirtDeskLayout;
+  
   QCheckBox *imageEffects;
   QCheckBox *tintVirtDesks;
   KColorButton *tintVirtDesksColor;
@@ -74,6 +76,13 @@ private:
   QCheckBox *showWindowTitleShadow;
   KColorButton *windowTitleFontShadowColor;
   QLabel *windowTitleFontColorLabel;
+  
+  QPushButton *desktopTitleFontBtn;
+  QLabel *desktopTitleFontColorLabel;
+  QLabel *desktopTitleFontHighlightColorLabel;
+  KColorButton *desktopTitleFontColor;
+  KColorButton *desktopTitleFontHighlightColor;
+  QFont *desktopTitleFont;
 };
 
 #endif

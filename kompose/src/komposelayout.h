@@ -51,7 +51,7 @@ public:
 
   void add( KomposeWidgetInterface *w );
   void remove( KomposeWidgetInterface *w );
-void setType( int t) { layoutType = t; }
+  void setType( int t );
   int getType() { return layoutType; }
 
   const QPtrList<KomposeWidgetInterface> *getManagedWidgets() { return &list; }

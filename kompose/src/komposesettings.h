@@ -50,12 +50,15 @@ public:
 //   void setOnlyOneScreenshot( bool b ) { onlyOneScreenshot = b; }
   uint getScreenshotGrabDelay() { return screenshotGrabDelay; }
   void setScreenshotGrabDelay( uint val ) { screenshotGrabDelay=val; }
+  bool getDynamicVirtDeskLayout() const { return dynamicVirtDeskLayout; }
+  void setDynamicVirtDeskLayout( bool b ) { dynamicVirtDeskLayout = b; }
   bool getImageEffects() const { return imageEffects; }
   void setImageEffects( bool b ) { imageEffects = b; }
   bool getTintVirtDesks() const { return tintVirtDesks; }
   void setTintVirtDesks( bool b ) { tintVirtDesks = b; }
   const QColor& getTintVirtDesksColor() const { return tintVirtDesksColor; }
   void setTintVirtDesksColor( QColor c ) { tintVirtDesksColor = c; }
+  
   int  getDefaultView() const { return defaultView; }
   void setDefaultView( int d ) { defaultView = d; }
   int getIconSize() { return iconSize; }
@@ -63,6 +66,7 @@ public:
   int getShowIcons() { return showIcons; }
   void setShowIcons( bool b ) { showIcons = b; }
   int getIconSizePixels();
+  
   void setWindowTitleFont( QFont f ) { windowTitleFont = f; }
   const QFont& getWindowTitleFont() const { return windowTitleFont; }
   int getShowWindowTitles() { return showWindowTitles; }
@@ -78,6 +82,12 @@ public:
   int getWindowTitleFontAscent() { return windowTitleFontAscent; }
   int getWindowTitleFontHeight() { return windowTitleFontHeight; }
   
+  void setDesktopTitleFont( QFont f ) { desktopTitleFont = f; }
+  const QFont& getDesktopTitleFont() const { return desktopTitleFont; }
+  const QColor& getDesktopTitleFontColor() const { return desktopTitleFontColor; }
+  void setDesktopTitleFontColor( QColor c ) { desktopTitleFontColor = c; }
+  const QColor& getDesktopTitleFontHighlightColor() const { return desktopTitleFontHighlightColor; }
+  void setDesktopTitleFontHighlightColor( QColor c ) { desktopTitleFontHighlightColor = c; }
   
 public slots:
   void showPreferencesDlg();
@@ -91,6 +101,8 @@ private:
   
   bool passiveScreenshots;
   uint screenshotGrabDelay;
+  
+  bool dynamicVirtDeskLayout;
   
   bool imageEffects;
   bool tintVirtDesks;
@@ -109,6 +121,9 @@ private:
   bool showWindowTitleShadow;
   QColor windowTitleFontShadowColor;
 
+  QFont desktopTitleFont;
+  QColor desktopTitleFontColor;
+  QColor desktopTitleFontHighlightColor;
 };
 
 #endif

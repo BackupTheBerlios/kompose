@@ -29,7 +29,6 @@
 
 class KomposeTask;
 class KomposeLayout;
-class titleFont;
 
 /**
 @author Hans Oischinger

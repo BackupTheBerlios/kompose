@@ -200,14 +200,22 @@ void KomposeTaskManager::slotWindowAdded(WId w )
 void KomposeTaskManager::slotUpdateScreenshots()
 {
   qDebug("KomposeTaskManager::slotUpdateScreenshots()");
-  
+
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
+    
+  // Disable passive screenshots temporarily as we want to force screenshots now
+  bool passiveScreenshots = KomposeSettings::instance()->getPassiveScreenshots();
+  KomposeSettings::instance()->setPassiveScreenshots( false );
+  
   while ( (task = it.current()) != 0 )
   {
     ++it;
     task->updateScreenshot();
   }
+  
+  if ( passiveScreenshots )
+    KomposeSettings::instance()->setPassiveScreenshots( true );
 }
 
 /*
@@ -252,7 +260,7 @@ void KomposeTaskManager::createVirtualDesktopView()
   // Set activeView to false during this funcion as it will be checked by the layout
   int tmp_activeview = activeView;
   activeView = false;
-  
+
   if ( !tmp_activeview  )
   {
     // Remember current desktop
@@ -266,7 +274,7 @@ void KomposeTaskManager::createVirtualDesktopView()
     viewWidget = new KomposeFullscreenWidget( KOMPOSEDISPLAY_VIRTUALDESKS );
   else
     viewWidget->setType( KOMPOSEDISPLAY_VIRTUALDESKS );
-    
+
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;
@@ -280,14 +288,14 @@ void KomposeTaskManager::createWorldView()
   // Set activeView to false during this funcion as it will be checked by the layout
   int tmp_activeview = activeView;
   activeView = false;
-  
+
   if ( !tmp_activeview )
   {
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
     slotUpdateScreenshots();
   }
-  
+
   qDebug("KomposeTaskManager::createWorldView - Creating View");
 
   if ( !tmp_activeview )
@@ -315,10 +323,10 @@ void KomposeTaskManager::closeCurrentView()
   viewWidget = 0;
 
   emit viewClosed();
-  
+
   if ( KomposeGlobal::instance()->getSingleShot() )
     kapp->quit();
-  
+
   // Reset old Desktop
   KWin::setCurrentDesktop( deskBeforeSnaps );
 }

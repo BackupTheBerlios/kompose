@@ -30,18 +30,27 @@
 
 KomposeLayout::KomposeLayout( KomposeWidgetInterface *parent, int type, int dist, const char *name )
     : QObject(),
-    layoutType(type),
     spacing(dist),
     widgetsChanged(false),
     parentWidget(parent),
     currentRows(0),
     currentColumns(0)
 {
+  setType( type );
   currentSize = QSize( 1, 1 );
 }
 
 KomposeLayout::~KomposeLayout()
 {}
+
+void KomposeLayout::setType( int t )
+{
+  if ( t == TLAYOUT_TASKCONTAINERS &&
+       !KomposeSettings::instance()->getDynamicVirtDeskLayout() )
+    t = TLAYOUT_GENERIC;
+  layoutType = t;
+}
+
 
 void KomposeLayout::add( KomposeWidgetInterface *w )
 {
@@ -256,15 +265,18 @@ KomposeWidgetInterface* KomposeLayout::getNeighbour( const KomposeWidgetInterfac
     {
       if ( ( neighbour = getNeighbour( filledContainers, widget, direction, WLAYOUT_HORIZONTAL ) ) == 0 )
         return emptyContainers.first();
-    } else if ( emptyContainers.containsRef(widget) ) {
+    }
+    else if ( emptyContainers.containsRef(widget) )
+    {
       if ( ( neighbour = getNeighbour( emptyContainers, widget, direction, WLAYOUT_HORIZONTAL ) ) == 0 )
         if ( direction == DLAYOUT_TOP )
           return filledContainers.last();
         else
           return filledContainers.first();
     }
-    return neighbour;   
-  } else if (layoutType==TLAYOUT_GENERIC)
+    return neighbour;
+  }
+  else if (layoutType==TLAYOUT_GENERIC)
     return getNeighbour( list, widget, direction, wrap );
 
   qDebug("KomposeLayout::getNeighbour() - this should never happen!");

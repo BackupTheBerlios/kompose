@@ -89,6 +89,8 @@ void KomposeSettings::readConfig()
 //   onlyOneScreenshot = kapp->config()->readBoolEntry("onlyOneScreenshot", false);
   screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400000000);
 
+  dynamicVirtDeskLayout = kapp->config()->readBoolEntry("dynamicVirtDeskLayout", true);
+  
   imageEffects = kapp->config()->readBoolEntry("imageEffects", true);
   tintVirtDesks = kapp->config()->readBoolEntry("tintVirtDesks", false);
   tintVirtDesksColor = kapp->config()->readColorEntry("tintVirtDesksColor", new QColor(Qt::blue) );
@@ -104,6 +106,10 @@ void KomposeSettings::readConfig()
   windowTitleFontColor = kapp->config()->readColorEntry("windowTitleFontColor", new QColor(Qt::black) );
   showWindowTitleShadow = kapp->config()->readBoolEntry("showWindowTitleShadow", true );
   windowTitleFontShadowColor = kapp->config()->readColorEntry("windowTitleFontShadowColor", new QColor(Qt::lightGray) );
+
+  desktopTitleFont = kapp->config()->readFontEntry("desktopTitleFont", new QFont( "arial", 10 ) );
+  desktopTitleFontColor = kapp->config()->readColorEntry("desktopTitleFontColor", new QColor(Qt::gray) );
+  desktopTitleFontHighlightColor = kapp->config()->readColorEntry("desktopTitleFontHighlightColor", new QColor(Qt::black) );
   
   emit settingsChanged();
 }
@@ -124,6 +130,8 @@ void KomposeSettings::writeConfig()
 //   kapp->config()->writeEntry("onlyOneScreenshot", onlyOneScreenshot);
   kapp->config()->writeEntry("screenshotGrabDelay", screenshotGrabDelay);
 
+  kapp->config()->writeEntry("dynamicVirtDeskLayout", dynamicVirtDeskLayout);
+  
   kapp->config()->writeEntry("imageEffects", imageEffects);
   kapp->config()->writeEntry("tintVirtDesks", tintVirtDesks);
   kapp->config()->writeEntry("tintVirtDesksColor", tintVirtDesksColor);
@@ -137,6 +145,10 @@ void KomposeSettings::writeConfig()
   kapp->config()->writeEntry("windowTitleFontColor", windowTitleFontColor);
   kapp->config()->writeEntry("showWindowTitleShadow", showWindowTitleShadow);
   kapp->config()->writeEntry("windowTitleFontShadowColor", windowTitleFontShadowColor);
+  
+  kapp->config()->writeEntry("desktopTitleFont", desktopTitleFont);
+  kapp->config()->writeEntry("desktopTitleFontColor", desktopTitleFontColor);
+  kapp->config()->writeEntry("desktopTitleFontHighlightColor", desktopTitleFontHighlightColor);
   
   kapp->config()->sync();
 
