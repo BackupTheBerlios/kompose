@@ -40,10 +40,10 @@
 #ifdef COMPOSITE
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-// #include <X11/Xatom.h>
+#include <X11/Xatom.h>
 #include <X11/extensions/Xcomposite.h>
-// #include <X11/extensions/Xdamage.h>
-// #include <X11/extensions/Xrender.h>
+#include <X11/extensions/Xdamage.h>
+#include <X11/extensions/Xrender.h>
 #endif
 
 static KomposeTaskManager* taskManagerInstance = 0;
@@ -298,6 +298,22 @@ bool KomposeTaskManager::processX11Event( XEvent *event )
       if (!t)
         return false;
       t->slotX11ConfigureNotify();
+    }
+    if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    {
+    
+      XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
+      // e->drawable is the window ID of the damaged window
+      // e->geometry is the geometry of the damaged window
+      // e->area     is the bounding rect for the damaged area
+      // e->damage   is the damage handle returned by XDamageCreate()
+
+      // Subtract all the damage, repairing the window.
+      XDamageSubtract( QPaintDevice::x11AppDisplay(), e->damage, None, None );
+      KomposeTask* t = findTask( e->drawable );
+      if (!t)
+        return false;
+      t->slotX11DamageNotify();
     }
   }
 #endif

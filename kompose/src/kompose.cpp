@@ -28,6 +28,12 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#ifdef COMPOSITE
+#include <X11/Xatom.h>
+#include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xdamage.h>
+#include <X11/extensions/Xrender.h>
+#endif
 
 Kompose::Kompose()
 {
@@ -39,33 +45,40 @@ Kompose::~Kompose()
 
 bool Kompose::x11EventFilter (XEvent *event)
 {
-//   if ( event->type == damage_event + XDamageNotify )
-//   {
-//     XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
-//     // e->drawable is the window ID of the damaged window
-//     // e->geometry is the geometry of the damaged window
-//     // e->area     is the bounding rect for the damaged area
-//     // e->damage   is the damage handle returned by XDamageCreate()
-// 
-//     // Subtract all the damage, repairing the window.
-//     XDamageSubtract( dpy, e->damage, None, None );
-//   }
-// 
-//   else if ( event->type == shape_event + ShapeNotify )
-//   {
-//     XShapeEvent *e = reinterpret_cast<XShapeEvent*>( event );
-//     // It's probably safe to assume that the window shape region
-//     // is invalid at this point...
-//   }
-
-  if ( event->type == ConfigureNotify )
+#ifdef COMPOSITE
+  if ( KomposeGlobal::instance()->hasXcomposite() )
   {
-    // XConfigureEvent *e = &event->xconfigure;
-    // The windows size, position or Z index in the stacking
-    // order has changed
-    KomposeTaskManager::instance()->processX11Event( event );
-  }
+    if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    {
+      KomposeTaskManager::instance()->processX11Event( event );
+      //     XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
+      //     // e->drawable is the window ID of the damaged window
+      //     // e->geometry is the geometry of the damaged window
+      //     // e->area     is the bounding rect for the damaged area
+      //     // e->damage   is the damage handle returned by XDamageCreate()
+      //
+      //     // Subtract all the damage, repairing the window.
+      //     XDamageSubtract( dpy, e->damage, None, None );
+    }
+    //
+    //   else if ( event->type == shape_event + ShapeNotify )
+    //   {
+    //     XShapeEvent *e = reinterpret_cast<XShapeEvent*>( event );
+    //     // It's probably safe to assume that the window shape region
+    //     // is invalid at this point...
+    //   }
 
+    else if ( event->type == ConfigureNotify )
+    {
+      // XConfigureEvent *e = &event->xconfigure;
+      // The windows size, position or Z index in the stacking
+      // order has changed
+      KomposeTaskManager::instance()->processX11Event( event );
+    }
+
+  }
+#endif
+  
   // This costed me nerves:
   // Call this or kwinmodule won't work
   return KApplication::x11EventFilter(event);

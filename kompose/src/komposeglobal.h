@@ -51,6 +51,7 @@ public:
   void setSingleShot( bool b ) { singleShot = b; }
   bool getSingleShot() { return singleShot; }
   bool hasXcomposite() { return xcomposite; }
+  int getDamageEvent() { return damageEvent; }
   
   // Action getters
   KAction *getActConfigGlobalShortcuts() { return actConfigGlobalShortcuts; }
@@ -73,6 +74,7 @@ private:
   bool hideSystray;
   bool singleShot;
   bool xcomposite;
+  int damageEvent, damageError;
   
   KomposeSysTray* systray;
   KActionCollection* actionCollection;

@@ -43,7 +43,8 @@
 KomposeTask::KomposeTask(WId win, KWinModule *kwinmod, QObject *parent, const char *name)
     : QObject(parent, name),
     kwinmodule(kwinmod),
-    windowID(win)
+    windowID(win),
+    blockDamageEvents(false)
 {
   findWmFrame();
   
@@ -292,13 +293,28 @@ void KomposeTask::refresh()
 
 
 /**
- * This has to be called by x11EventFilter ehenever ConfigureNotify for this win occurs
+ * This has to be called by x11EventFilter whenever ConfigureNotify for this win occurs
  * sorta hacky but x11EventFilter can only be implemented in a kapp object which redirects it 
  * to the taskmanager, that picks out the right task by winId and notifies us :(
  */
 void KomposeTask::slotX11ConfigureNotify()
 {
   emit x11ConfigureNotify();
+}
+
+/**
+ * This has to be called by x11EventFilter whenever DamageNotify for this win occurs
+ * sorta hacky but x11EventFilter can only be implemented in a kapp object which redirects it 
+ * to the taskmanager, that picks out the right task by winId and notifies us :(
+ */
+void KomposeTask::slotX11DamageNotify()
+{
+  if ( blockDamageEvents )
+    return;
+  
+  blockDamageEvents = true;
+  emit x11DamageNotify();
+  QTimer::singleShot( 500, this, SLOT( unBlockDamageEvents() ) );
 }
 
 int KomposeTask::getHeightForWidth ( int w ) const

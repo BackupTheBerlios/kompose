@@ -75,6 +75,7 @@ protected:
 signals:
   void stateChanged();
   void x11ConfigureNotify();
+  void x11DamageNotify();
   void closed();
   
 public slots:
@@ -97,15 +98,20 @@ public slots:
 
   void refresh();
   void slotX11ConfigureNotify();
+  void slotX11DamageNotify();
   void slotActivated();
   void slotUpdateScreenshot();
 
+protected slots:
+  void unBlockDamageEvents() { blockDamageEvents = false; }
+  
 private:
   KWinModule* kwinmodule;
   WId windowID;
   WId wmframeID;
   KWin::WindowInfo windowInfo;
   
+  bool blockDamageEvents;
   KomposeTaskVisualizer* visualizer;
 };
 

@@ -50,6 +50,7 @@ protected slots:
   void updateXCompositeNamedPixmap();
   void renderScaledScreenshot( QSize size );
   
+  void setScaledScreenshotDirty() { scaledScreenshotDirty = true; }
   void clearCached();
   void enablePasvScreenshots();
   
@@ -72,6 +73,7 @@ private:
   XRenderPictFormat *format;
   XRenderPictureAttributes pa;
   bool hasAlpha;
+  Damage damage;
 #endif
 };
 

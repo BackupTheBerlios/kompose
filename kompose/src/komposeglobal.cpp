@@ -214,7 +214,7 @@ void KomposeGlobal::initCompositeExt()
     }
 
     //XDamage version check
-    int damageEvent, damageError; // The event base is important here
+    //int damageEvent, damageError; // The event base is important here
     if (!XDamageQueryExtension( dpy, &damageEvent, &damageError ))
     {
       qDebug("KomposeGlobal::initCompositeExt() - XDamage is not available! - Disabling XComposite support");

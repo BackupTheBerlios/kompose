@@ -53,6 +53,7 @@ protected slots:
   void toggleBlockScreenshots();
   void checkCursorPos();
   
+  void sickNothingWorksAndIamDrunkAnywayInitFunction();
   void slotStartCursorUpdateTimer();
     
 signals:

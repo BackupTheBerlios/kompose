@@ -49,12 +49,16 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
     initXComposite();
     connect( task, SIGNAL(x11ConfigureNotify()), this, SLOT(updateXCompositeNamedPixmap()));
     XSelectInput( dpy, task->wmFrame(), StructureNotifyMask );
+    connect( task, SIGNAL( x11DamageNotify() ), SLOT( setScaledScreenshotDirty() ) );
   }
 #endif
 }
 
 KomposeTaskVisualizer::~KomposeTaskVisualizer()
 {
+#ifdef COMPOSITE
+  XDamageDestroy( dpy, damage);
+#endif
 }
 
 
@@ -66,6 +70,7 @@ void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix)
 {
   if ( scaledScreenshotDirty || scaledScreenshot.isNull() || scaledScreenshot.size() != pix->size() )
     renderScaledScreenshot( pix->size() );
+    
   copyBlt ( pix, 0, 0, &scaledScreenshot, 0, 0, pix->width(), pix->height() );
 
   //   QPainter p( pix );
@@ -297,7 +302,7 @@ void KomposeTaskVisualizer::initXComposite()
   qDebug("KomposeTaskVisualizer::initXComposite() (WId %d) - Setting up Damage extension", task->window());
   // Create a damage handle for the window, and specify that we want an event whenever the
   // damage state changes from not damaged to damaged.
-  Damage damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
+  damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
 #endif
 }
 

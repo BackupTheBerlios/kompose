@@ -24,6 +24,8 @@
 #include "komposetask.h"
 #include "komposetaskprefswidget.h"
 #include "komposesettings.h"
+#include "komposeglobal.h"
+#include "komposesettings.h"
 
 #include <qpixmap.h>
 #include <qimage.h>
@@ -59,6 +61,12 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   connect( t, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
   connect( t, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
 
+#ifdef COMPOSITE
+  if ( KomposeGlobal::instance()->hasXcomposite() )
+  {
+    connect( t, SIGNAL( x11DamageNotify() ), this, SLOT( drawWidgetAndRepaint() ) );
+  }
+#endif
   //setFocusPolicy(QWidget::ClickFocus);
   setFocusPolicy(QWidget::StrongFocus);
 

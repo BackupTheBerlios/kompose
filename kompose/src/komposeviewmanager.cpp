@@ -50,8 +50,9 @@ KomposeViewManager::KomposeViewManager():
   // Setup cursorupdate timer to check for mouse moves into corner
   cursorUpdateTimer = new QTimer();
   slotStartCursorUpdateTimer();
-  
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), SLOT(slotStartCursorUpdateTimer() ) );
+
+  // dirtyy hack. see sickNothingWorksAndIamDrunkAnywayInitFunction()
+  QTimer::singleShot( 1000, this, SLOT( sickNothingWorksAndIamDrunkAnywayInitFunction() ) );
 }
 
 
@@ -62,12 +63,19 @@ KomposeViewManager::~KomposeViewManager()
 
 
 /**
+ * This is a hack that should be called by a timer as this connect won't work in the constructor
+ */
+void KomposeViewManager::sickNothingWorksAndIamDrunkAnywayInitFunction()
+{
+  connect( KomposeSettings::instance(), SIGNAL( settingsChanged() ), SLOT( slotStartCursorUpdateTimer() ) );
+}
+ 
+/**
  * Starts the corner check timer which polls QCursor::pos() every second
  @see checkCursorPos()
  */
 void KomposeViewManager::slotStartCursorUpdateTimer()
 {
-  qDebug("KomposeViewManager::slotStartCursorUpdateTimer() - Checking Settings");
   disconnect( cursorUpdateTimer, SIGNAL( timeout() ), this, SLOT( checkCursorPos() ) );
 
   if ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() ||
