@@ -25,14 +25,14 @@
 // #include <config.h>
 // #endif
 
-#include <kuniqueapplication.h>
+#include <kapplication.h>
 
 
 /**
  * @short Application Main entry point and x11 Event Receiver
- * @author Hans Oischinger <oisch@users.berlios.de>
+ * @author Hans Oischinger <hans.oischinger@kde-mail.net>
  */
-class Kompose : public KUniqueApplication
+class Kompose : public KApplication
 {
   Q_OBJECT
 public:

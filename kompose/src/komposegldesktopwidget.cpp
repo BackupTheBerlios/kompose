@@ -17,6 +17,7 @@
 
 #include <qdesktopwidget.h>
 #include <qobjectlist.h>
+#include <kdebug.h>
 
 #include <GL/gl.h>
 

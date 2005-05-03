@@ -14,6 +14,7 @@
 #include "komposelayout.h"
 #include "komposetaskmanager.h"
 #include "komposegldesktopwidget.h"
+#include <kdebug.h>
 
 #include <GL/gl.h>
 #include <GL/glut.h>

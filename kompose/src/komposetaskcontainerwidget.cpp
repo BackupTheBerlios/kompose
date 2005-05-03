@@ -11,6 +11,7 @@
 //
 #include "komposetaskcontainerwidget.h"
 #include "komposetaskmanager.h"
+#include "komposeviewmanager.h"
 #include "komposelayout.h"
 #include "komposesettings.h"
 #include "komposetaskwidget.h"
@@ -18,6 +19,7 @@
 #include <qobjectlist.h>
 #include <qwidget.h>
 #include <qtimer.h>
+#include <kdebug.h>
 
 static bool controlHold = false; // is the control key pressed
 
@@ -25,8 +27,8 @@ KomposeTaskContainerWidget::KomposeTaskContainerWidget( int desk, QWidget *paren
     : KomposeWidget(parent, l, name),
     desktop( desk )
 {
-  connect(KomposeTaskManager::instance(), SIGNAL(taskDesktopChanged(KomposeTask*, int, int )), 
-    SLOT(reparentTaskWidget(KomposeTask*, int, int )) );
+  connect(KomposeTaskManager::instance(), SIGNAL(taskDesktopChanged(KomposeTask*, int, int )),
+          SLOT(reparentTaskWidget(KomposeTask*, int, int )) );
 }
 
 
@@ -38,9 +40,9 @@ void KomposeTaskContainerWidget::reparentTaskWidget( KomposeTask* task, int from
   // noops
   if ( (fromDesktop==-1 && ((toDesktop==-1) || desktop == toDesktop-1)) || desktop==-2)
     return;
-  
-  qDebug("KomposeTaskContainerWidget::reparentTaskWidget()");
-  
+
+  kdDebug() << "KomposeTaskContainerWidget::reparentTaskWidget()" << endl;
+
   // Delete from current
   if ( (toDesktop!= -1) && (desktop == fromDesktop-1 || fromDesktop==-1) )
   {
@@ -59,13 +61,13 @@ void KomposeTaskContainerWidget::reparentTaskWidget( KomposeTask* task, int from
       }
     }
   }
-  
+
   // Add to new
   if ( desktop == toDesktop -1 || (toDesktop == -1 && fromDesktop-1!=desktop) )
   {
     createTaskWidget( task, true );
     //QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
-//        layout->arrangeLayout();
+    //        layout->arrangeLayout();
   }
 }
 
@@ -86,7 +88,7 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
     e->accept();
     return;
   }
-  
+
   if ( e->key() == Qt::Key_Right || e->key() == Qt::Key_D || e->key() == Qt::Key_H ||
        e->key() == Qt::Key_Left  || e->key() == Qt::Key_A || e->key() == Qt::Key_J ||
        e->key() == Qt::Key_Up    || e->key() == Qt::Key_W || e->key() == Qt::Key_K ||
@@ -97,8 +99,8 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
       e->ignore();
       return;
     }
-    
-    qDebug("KomposeTaskContainerWidget::keyReleaseEvent - %s, Movement key pressed", className() );
+
+    kdDebug() << "KomposeTaskContainerWidget::keyReleaseEvent - " << className() << ", Movement key pressed" << endl;
     // Map keys to directions
     int direction = DLAYOUT_RIGHT;
     switch( e->key() )
@@ -140,13 +142,13 @@ void KomposeTaskContainerWidget::keyReleaseEvent ( QKeyEvent * e )
       direction = DLAYOUT_BOTTOM;
       break;
     }
-    
+
     focusNeighbourChild( direction );
     e->accept();
-    
+
     return;
   }
-  
+
   e->ignore();
 }
 
@@ -156,18 +158,18 @@ bool KomposeTaskContainerWidget::focusNeighbourChild( int direction )
   bool successfull = false;
   if ( !children()->containsRef(focusWidget()) )
   {
-    qDebug("KomposeTaskContainerWidget::keyReleaseEvent - No widget focussed. Focussing first" );
+    kdDebug() << "KomposeTaskContainerWidget::keyReleaseEvent - No widget focussed. Focussing first" << endl;
     const QObjectList *lst = children();
 
     if ( lst )
     {
       QObjectListIterator it( *lst );
       QWidget *widget;
-      while ( widget = (QWidget*)it.current() )
+      while ( (widget = (QWidget*)it.current() ) )
       {
         if (widget->inherits("KomposeTaskWidget") || widget->inherits("KomposeDesktopWidget"))
         {
-          qDebug("KomposeTaskContainerWidget::keyReleaseEvent - Focussing %s", widget->className() );
+          kdDebug() << "KomposeTaskContainerWidget::keyReleaseEvent - Focussing " << widget->className() << endl;
           widget->setFocus();
           successfull = true;
           break;
@@ -181,7 +183,7 @@ bool KomposeTaskContainerWidget::focusNeighbourChild( int direction )
     KomposeWidget *widget;
     if ( ( widget = layout->getNeighbour( dynamic_cast<KomposeWidget*>(focusWidget()), direction, WLAYOUT_BOTH  ) ) != 0 )
     {
-      qDebug("KomposeTaskContainerWidget::keyReleaseEvent - Focussing %s", widget->className() );
+      kdDebug() << "KomposeTaskContainerWidget::keyReleaseEvent - Focussing " << widget->className() << endl;
       widget->setFocus();
       successfull = true;
     }
@@ -209,8 +211,7 @@ void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task, bool manua
 {
   if ( desktop == -1 || desktop == task->onDesktop()-1 || task->onDesktop()==-1)
   {
-    qDebug("KomposeTaskContainerWidget::createTaskWidget() (Container: %s, WId: %d, onDesktop: %d)",
-     this->className(), task->window(), task->onDesktop() );
+    kdDebug() << "KomposeTaskContainerWidget::createTaskWidget() (Container: " << this->className() << ", WId: " << task->window() << ", onDesktop: " << task->onDesktop() << ")" << endl;
     KomposeTaskWidget *taskwidget = new KomposeTaskWidget( task, this );
     if (manualShow)
       taskwidget->show();
@@ -218,12 +219,12 @@ void KomposeTaskContainerWidget::createTaskWidget( KomposeTask* task, bool manua
   }
 }
 
-int KomposeTaskContainerWidget::getHeightForWidth( int w ) const
+int KomposeTaskContainerWidget::getHeightForWidth( int ) const
 {
   return -1;
 }
 
-int KomposeTaskContainerWidget::getWidthForHeight( int h ) const
+int KomposeTaskContainerWidget::getWidthForHeight( int ) const
 {
   return -1;
 }
@@ -237,10 +238,17 @@ void KomposeTaskContainerWidget::requestRemoval( KomposeWidget *obj )
 {
   layout->remove(obj);
   // removeChild( obj );  // FIXME: This causes segfaults although it would
-                          // be the correct way (ChildRemoveEvents to rearrange the layout...)
+  // be the correct way (ChildRemoveEvents to rearrange the layout...)
   !obj->close(true);
   layout->arrangeLayout();
 }
 
-  
+void KomposeTaskContainerWidget::childEvent( QChildEvent * ce)
+{
+  KomposeWidget::childEvent(ce);
+  // ReLayout when we are in a active view and a new window appeared somewhere
+  if ( KomposeViewManager::instance()->hasActiveView() )
+    layout->arrangeLayout();
+}
+
 #include "komposetaskcontainerwidget.moc"

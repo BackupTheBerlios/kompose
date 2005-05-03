@@ -20,6 +20,7 @@
 #include <kwin.h>
 #include <netwm.h>
 #include <qapplication.h>
+#include <kdebug.h>
 
 #include <time.h>
 
@@ -97,7 +98,7 @@ void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix, int effect)
  */
 void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 {
-  qDebug("KomposeTaskVisualizer::renderScaledScreenshot() (%d) %dx%d", task->window(), newSize.width(), newSize.height());
+  kdDebug() << "KomposeTaskVisualizer::renderScaledScreenshot() (" << task->window() << ") " << newSize.width() << "x" << newSize.height() << endl;
 
   scaledScreenshot.resize( newSize );
 
@@ -202,7 +203,7 @@ void KomposeTaskVisualizer::slotTaskActivated()
        !KomposeViewManager::instance()->hasActiveView() &&
        !KomposeViewManager::instance()->getBlockScreenshots() )
   {
-    qDebug("KomposeTaskVisualizer::slotTaskActivated() (WId %d) - Screenshot already exists, but passive mode on - Grabbing new one.", task->window());
+    kdDebug() << "KomposeTaskVisualizer::slotTaskActivated() (WId " << task->window() << ") - Screenshot already exists, but passive mode on - Grabbing new one." << endl;
     // Use a timer to make task switching feel more responsive
     QTimer::singleShot( 300, this, SLOT( captureScreenshot_GrabWindow() ) );
     //captureScreenshot_GrabWindow();
@@ -220,7 +221,7 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
   {
     if ( !validBackingPix )
     {
-      qDebug("KomposeTaskVisualizer::slotUpdateScreenshot() (WId %d) - No backing pixmap referenced. Bad :(", task->window() );
+      kdDebug() << "KomposeTaskVisualizer::slotUpdateScreenshot() (WId " << task->window() << ") - No backing pixmap referenced. Bad :(" << endl;
       // When we get here we have never referenced a backingpix...
       // FIXME: Currently it seems that there is no way to retrieve unmapped backing pixmaps,
       // even switching desktops won't work due to the latency of XComposite :(
@@ -236,11 +237,11 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
 
     if ( task->isIconified() == true )
     {
-      qDebug("KomposeTaskVisualizer::slotUpdateScreenshot() (WId %d) - Window iconified... we have to raise it and iconify it again later.", task->window());
+      kdDebug() << "KomposeTaskVisualizer::slotUpdateScreenshot() (WId " << task->window() << ") - Window iconified... we have to raise it and iconify it again later." << endl;
       iconifyLater = true;
     }
 
-    qDebug("KomposeTaskVisualizer::slotUpdateScreenshot() (WId %d) - Forcing activation (no screenshot exists)", task->window());
+    kdDebug() << "KomposeTaskVisualizer::slotUpdateScreenshot() (WId " << task->window() << ") - Forcing activation (no screenshot exists)" << endl;
 
     task->activate();
     QApplication::flushX();
@@ -281,11 +282,11 @@ void KomposeTaskVisualizer::updateXCompositeNamedPixmap()
   {
     if( !task->isOnCurrentDesktop() )
     {
-      qDebug("KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId %d) - Not reallocationg (unmapped)", task->window());
+      kdDebug() << "KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId " << task->window() << ") - Not reallocationg (unmapped)" << endl;
       return;
     }
 
-    qDebug("KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId %d) - Reallocating backing pixmap", task->window());
+    kdDebug() << "KomposeTaskVisualizer::updateXCompositeNamedPixmap() (WId " << task->window() << ") - Reallocating backing pixmap" << endl;
     if ( validBackingPix )
       XFreePixmap(dpy, windowBackingPix);
 
@@ -324,7 +325,7 @@ void KomposeTaskVisualizer::initXComposite()
     compositeInit = true;
     updateXCompositeNamedPixmap();
 
-    qDebug("KomposeTaskVisualizer::initXComposite() (WId %d) - Setting up Damage extension", task->window());
+    kdDebug() << "KomposeTaskVisualizer::initXComposite() (WId " << task->window() << ") - Setting up Damage extension" << endl;
     // Create a damage handle for the window, and specify that we want an event whenever the
     // damage state changes from not damaged to damaged.
     damage = XDamageCreate( dpy, task->window(), XDamageReportNonEmpty );
@@ -350,7 +351,7 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
 {
   if ( screenshotBlocked || ( !(task->isActive() && task->isOnTop()) ) )
   {
-    qDebug("KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId %d) - Could not grab screenshot.", task->window());
+    kdDebug() << "KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId " << task->window() << ") - Could not grab screenshot." << endl;
     return;
   }
   //task->activate();
@@ -365,7 +366,7 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
   screenshotBlocked = true;
   QTimer::singleShot( 3000, this, SLOT( enablePasvScreenshots() ) );
 
-  qDebug("KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId %d) - Grabbed screenshot.", task->window());
+  kdDebug() << "KomposeTaskVisualizer::captureScreenshot_GrabWindow() (WId " << task->window() << ") - Grabbed screenshot." << endl;
 
   // Code to create a screenshot directly as an Imlib image
 
@@ -396,7 +397,7 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
   //
   //     XCloseDisplay(disp);
 
-  //qDebug("KomposeTaskVisualizer::captureScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
+  //kdDebug() << "KomposeTaskVisualizer::captureScreenshot() - Created Screenshot: x:%d y:%d size:%dx%d", geom.x(), geom.y(), screenshot->originalWidth(), screenshot->originalHeight() );
 }
 
 void KomposeTaskVisualizer::enablePasvScreenshots()

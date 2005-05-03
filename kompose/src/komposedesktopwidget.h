@@ -22,7 +22,6 @@
 
 #include "komposetaskcontainerwidget.h"
 
-class KRootPixmap;
 class KomposeLayout;
 class KomposeTask;
 
@@ -62,7 +61,6 @@ protected slots:
   
 private:
   QRect deskRect;
-  KRootPixmap *rootpix;
   QString deskName;
   bool highlight; // Highlight widget?
   QFont titleFont;

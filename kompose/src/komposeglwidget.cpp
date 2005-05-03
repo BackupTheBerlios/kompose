@@ -21,6 +21,8 @@
 #include "komposelayout.h"
 
 #include <qtimer.h>
+#include <kdebug.h>
+
 
 /*
  * The constructor accepts a custom layout, if none is specified a defaultlayout is used
@@ -50,7 +52,7 @@ void KomposeGLWidget::childEvent ( QChildEvent * ce )
 
   if ( ce->inserted() )
   {
-    qDebug("KomposeGLWidget::childEvent : Added widget %s to %s", ce->child()->className(), className() );
+    qDebug("KomposeGLWidget::childEvent : Added widget " << ce->child()->className() << " to " << className() << endl;
     list.append( dynamic_cast<KomposeGLWidget*>(ce->child()) );
     layout->add( dynamic_cast<KomposeWidgetInterface*>(ce->child()) );
   }

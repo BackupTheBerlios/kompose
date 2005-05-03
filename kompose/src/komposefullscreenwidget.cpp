@@ -28,6 +28,8 @@
 #include <kaction.h>
 #include <ksharedpixmap.h>
 #include <kcursor.h>
+#include <kglobalsettings.h>
+#include <kdebug.h>
 
 
 KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout *l )
@@ -46,14 +48,13 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
   initMenu();
   initView();
   //showFullScreen();
-  
+
   // Alternate showFullscreen
   setWindowState(windowState() | WindowFullScreen);
   //setWFlags(WStyle_NoBorder);
-  setGeometry( QApplication::desktop()->availableGeometry() );
-  
-  show();
-  
+//   setGeometry( KGlobalSettings::splashScreenDesktopGeometry() );
+  setGeometry( KGlobalSettings::desktopGeometry( this ) );
+
   if (!isTopLevel())
     QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
   setActiveWindow();
@@ -95,6 +96,7 @@ void KomposeFullscreenWidget::destroyChildWidgets()
     dynamic_cast<QWidget*>(child)->deleteLater();
   }
   setUpdatesEnabled( true );
+  kdDebug() << "KomposeFullscreenWidget::destroyChildWidgets() - all children destroyed" << endl;
 }
 
 void KomposeFullscreenWidget::initView()
@@ -124,26 +126,26 @@ void KomposeFullscreenWidget::initView()
     createTaskWidgets();
     connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
-  
+
   unsetCursor();
 }
 
 void KomposeFullscreenWidget::createDesktopWidgets()
 {
-  qDebug("KomposeFullscreenWidget::createDesktopWidgets()");
+  kdDebug() << "KomposeFullscreenWidget::createDesktopWidgets()" << endl;
   // Create a Widget for every desktop
   for (int i=0; i < KomposeTaskManager::instance()->getNumDesktops(); ++i)
   {
-    int row = i / 2;
-    int col = i % 2;
-    //qDebug("rc %d %d", row, col);
+    //int row = i / 2;
+    //int col = i % 2;
+    //kdDebug() << "rc %d %d", row, col);
     KomposeDesktopWidget *desktop = new KomposeDesktopWidget(i, this );
     connect(desktop, SIGNAL(contentsChanged()), layout, SLOT(arrangeLayout()) );
     desktop->show();
   }
 }
 
-void KomposeFullscreenWidget::mouseReleaseEvent (QMouseEvent * e)
+void KomposeFullscreenWidget::mouseReleaseEvent (QMouseEvent * )
 {}
 
 void KomposeFullscreenWidget::mousePressEvent ( QMouseEvent * e )
@@ -170,13 +172,13 @@ void KomposeFullscreenWidget::keyReleaseEvent ( QKeyEvent * e )
 {
   if ( e->key() == Qt::Key_Escape )
   {
-    qDebug("KomposeFullscreenWidget::keyReleaseEvent - Esc key pressed - Closing view");
+    kdDebug() << "KomposeFullscreenWidget::keyReleaseEvent - Esc key pressed - Closing view" << endl;
     KomposeViewManager::instance()->closeCurrentView();
     e->accept();
   }
   else
   {
-    qDebug("KomposeFullscreenWidget::keyReleaseEvent - ignored...");
+    kdDebug() << "KomposeFullscreenWidget::keyReleaseEvent - ignored..." << endl;
     e->ignore();
   }
   KomposeTaskContainerWidget::keyReleaseEvent(e);
@@ -184,12 +186,12 @@ void KomposeFullscreenWidget::keyReleaseEvent ( QKeyEvent * e )
 
 int KomposeFullscreenWidget::getHeightForWidth ( int w ) const
 {
-  return ((double)w / (double)width()) * (double)height();
+  return (int)(((double)w / (double)width()) * (double)height());
 }
 
 int KomposeFullscreenWidget::getWidthForHeight ( int h ) const
 {
-  return ((double)h / (double)height()) * (double)width();
+  return (int)(((double)h / (double)height()) * (double)width());
 }
 
 double KomposeFullscreenWidget::getAspectRatio()
@@ -197,7 +199,7 @@ double KomposeFullscreenWidget::getAspectRatio()
   return (double)width() / (double)height();
 }
 
-void KomposeFullscreenWidget::paintEvent ( QPaintEvent * e )
+void KomposeFullscreenWidget::paintEvent ( QPaintEvent * )
 {
   QPainter p( this );
   p.drawPixmap(rect(), *(KomposeGlobal::instance()->getDesktopBgPixmap()));

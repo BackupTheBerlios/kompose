@@ -14,7 +14,8 @@ METASOURCES = AUTO
 messages: rc.cpp
 	$(XGETTEXT) *.cpp --language=C --from-code=UTF-8 -o $(podir)/kompose.pot
 
-KDE_ICON = kompose
+komposeiconsdir = $(kde_datadir)/kompose/icons
+komposeicons_ICON = AUTO
 
 #########################################################################
 # APPLICATION SECTION
@@ -41,6 +42,5 @@ shelldesktop_DATA = kompose.desktop
 shellrcdir = $(kde_datadir)/kompose
 shellrc_DATA = komposeui.rc
 
-kde_icon_KDEICON = hi32-app-kompose.png hi16-app-kompose.png
 
 

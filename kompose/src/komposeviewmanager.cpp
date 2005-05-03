@@ -25,6 +25,7 @@
 
 #include <kwin.h>
 #include <kapplication.h>
+#include <kdebug.h>
 
 
 static KomposeViewManager* viewManagerInstance = 0;
@@ -36,7 +37,7 @@ KomposeViewManager* KomposeViewManager::instance()
 {
   if ( !viewManagerInstance )
   {
-    qDebug("KomposeViewManager::instance() - Creating Singleton instance");
+    kdDebug() << "KomposeViewManager::instance() - Creating Singleton instance" << endl;
     viewManagerInstance = new KomposeViewManager();
   }
   return viewManagerInstance;
@@ -87,7 +88,7 @@ void KomposeViewManager::slotStartCursorUpdateTimer()
        KomposeSettings::instance()->getActivateOnTopLeftCorner() ||
        KomposeSettings::instance()->getActivateOnTopRightCorner() )
   {
-    qDebug("KomposeViewManager::slotStartCursorUpdateTimer() - QCursor::pos() checks enabled");
+    kdDebug() << "KomposeViewManager::slotStartCursorUpdateTimer() - QCursor::pos() checks enabled" << endl;
     QRect deskRect = QApplication::desktop()->screenGeometry();
 
     topLeftCorner = deskRect.topLeft();
@@ -149,20 +150,20 @@ void KomposeViewManager::createView( int type )
   if (KomposeSettings::instance()->hasDialogOpen() ||
       KomposeGlobal::instance()->hasAboutDialogOpen())
   {
-    qDebug("KomposeViewManager::createView() - Another Kompose Dialog is open... close it first");
+    kdDebug() << "KomposeViewManager::createView() - Another Kompose Dialog is open... close it first" << endl;
     return;
   }
 
   if (type == -1)
     type = KomposeSettings::instance()->getDefaultView();
 
-  qDebug("KomposeViewManager::createView( type %d )", type);
+  kdDebug() << "KomposeViewManager::createView( type " << type << " )" << endl;
 
   if ( !activeView )
   {
     // Remember current desktop
     deskBeforeSnaps = KWin::currentDesktop();
-    qDebug("KomposeViewManager::createView() - Remembering desktop %d ", deskBeforeSnaps);
+    kdDebug() << "KomposeViewManager::createView() - Remembering desktop " << deskBeforeSnaps << endl;
     // Update screenshot of the current window to be more up2date
     // KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
     // Update all other
@@ -179,6 +180,7 @@ void KomposeViewManager::createView( int type )
   else
     viewWidget->setType( type );
 
+  viewWidget->show();
   KWin::forceActiveWindow( viewWidget->winId() );
 
   activeView = true;

@@ -11,6 +11,7 @@
 //
 #include "komposeimage.h"
 #include "komposesettings.h"
+#include <kdebug.h>
 
 
 
@@ -102,7 +103,7 @@ void KomposeImage::setImage( Imlib_Image &im )
     imlib_context_set_image( myIm );
     myOrigWidth    = imlib_image_get_width();
     myOrigHeight   = imlib_image_get_height();
-    qDebug("KomposeTask::setImage() - Set Image: size:%dx%d", myWidth, myHeight );
+    qDebug("KomposeTask::setImage() - Set Image: size:" << myWidth << "x" << myHeight << endl;
   }
 
   myIsDirty  = true;

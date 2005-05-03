@@ -32,7 +32,7 @@ class KomposeTaskVisualizer;
 */
 class KomposeTask : public QObject
 {
-Q_OBJECT
+  Q_OBJECT
 public:
   KomposeTask(WId win, KWinModule *kwinmod, QObject *parent = 0, const char *name = 0);
 
@@ -59,25 +59,25 @@ public:
   QString visibleNameWithState() const { return windowInfo.visibleNameWithState(); }
   QRect getGeometry() const { return windowInfo.geometry(); }
   QRect getFrameGeometry() const { return windowInfo.frameGeometry(); }
-  
+
   QPixmap getIcon( int size );
   double getAspectRatio();
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
-  
+
   KomposeTaskVisualizer* getVisualizer() { return visualizer; }
-  
+
 protected:
   void paintEvent ( QPaintEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
   void findWmFrame();
-  
+
 signals:
   void stateChanged();
   void x11ConfigureNotify();
   void x11DamageNotify();
   void closed();
-  
+
 public slots:
   void maximize();
   void restore();
@@ -86,9 +86,9 @@ public slots:
   void raise();
   void lower();
   void activate();
-//   void activateOrRaise();
+  //   void activateOrRaise();
   void minimizeOrRestore();
-  
+
   void toDesktop(int desk);
   void toCurrentDesktop();
   void setAlwaysOnTop(bool stay);
@@ -104,13 +104,13 @@ public slots:
 
 protected slots:
   void unBlockDamageEvents() { blockDamageEvents = false; }
-  
+
 private:
   KWinModule* kwinmodule;
   WId windowID;
   WId wmframeID;
   KWin::WindowInfo windowInfo;
-  
+
   bool blockDamageEvents;
   KomposeTaskVisualizer* visualizer;
 };

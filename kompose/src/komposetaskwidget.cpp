@@ -46,13 +46,14 @@
 #include <kaction.h>
 #include <kapplication.h>
 #include <kiconloader.h>
+#include <kdebug.h>
 
 #include "komposetaskvisualizer.h"
 
 KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLayout *l, const char *name)
     : KomposeWidget(parent, l, name),
-    task(t),
-    highlight(false)
+    highlight(false),
+    task(t)
 {
   setWFlags( WStaticContents | WRepaintNoErase | WResizeNoErase );  // avoid redraw errors
   setBackgroundMode( Qt::NoBackground );  // avoid flickering
@@ -127,7 +128,7 @@ void KomposeTaskWidget::resizeEvent ( QResizeEvent * e )
 }
 
 
-void KomposeTaskWidget::paintEvent ( QPaintEvent * e )
+void KomposeTaskWidget::paintEvent ( QPaintEvent * )
 {
   if (size().height() < 40 )  // small hack that will prevent drawing on init
     return;
@@ -244,32 +245,32 @@ void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
 {
   if ( e->key() == Qt::Key_Return || e->key() == Qt::Key_Space )
   {
-    qDebug("KomposeTaskWidget::keyReleaseEvent - activating Task!");
+    kdDebug() << "KomposeTaskWidget::keyReleaseEvent - activating Task!" << endl;
     e->accept();
     KomposeViewManager::instance()->activateTask( task );
     return;
   }
   else if ( e->key() == Qt::Key_C )
   {
-    qDebug("KomposeTaskWidget::keyReleaseEvent - closing Task!");
+    kdDebug() << "KomposeTaskWidget::keyReleaseEvent - closing Task!" << endl;
     task->close();
     e->accept();
   }
   else if ( e->key() == Qt::Key_M )
   {
-    qDebug("KomposeTaskWidget::keyReleaseEvent - toggling state!");
+    kdDebug() << "KomposeTaskWidget::keyReleaseEvent - toggling state!" << endl;
     task->minimizeOrRestore();
     e->accept();
   }
   else
   {
-    qDebug("KomposeTaskWidget::keyReleaseEvent - ignored...");
+    kdDebug() << "KomposeTaskWidget::keyReleaseEvent - ignored..." << endl;
     e->ignore();
   }
   KomposeWidget::keyReleaseEvent(e);
 }
 
-void KomposeTaskWidget::leaveEvent ( QEvent * e )
+void KomposeTaskWidget::leaveEvent ( QEvent * )
 {
   highlight = false;
   unsetCursor();
@@ -280,7 +281,7 @@ void KomposeTaskWidget::leaveEvent ( QEvent * e )
     parentWidget()->setFocus();
 }
 
-void KomposeTaskWidget::enterEvent ( QEvent * e )
+void KomposeTaskWidget::enterEvent ( QEvent * )
 {
   setFocus();
   setCursor( KCursor::handCursor() );
@@ -290,13 +291,13 @@ void KomposeTaskWidget::enterEvent ( QEvent * e )
   prefWidget->show();
 }
 
-void KomposeTaskWidget::focusInEvent ( QFocusEvent * e)
+void KomposeTaskWidget::focusInEvent ( QFocusEvent * )
 {
   highlight = true;
   drawWidgetAndRepaint();
 }
 
-void KomposeTaskWidget::focusOutEvent ( QFocusEvent * e)
+void KomposeTaskWidget::focusOutEvent ( QFocusEvent * )
 {
   highlight = false;
   drawWidgetAndRepaint();
@@ -304,19 +305,19 @@ void KomposeTaskWidget::focusOutEvent ( QFocusEvent * e)
 
 int KomposeTaskWidget::getHeightForWidth ( int w ) const
 {
-  //qDebug("KomposeTaskWidget::getHeightForWidth()");
+  //kdDebug() << "KomposeTaskWidget::getHeightForWidth()");
   return task->getHeightForWidth(w);
 }
 
 int KomposeTaskWidget::getWidthForHeight ( int h ) const
 {
-  //qDebug("KomposeTaskWidget::getWidthForHeight()");
+  //kdDebug() << "KomposeTaskWidget::getWidthForHeight()");
   return task->getWidthForHeight(h);
 }
 
 double KomposeTaskWidget::getAspectRatio()
 {
-  //qDebug("KomposeTaskWidget::getAspectRatio()");
+  //kdDebug() << "KomposeTaskWidget::getAspectRatio()");
   return task->getAspectRatio();
 }
 

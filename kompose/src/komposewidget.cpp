@@ -21,8 +21,7 @@
 #include "komposelayout.h"
 
 #include <qtimer.h>
-
-#include "komposelayout.h"
+#include <kdebug.h>
 
 /*
  * The constructor accepts a custom layout, if none is specified a defaultlayout is used
@@ -48,27 +47,21 @@ KomposeWidget::~KomposeWidget()
  */
 void KomposeWidget::childEvent ( QChildEvent * ce)
 {
-  if ( !ce->child()->inherits("KomposeWidget") )
+  KomposeWidget* kwChild = 0;
+  kwChild = ::qt_cast<KomposeWidget*>(ce->child());
+  if ( !kwChild )
     return;
 
   if ( ce->inserted() )
   {
-    qDebug("KomposeWidget::childEvent : Added widget %s to %s", ce->child()->className(), className() );
-    layout->add( dynamic_cast<KomposeWidget*>(ce->child()) );
+    kdDebug() << "KomposeWidget::childEvent : Added widget " << ce->child()->className() << " to " << className() << endl;
+    layout->add( kwChild );
   }
   else if ( ce->removed() )
   {
-    qDebug("KomposeWidget::childEvent : Removed widget %s from %s", ce->child()->className(), className() );
-    layout->remove( dynamic_cast<KomposeWidget*>(ce->child()) );
+    kdDebug() << "KomposeWidget::childEvent : Removed widget " << ce->child()->className() << " from " << className() << endl;
+    layout->remove( kwChild );
   }
-  
-//   if ( parentWidget() && parentWidget()->inherits("KomposeWidget") )
-//     (dynamic_cast<KomposeWidget*>(parentWidget()))->getLayout()->arrangeLayout();
-//   else
-//     layout->arrangeLayout();
-  // Whenever a child is added/removed: rearrange layout
-  // FIXME: sometimes widget's aren't added in time, so we have to add a short delay:
-  QTimer::singleShot( 200, layout, SLOT( arrangeLayout() ) );
 }
 
 /*
@@ -76,7 +69,7 @@ void KomposeWidget::childEvent ( QChildEvent * ce)
  */
 void KomposeWidget::resizeEvent ( QResizeEvent * e )
 {
-  qDebug("KomposeWidget(%s)::resizeEvent - Size:%dx%d", className(), e->size().width() , e->size().height());
+  kdDebug() << "KomposeWidget(" << className() << ")::resizeEvent - Size:" << e->size().width() << "x"<< e->size().height() << endl;
   layout->arrangeLayout();
 }
 
@@ -87,7 +80,7 @@ KomposeWidget* KomposeWidget::getParentWidget() const
     return (KomposeWidget*)QWidget::parent();
   else
   {
-    qDebug("KomposeWidget::getParentWidget() - QWidget::parent() does not inherit (KomposeWidget)");
+    kdDebug() << "KomposeWidget::getParentWidget() - QWidget::parent() does not inherit (KomposeWidget)" << endl;
     return NULL;
   }
 }
@@ -96,6 +89,5 @@ int KomposeWidget::getNumofChilds()
 {
   return layout->getNumofChilds();
 }
-
 
 #include "komposewidget.moc"

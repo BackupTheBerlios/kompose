@@ -41,7 +41,7 @@ KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
 KomposeSysTray::~KomposeSysTray()
 {}
 
-void KomposeSysTray::mouseReleaseEvent (QMouseEvent * e)
+void KomposeSysTray::mouseReleaseEvent (QMouseEvent * )
 {}
 
 void KomposeSysTray::mousePressEvent ( QMouseEvent * e )

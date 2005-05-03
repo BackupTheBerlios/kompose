@@ -54,10 +54,6 @@ public:
   void setDynamicVirtDeskLayout( bool b ) { dynamicVirtDeskLayout = b; }
   bool getImageEffects() const { return imageEffects; }
   void setImageEffects( bool b ) { imageEffects = b; }
-  bool getTintVirtDesks() const { return tintVirtDesks; }
-  void setTintVirtDesks( bool b ) { tintVirtDesks = b; }
-  const QColor& getTintVirtDesksColor() const { return tintVirtDesksColor; }
-  void setTintVirtDesksColor( QColor c ) { tintVirtDesksColor = c; }
   
   int  getDefaultView() const { return defaultView; }
   void setDefaultView( int d ) { defaultView = d; }
@@ -124,8 +120,6 @@ private:
   bool dynamicVirtDeskLayout;
   
   bool imageEffects;
-  bool tintVirtDesks;
-  QColor tintVirtDesksColor;
   int defaultView;
   
   int iconSize;

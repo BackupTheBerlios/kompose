@@ -14,6 +14,7 @@
 #include "komposetaskmanager.h"
 #include "komposetask.h"
 #include "komposelayout.h"
+#include <kdebug.h>
 
 #include <qgl.h>
 #include <qimage.h>

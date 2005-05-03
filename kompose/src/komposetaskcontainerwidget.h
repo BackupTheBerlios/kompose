@@ -34,22 +34,24 @@ public:
   virtual int getHeightForWidth( int w ) const;
   virtual int getWidthForHeight( int h ) const;
   virtual double getAspectRatio();
-  
+
   void setDesktop( int desk ) { desktop = desk; }
   int getDesktop() { return desktop; }
 
 public slots:
   void requestRemoval( KomposeWidget *obj );
-  
+
 protected slots:
   void createTaskWidgets();
   void createTaskWidget( KomposeTask* task, bool manualShow=true );
   void reparentTaskWidget( KomposeTask* task, int fromDesktop, int toDesktop );
   bool focusNeighbourChild( int direction );
-  
+
 protected:
   void keyReleaseEvent ( QKeyEvent * e );
   void keyPressEvent ( QKeyEvent * e );
+  void childEvent( QChildEvent * ce);
+
   int desktop;
 };
 

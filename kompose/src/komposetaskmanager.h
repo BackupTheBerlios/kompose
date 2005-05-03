@@ -41,25 +41,25 @@ protected:
   KomposeTaskManager();
 
   ~KomposeTaskManager();
-  
+
 public:
   static KomposeTaskManager *instance();
 
   bool isOnTop(const KomposeTask* task );
-  
+
   int getNumDesktops() const { return numDesks; }
   QString getDesktopName(int desk) const;
-  
+
   TaskList getTasks() const { return tasklist; }
-  
-public slots:  
+
+public slots:
   bool processX11Event( XEvent *event );
   void slotUpdateScreenshots( bool switchDesktops=true );
   void simulatePasvScreenshotEvent();
 
   void slotStartWindowListeners();
 
-protected slots:  
+protected slots:
   void slotTaskActivated(WId);
   void slotWindowAdded( WId w );
   void slotWindowRemoved( WId w );
@@ -67,14 +67,14 @@ protected slots:
   void slotDesktopCountChanged(int);
   void slotCurrentDesktopChanged(int);
   void callCompositeRedirect();
-  
+
 signals:
   void newTask( KomposeTask* task );
   void taskDesktopChanged( KomposeTask* task, int fromDesktop, int toDesktop );
 
 protected:
   KomposeTask* findTask(WId w, bool wmFrameIds = false);
-  
+
 private:
   KWinModule* kwin_module;
   TaskList tasklist;      // list of tasks handled by the WM

@@ -34,11 +34,11 @@
 #include <qtooltip.h>
 
 #include <klocale.h>
-#include <krootpixmap.h>
 #include <kwin.h>
 #include <ksharedpixmap.h>
 #include <kwinmodule.h>
 #include <kcursor.h>
+#include <kdebug.h>
 
 
 KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, KomposeLayout *l, const char *name)
@@ -52,23 +52,15 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
   initFonts();
 
   // Set Desktop background as our background
-  setBackgroundMode( Qt::NoBackground );/*
-  setBackgroundMode( Qt::FixedPixmap );
-  setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));*/
+  setBackgroundMode( Qt::NoBackground );
 
   KWinModule kwinmodule( this, 1 );
   deskName = kwinmodule.desktopName(desktop+1);
 
   QToolTip::add( this, i18n("Desktop %1 - %2").arg(desktop).arg(deskName) );
 
-  rootpix = new KRootPixmap (this);
-  if ( KomposeSettings::instance()->getTintVirtDesks() )
-    rootpix->setFadeEffect( 0.05, KomposeSettings::instance()->getTintVirtDesksColor() );
-
   setAcceptDrops(TRUE);
 
-  rootpix->start();
-  
   createTaskWidgets();
 
   connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
@@ -81,7 +73,6 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 KomposeDesktopWidget::~KomposeDesktopWidget()
 {
   disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
-  delete rootpix;
 }
 
 void KomposeDesktopWidget::initFonts()
@@ -92,31 +83,31 @@ void KomposeDesktopWidget::initFonts()
 
 // int KomposeDesktopWidget::getHeightForWidth( int w ) const
 // {
-//   qDebug("KomposeDesktopWidget::getHeightForWidth()");
+//   kdDebug() << "KomposeDesktopWidget::getHeightForWidth()");
 //   return ((double)w / (double)deskRect.width()) * deskRect.height();
 // }
 //
 // int KomposeDesktopWidget::getWidthForHeight( int h ) const
 // {
-//   qDebug("KomposeDesktopWidget::getWidthForHeight()");
+//   kdDebug() << "KomposeDesktopWidget::getWidthForHeight()");
 //   return ((double)h / (double)deskRect.height()) * deskRect.width();
 // }
 //
 // double KomposeDesktopWidget::getAspectRatio()
 // {
-//   qDebug("KomposeDesktopWidget::getAspectRatio()");
+//   kdDebug() << "KomposeDesktopWidget::getAspectRatio()");
 //   return (double)deskRect.width() / (double)deskRect.height();
 // }
 
 
-void KomposeDesktopWidget::leaveEvent ( QEvent * e )
+void KomposeDesktopWidget::leaveEvent ( QEvent * )
 {
   highlight = false;
   unsetCursor();
   repaint();
 }
 
-void KomposeDesktopWidget::enterEvent ( QEvent * e )
+void KomposeDesktopWidget::enterEvent ( QEvent * )
 {
   setFocus();
   setCursor( KCursor::handCursor() );
@@ -124,13 +115,13 @@ void KomposeDesktopWidget::enterEvent ( QEvent * e )
   repaint();
 }
 
-void KomposeDesktopWidget::focusInEvent ( QFocusEvent * e)
+void KomposeDesktopWidget::focusInEvent ( QFocusEvent * )
 {
   highlight = true;
   repaint();
 }
 
-void KomposeDesktopWidget::focusOutEvent ( QFocusEvent * e)
+void KomposeDesktopWidget::focusOutEvent ( QFocusEvent * )
 {
   highlight = false;
   repaint();
@@ -152,14 +143,14 @@ void KomposeDesktopWidget::mouseDoubleClickEvent ( QMouseEvent * e )
 }
 
 
-void KomposeDesktopWidget::paintEvent ( QPaintEvent * e )
+void KomposeDesktopWidget::paintEvent ( QPaintEvent * )
 {
-  KomposeWidget::paintEvent(e);
-
+  // KomposeWidget::paintEvent(e);
   QPainter p;
   p.begin( this );
-  
-  //p.drawPixmap(rect(), *(KomposeGlobal::instance()->getDesktopBgPixmap()));
+  QPoint tl = mapToGlobal(QPoint(0,0));
+  p.drawPixmap(0,0, *KomposeGlobal::instance()->getDesktopBgPixmap(),
+               tl.x(), tl.y(), width(), height());
 
   p.setFont(titleFont);
 
@@ -167,7 +158,7 @@ void KomposeDesktopWidget::paintEvent ( QPaintEvent * e )
     p.setPen( KomposeSettings::instance()->getDesktopTitleFontHighlightColor() );
   else
     p.setPen( KomposeSettings::instance()->getDesktopTitleFontColor() );
-  
+
   // Bounding rect
   p.drawRect(rect());
 
@@ -182,7 +173,7 @@ void KomposeDesktopWidget::paintEvent ( QPaintEvent * e )
 
 void KomposeDesktopWidget::dragEnterEvent( QDragEnterEvent* e )
 {
-  qDebug("KomposeDesktopWidget::dragEnterEvent");
+  kdDebug() << "KomposeDesktopWidget::dragEnterEvent" << endl;
   e->accept( QTextDrag::canDecode(e) );
 }
 
@@ -191,7 +182,7 @@ void KomposeDesktopWidget::dropEvent ( QDropEvent * e )
   QString text;
   if ( QTextDrag::decode(e, text) )
   {
-    qDebug("KomposeDesktopWidget::dropEvent - Received Task drop");
+    kdDebug() << "KomposeDesktopWidget::dropEvent - Received Task drop" << endl;
     KomposeTaskWidget* dropWidget = dynamic_cast<KomposeTaskWidget*>(e->source());
     dropWidget->getTask()->toDesktop( desktop + 1);
     //if ( dropWidget->parentWidget() != this)
@@ -213,13 +204,13 @@ void KomposeDesktopWidget::keyReleaseEvent ( QKeyEvent * e )
 {
   if ( e->key() == Qt::Key_Return || e->key() == Qt::Key_Space )
   {
-    qDebug("KomposeDesktopWidget::keyReleaseEvent - Switching to Desktop!");
+    kdDebug() << "KomposeDesktopWidget::keyReleaseEvent - Switching to Desktop!" << endl;
     KomposeViewManager::instance()->setCurrentDesktop(desktop);
     e->accept();
   }
   else
   {
-    qDebug("KomposeDesktopWidget::keyReleaseEvent - ignored...");
+    kdDebug() << "KomposeDesktopWidget::keyReleaseEvent - ignored..." << endl;
     e->ignore();
   }
   KomposeTaskContainerWidget::keyReleaseEvent(e);

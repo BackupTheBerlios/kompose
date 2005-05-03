@@ -22,6 +22,7 @@
 #include <kconfig.h>
 #include <kglobal.h>
 #include <kiconloader.h>
+#include <kdebug.h>
 
 static KomposeSettings* settingsInstance = 0;
 
@@ -33,7 +34,7 @@ KomposeSettings* KomposeSettings::instance()
 {
   if ( !settingsInstance )
   {
-    // qDebug("KomposeSettings::instance() - Creating Singleton instance"); // FIXME: How can this apper multiple times??
+    // kdDebug() << "KomposeSettings::instance() - Creating Singleton instance"); // FIXME: How can this apper multiple times??
     settingsInstance = new KomposeSettings();
   }
   return settingsInstance;
@@ -42,8 +43,8 @@ KomposeSettings* KomposeSettings::instance()
 
 KomposeSettings::KomposeSettings(QObject *parent, const char *name)
     : QObject(parent, name),
-    windowTitleFontMetrics(0),
-    dialogOpen(0)
+    dialogOpen(0),
+    windowTitleFontMetrics(0)
 {
   
   // Init global shortcut object
@@ -81,7 +82,7 @@ KomposeSettings::~KomposeSettings()
 
 void KomposeSettings::readConfig()
 {
-  qDebug("KomposeSettings::readConfig()");
+  kdDebug() << "KomposeSettings::readConfig()" << endl;
   // Read Shortcut Settings from config
   globalAccel->readSettings();
   globalAccel->updateConnections();
@@ -98,8 +99,6 @@ void KomposeSettings::readConfig()
   dynamicVirtDeskLayout = kapp->config()->readBoolEntry("dynamicVirtDeskLayout", true);
   
   imageEffects = kapp->config()->readBoolEntry("imageEffects", true);
-  tintVirtDesks = kapp->config()->readBoolEntry("tintVirtDesks", false);
-  tintVirtDesksColor = kapp->config()->readColorEntry("tintVirtDesksColor", new QColor(Qt::blue) );
 
   showIcons = kapp->config()->readBoolEntry("showIcons", true);
   iconSize = kapp->config()->readNumEntry("iconSize", 3);
@@ -128,7 +127,7 @@ void KomposeSettings::readConfig()
 
 void KomposeSettings::writeConfig()
 {
-  qDebug("KomposeSettings::writeConfig()");
+  kdDebug() << "KomposeSettings::writeConfig()" << endl;
   
   globalAccel->writeSettings();
   globalAccel->updateConnections();
@@ -146,8 +145,6 @@ void KomposeSettings::writeConfig()
   kapp->config()->writeEntry("dynamicVirtDeskLayout", dynamicVirtDeskLayout);
   
   kapp->config()->writeEntry("imageEffects", imageEffects);
-  kapp->config()->writeEntry("tintVirtDesks", tintVirtDesks);
-  kapp->config()->writeEntry("tintVirtDesksColor", tintVirtDesksColor);
   
   kapp->config()->writeEntry("showIcons", showIcons);
   kapp->config()->writeEntry("iconSize", iconSize);
@@ -172,7 +169,7 @@ void KomposeSettings::writeConfig()
   
   kapp->config()->sync();
 
-  qDebug("KomposeSettings::writeConfig() - Settings saved to cfg file");
+  kdDebug() << "KomposeSettings::writeConfig() - Settings saved to cfg file" << endl;
 
   calcFontMetrics();
   emit settingsChanged();

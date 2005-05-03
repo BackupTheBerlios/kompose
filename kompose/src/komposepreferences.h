@@ -65,8 +65,6 @@ private:
   QCheckBox *cacheScaledPixmaps;
   
   QCheckBox *imageEffects;
-  QCheckBox *tintVirtDesks;
-  KColorButton *tintVirtDesksColor;
   
   QSpinBox *screenshotGrabDelay;
   

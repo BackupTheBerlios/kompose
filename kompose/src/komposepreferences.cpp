@@ -191,14 +191,6 @@ KomposePreferences::KomposePreferences()
 
   QGrid *desktopColorsGroupBox = new QGrid( 2, virtDesksLayoutGroupBox );
   desktopColorsGroupBox->setSpacing( 4 );
-  tintVirtDesks = new QCheckBox(i18n("Tint virtual desktop widgets:"), desktopColorsGroupBox);
-  tintVirtDesksColor = new KColorButton(Qt::blue, desktopColorsGroupBox);
-  QString tintVirtDesksHelp = i18n("Colorize the transparent background of the virtual desktop widgets" );
-  QWhatsThis::add( tintVirtDesks, tintVirtDesksHelp );
-  QToolTip::add( tintVirtDesks, tintVirtDesksHelp );
-  QWhatsThis::add( tintVirtDesksColor, tintVirtDesksHelp );
-  QToolTip::add( tintVirtDesksColor, tintVirtDesksHelp );
-  connect( tintVirtDesks, SIGNAL(toggled(bool)), tintVirtDesksColor, SLOT(setEnabled(bool)) );
   desktopTitleFontColorLabel = new QLabel(i18n("Desktop frame color:"), desktopColorsGroupBox);
   desktopTitleFontColor = new KColorButton(Qt::black, desktopColorsGroupBox);
   desktopTitleFontHighlightColorLabel = new QLabel(i18n("Desktop frame highlight color:"), desktopColorsGroupBox);
@@ -274,9 +266,6 @@ void KomposePreferences::fillPages()
   dynamicVirtDeskLayout->setChecked( KomposeSettings::instance()->getDynamicVirtDeskLayout() );
 
   imageEffects->setChecked( KomposeSettings::instance()->getImageEffects() );
-  tintVirtDesks->setChecked( KomposeSettings::instance()->getTintVirtDesks() );
-  tintVirtDesksColor->setColor( KomposeSettings::instance()->getTintVirtDesksColor() );
-  tintVirtDesksColor->setEnabled( KomposeSettings::instance()->getTintVirtDesks() );
 
   showWindowTitles->setChecked( KomposeSettings::instance()->getShowWindowTitles() );
   windowTitleFont = new QFont(KomposeSettings::instance()->getWindowTitleFont());
@@ -323,8 +312,6 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setCacheScaledPixmaps( cacheScaledPixmaps->isChecked() );
   KomposeSettings::instance()->setDynamicVirtDeskLayout( dynamicVirtDeskLayout->isChecked() );
   KomposeSettings::instance()->setImageEffects( imageEffects->isChecked() );
-  KomposeSettings::instance()->setTintVirtDesks( tintVirtDesks->isChecked() );
-  KomposeSettings::instance()->setTintVirtDesksColor( tintVirtDesksColor->color() );
 
   KomposeSettings::instance()->setShowWindowTitles( showWindowTitles->isChecked() );
   KomposeSettings::instance()->setWindowTitleFont( *windowTitleFont );
@@ -356,7 +343,7 @@ void KomposePreferences::slotOk()
   KDialogBase::slotOk();
 }
 
-void KomposePreferences::setUseCompositeToggled( bool b )
+void KomposePreferences::setUseCompositeToggled( bool )
 {
   
 }

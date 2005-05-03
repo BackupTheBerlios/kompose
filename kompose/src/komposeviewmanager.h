@@ -46,8 +46,8 @@ public slots:
   void closeCurrentView();
   bool hasActiveView() { return activeView; }
   bool getBlockScreenshots() { return blockScreenshots; }
-  int getDesktopBeforeSnaps() { return deskBeforeSnaps - 1; }  
-  
+  int getDesktopBeforeSnaps() { return deskBeforeSnaps - 1; }
+
   void setCurrentDesktop( int desknum );
   void activateTask( KomposeTask* task );
 
@@ -55,10 +55,10 @@ protected slots:
   void toggleBlockScreenshots();
   void checkCursorPos();
   void reCheckCursorPos();
-  
+
   void uglyQtHackInitFunction();
   void slotStartCursorUpdateTimer();
-    
+
 signals:
   void viewClosed();
 

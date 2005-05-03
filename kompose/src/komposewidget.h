@@ -30,7 +30,7 @@ This base class for all Kompose Widgets glues the Layout and the widget together
 */
 class KomposeWidget : public QWidget
 {
-Q_OBJECT
+  Q_OBJECT
 public:
   KomposeWidget( QWidget *parent = 0, KomposeLayout *l = 0, const char *name = 0);
 
@@ -41,14 +41,14 @@ public:
   virtual int getHeightForWidth( int w ) const = 0;
   virtual int getWidthForHeight( int h ) const = 0;
   virtual double getAspectRatio() = 0;
-  
+
   KomposeLayout* getLayout() { return layout; }
   int getNumofChilds();
 
 protected:
   void childEvent( QChildEvent * ce);
   void resizeEvent ( QResizeEvent * e );
-  
+
 protected:
   KomposeLayout *layout;
 };

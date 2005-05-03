@@ -30,6 +30,7 @@
 #include <kaboutapplication.h>
 #include <ksharedpixmap.h>
 #include <kwinmodule.h>
+#include <kdebug.h>
 #include <dcopclient.h>
 #include <dcopref.h>
 
@@ -62,7 +63,7 @@ KomposeGlobal* KomposeGlobal::instance()
 {
   if ( !globalInstance )
   {
-    qDebug("KomposeSettings::instance() - Creating Singleton instance");
+    kdDebug() << "KomposeSettings::instance() - Creating Singleton instance" << endl;
     KomposeGlobal *settiglobalInstance = new KomposeGlobal();
   }
   return globalInstance;
@@ -70,11 +71,11 @@ KomposeGlobal* KomposeGlobal::instance()
 
 KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
     : QObject(parent, name),
+    aboutDialogOpen(0),
     hideSystray( false ),
     singleShot( false ),
     xcomposite(0),
-    damageEvent(0),
-    aboutDialogOpen(0)
+    damageEvent(0)
 {
   globalInstance = this;
   kwin_module = new KWinModule(); //FIXME: only needed for sharedpixmap :(
@@ -130,11 +131,11 @@ void KomposeGlobal::initGui()
     systray->show();
   }
   else
-    qDebug("KomposeGlobal::initGui() - Hiding systray icon");
+    kdDebug() << "KomposeGlobal::initGui() - Hiding systray icon" << endl;
 
   if ( singleShot )
   {
-    qDebug("KomposeGlobal::initGui() - SingleShot has been selected");
+    kdDebug() << "KomposeGlobal::initGui() - SingleShot has been selected" << endl;
     KomposeViewManager::instance()->createView();
   }
 }
@@ -149,15 +150,15 @@ void KomposeGlobal::initActions()
 
   // Actions
   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection );
-  actShowWorldView = new KAction(i18n("Komposé (ungrouped)"), "kompose",
+  actShowWorldView = new KAction(i18n("Komposé (ungrouped)"), "kompose_ungrouped",
                                  0,
                                  KomposeViewManager::instance(), SLOT(createWorldView()),
                                  actionCollection, "showWorldView");
-  actShowVirtualDesktopView = new KAction(i18n("Komposé (grouped by virtual desktops)"), "kompose",
+  actShowVirtualDesktopView = new KAction(i18n("Komposé (grouped by virtual desktops)"), "kompose_grouped_by_virtual_desktop",
                                           0,
                                           KomposeViewManager::instance(), SLOT(createVirtualDesktopView()),
                                           actionCollection, "showVirtualDesktopView");
-  actShowCurrentDesktopView = new KAction(i18n("Komposé (current virtual desktop)"), "kompose",
+  actShowCurrentDesktopView = new KAction(i18n("Komposé (current virtual desktop)"), "kompose_current_virtual_desktop",
                                           0,
                                           KomposeViewManager::instance(), SLOT(createCurrentDesktopView()),
                                           actionCollection, "showCurrentDesktopView");
@@ -191,7 +192,7 @@ void KomposeGlobal::initSharedPixmaps()
     //return;
   }
 
-  qDebug("KomposeGlobal::initSharedPixmaps()");
+  kdDebug() << "KomposeGlobal::initSharedPixmaps()" << endl;
   refreshSharedPixmaps();
 }
 
@@ -212,7 +213,7 @@ void KomposeGlobal::slotDesktopChanged(int desktop)
   refreshSharedPixmaps();
 }
 
-void KomposeGlobal::slotBackgroundChanged(int desktop)
+void KomposeGlobal::slotBackgroundChanged(int)
 {
   refreshSharedPixmaps();
 }
@@ -238,7 +239,7 @@ void KomposeGlobal::slotDone(bool success)
 {
   if (!success)
   {
-    qDebug("KomposeGlobal::slotDone() - loading of desktop background failed.\n");
+    kdDebug() << "KomposeGlobal::slotDone() - loading of desktop background failed.\n" << endl;
     //QTimer::singleShot( 1000, this, SLOT( initSharedPixmaps() ) );
   }
 }
@@ -246,7 +247,7 @@ void KomposeGlobal::slotDone(bool success)
 void KomposeGlobal::enablePixmapExports()
 {
 #ifdef Q_WS_X11
-  qDebug("KomposeGlobal::enablePixmapExports()");
+  kdDebug() << "KomposeGlobal::enablePixmapExports()" << endl;
   DCOPClient *client = kapp->dcopClient();
   if (!client->isAttached())
     client->attach();
@@ -293,7 +294,7 @@ void KomposeGlobal::initImlib()
   Display *disp;
   Visual *vis;
   Colormap cm;
-  int screen;
+  //int screen;
   disp = QPaintDevice::x11AppDisplay();
   vis   = DefaultVisual(disp, DefaultScreen(disp));
   cm    = DefaultColormap(disp, DefaultScreen(disp));
@@ -306,7 +307,7 @@ void KomposeGlobal::initImlib()
   imlib_context_set_display(disp);
   imlib_context_set_visual(vis);
   imlib_context_set_colormap(cm);
-  qDebug("KomposeGlobal::initImlib() - Imlib2 support enabled.");
+  kdDebug() << "KomposeGlobal::initImlib() - Imlib2 support enabled." << endl;
 }
 
 /**
@@ -335,7 +336,7 @@ void KomposeGlobal::initCompositeExt()
     // major and minor will now contain the version the server supports.
     if (!(major > 0 || minor >= 2))
     {
-      qDebug("KomposeGlobal::initCompositeExt() - XComposite doesn't allow NamePixmap requests! - Disabling XComposite support");
+      kdDebug() << "KomposeGlobal::initCompositeExt() - XComposite doesn't allow NamePixmap requests! - Disabling XComposite support" << endl;
       // TODO: create a namewindowpixbool to make it work with composite 0.1
       xcomposite = false;
     }
@@ -344,14 +345,14 @@ void KomposeGlobal::initCompositeExt()
     int renderEvent, renderError;
     if (!XRenderQueryExtension (dpy, &renderEvent, &renderError))
     {
-      qDebug("KomposeGlobal::initCompositeExt() - XRender not available! - Disabling XComposite support");
+      kdDebug() << "KomposeGlobal::initCompositeExt() - XRender not available! - Disabling XComposite support" << endl;
     }
 
     //XDamage version check
     //int damageEvent, damageError; // The event base is important here
     if (!XDamageQueryExtension( dpy, &damageEvent, &damageError ))
     {
-      qDebug("KomposeGlobal::initCompositeExt() - XDamage is not available! - Disabling XComposite support");
+      kdDebug() << "KomposeGlobal::initCompositeExt() - XDamage is not available! - Disabling XComposite support" << endl;
       xcomposite = false;
     }
 
@@ -361,7 +362,7 @@ void KomposeGlobal::initCompositeExt()
 #endif
 
   if ( xcomposite )
-    qDebug("KomposeGlobal::initCompositeExt() - XComposite extension found and enabled.");
+    kdDebug() << "KomposeGlobal::initCompositeExt() - XComposite extension found and enabled." << endl;
 }
 
 #include "komposeglobal.moc"

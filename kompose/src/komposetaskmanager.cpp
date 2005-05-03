@@ -37,6 +37,7 @@
 #include <netwm.h>
 #include <kwin.h>
 #include <kapplication.h>
+#include <kdebug.h>
 
 #ifdef COMPOSITE
 #include <X11/Xlib.h>
@@ -57,7 +58,7 @@ KomposeTaskManager* KomposeTaskManager::instance()
 {
   if ( !taskManagerInstance )
   {
-    qDebug("KomposeTaskManager::instance() - Creating Singleton instance");
+    kdDebug() << "KomposeTaskManager::instance() - Creating Singleton instance" << endl;
     taskManagerInstance = new KomposeTaskManager();
   }
   return taskManagerInstance;
@@ -172,7 +173,7 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
   // TODO: Instead of one refresh() method we could implement specific method for names and geometry, etc...
   // checked like this: if(dirty & (NET::WMDesktop|NET::WMState|NET::XAWMState))
   t->refresh();
-  
+
   // Finally check if the window has been moved to a different virtual desktop
   if( (dirty & NET::WMDesktop ) && ( oldTaskDesktop != t->onDesktop() ) )
     emit taskDesktopChanged( t, oldTaskDesktop, t->onDesktop() );
@@ -185,7 +186,7 @@ void KomposeTaskManager::slotWindowRemoved(WId w )
   KomposeTask* task = findTask( w );
   if (!task) return;
 
-  //qDebug("KomposeTaskManager::slotWindowRemoved(WId w ) - Removing task %s", task->visibleNameWithState());
+  //kdDebug() << "KomposeTaskManager::slotWindowRemoved(WId w ) - Removing task %s", task->visibleNameWithState());
   tasklist.remove( task );
   delete task;
 }
@@ -218,7 +219,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
   if ( !info.valid() )
     return;
 
-  qDebug("KomposeTaskManager::slotWindowAdded(WId %d ) - Adding KomposeTask", w);
+  kdDebug() << "KomposeTaskManager::slotWindowAdded(WId " << w <<" ) - Adding KomposeTask" << endl;
   KomposeTask* t = new KomposeTask(w, kwin_module, this);
   tasklist.append(t);
 
@@ -231,7 +232,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
  */
 void KomposeTaskManager::slotUpdateScreenshots( bool switchDesktops )
 {
-  qDebug("KomposeTaskManager::slotUpdateScreenshots()");
+  kdDebug() << "KomposeTaskManager::slotUpdateScreenshots()" << endl;
 
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
@@ -259,7 +260,7 @@ void KomposeTaskManager::slotUpdateScreenshots( bool switchDesktops )
  */
 void KomposeTaskManager::simulatePasvScreenshotEvent()
 {
-  qDebug("KomposeTaskManager::simulatePasvScreenshotEvent()");
+  kdDebug() << "KomposeTaskManager::simulatePasvScreenshotEvent()" << endl;
   slotTaskActivated( kwin_module->activeWindow() );
 }
 
@@ -268,7 +269,7 @@ void KomposeTaskManager::simulatePasvScreenshotEvent()
  */
 void KomposeTaskManager::slotTaskActivated(WId winId)
 {
-  qDebug("KomposeTaskManager::slotTaskActivated ( %d )", winId);
+  kdDebug() << "KomposeTaskManager::slotTaskActivated ( " << winId << " )" << endl;
   QPtrListIterator<KomposeTask> it( tasklist );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )

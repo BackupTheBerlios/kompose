@@ -32,6 +32,7 @@
 
 #include <kwinmodule.h>
 #include <klocale.h>
+#include <kdebug.h>
 
 #include <netwm.h>
 #include <time.h>
@@ -279,13 +280,13 @@ void KomposeTask::toggleShaded()
  */
 void KomposeTask::refresh()
 {
-  //qDebug("KomposeTask::refresh() (WId %d) - Window parameters have changed or initial refresh", windowID);
+  //kdDebug() << "KomposeTask::refresh() (WId %d) - Window parameters have changed or initial refresh", windowID);
   
   windowInfo = KWin::windowInfo(windowID);
 
   if ( !windowInfo.valid() )
   {
-    qDebug("KomposeTask::refresh() (WId %d) - Invalid window Info. window closed?!", windowID);
+    kdDebug() << "KomposeTask::refresh() (WId " << windowID << ") - Invalid window Info. window closed?!" << endl;
     // TODO: Find out what I have todo when this happens ( it does! )
     return;
   }
@@ -321,12 +322,12 @@ void KomposeTask::slotX11DamageNotify()
 
 int KomposeTask::getHeightForWidth ( int w ) const
 {
-  return ((double)w / (double)getGeometry().width()) * getGeometry().height();
+  return (int)(((double)w / (double)getGeometry().width()) * (double)getGeometry().height());
 }
 
 int KomposeTask::getWidthForHeight ( int h ) const
 {
-  return ((double)h / (double)getGeometry().height()) * getGeometry().width();
+  return (int)(((double)h / (double)getGeometry().height()) * (double)getGeometry().width());
 }
 
 double KomposeTask::getAspectRatio()
