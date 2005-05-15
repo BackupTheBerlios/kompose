@@ -49,6 +49,7 @@ public:
 
   int getNumDesktops() const { return numDesks; }
   QString getDesktopName(int desk) const;
+  int getCurrentDesktopNum();
 
   TaskList getTasks() const { return tasklist; }
 

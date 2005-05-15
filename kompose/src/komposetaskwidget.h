@@ -47,14 +47,14 @@ public:
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
   double getAspectRatio();
-  
+
   KomposeTask* getTask() const { return task; };
   KAction* getActMinimizeRestoreTask() { return actMinimizeRestoreTask; }
   KAction* getActCloseTask() { return actCloseTask; }
 
 signals:
   void requestRemoval(KomposeWidget*);
-  
+
 protected:
   void paintEvent ( QPaintEvent * );
   void mouseReleaseEvent ( QMouseEvent * e );
@@ -70,7 +70,7 @@ protected:
   void startDrag();
   void initActions();
   void initMenu();
-      
+
 protected slots:
   void slotTaskDestroyed();
   void drawWidget();
@@ -78,20 +78,20 @@ protected slots:
   void initFonts();
   void setGeometry( const QRect &rect );
   void reInitMenu();
-  
+
   void slotMinimizeRestoreToggled();
   void setActionIcons( bool inverse=false );
-  
+
 private:
   QPixmap pm_dbBackground;
 
   bool highlight; // Highlight widget?
   QFont titleFont;
-  
+
   KomposeTask* task;
   KomposeTaskPrefsWidget *prefWidget;
   KPopupMenu *menu;
-  
+
   KActionCollection *taskActionCollection;
   KAction *actMinimizeRestoreTask;
   KAction *actCloseTask;

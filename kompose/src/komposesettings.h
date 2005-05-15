@@ -34,18 +34,18 @@ protected:
   KomposeSettings(QObject *parent = 0, const char *name = 0);
 
   ~KomposeSettings();
-  
+
 public:
   static KomposeSettings *instance();
   void readConfig();
   void writeConfig();
-  
+
   bool hasDialogOpen() { return dialogOpen; }
   KGlobalAccel *getGlobalAccel() const { return globalAccel; }
-  
+
   bool getUseComposite() const { return useComposite; }
   void setUseComposite( bool b ) { useComposite = b; }
-  
+
   bool getPassiveScreenshots() const { return passiveScreenshots; }
   void setPassiveScreenshots( bool b ) { passiveScreenshots = b; }
   uint getScreenshotGrabDelay() { return screenshotGrabDelay; }
@@ -54,7 +54,7 @@ public:
   void setDynamicVirtDeskLayout( bool b ) { dynamicVirtDeskLayout = b; }
   bool getImageEffects() const { return imageEffects; }
   void setImageEffects( bool b ) { imageEffects = b; }
-  
+
   int  getDefaultView() const { return defaultView; }
   void setDefaultView( int d ) { defaultView = d; }
   int getIconSize() { return iconSize; }
@@ -62,7 +62,7 @@ public:
   int getShowIcons() { return showIcons; }
   void setShowIcons( bool b ) { showIcons = b; }
   int getIconSizePixels();
-  
+
   void setWindowTitleFont( QFont f ) { windowTitleFont = f; }
   const QFont& getWindowTitleFont() const { return windowTitleFont; }
   int getShowWindowTitles() { return showWindowTitles; }
@@ -77,17 +77,17 @@ public:
   const QFontMetrics* getWindowTitleFontMetrics() { return windowTitleFontMetrics; }
   int getWindowTitleFontAscent() { return windowTitleFontAscent; }
   int getWindowTitleFontHeight() { return windowTitleFontHeight; }
-  
+
   void setDesktopTitleFont( QFont f ) { desktopTitleFont = f; }
   const QFont& getDesktopTitleFont() const { return desktopTitleFont; }
   const QColor& getDesktopTitleFontColor() const { return desktopTitleFontColor; }
   void setDesktopTitleFontColor( QColor c ) { desktopTitleFontColor = c; }
   const QColor& getDesktopTitleFontHighlightColor() const { return desktopTitleFontHighlightColor; }
   void setDesktopTitleFontHighlightColor( QColor c ) { desktopTitleFontHighlightColor = c; }
-  
+
   bool getCacheScaledPixmaps() const { return cacheScaledPixmaps; }
   void setCacheScaledPixmaps( bool b ) { cacheScaledPixmaps = b; }
-  
+
   bool getActivateOnTopLeftCorner() const { return activateOnTopLeftCorner; }
   void setActivateOnTopLeftCorner( bool b ) { activateOnTopLeftCorner = b; }
   bool getActivateOnTopRightCorner() const { return activateOnTopRightCorner; }
@@ -96,10 +96,22 @@ public:
   void setActivateOnBottomLeftCorner( bool b ) { activateOnBottomLeftCorner = b; }
   bool getActivateOnBottomRightCorner() const { return activateOnBottomRightCorner; }
   void setActivateOnBottomRightCorner( bool b ) { activateOnBottomRightCorner = b; }
-    
+
+  bool getActivateOnTopEdge() const { return activateOnTopEdge; }
+  void setActivateOnTopEdge( bool b ) { activateOnTopEdge = b; }
+  bool getActivateOnLeftEdge() const { return activateOnLeftEdge; }
+  void setActivateOnLeftEdge( bool b ) { activateOnLeftEdge= b; }
+  bool getActivateOnBottomEdge() const { return activateOnBottomEdge; }
+  void setActivateOnBottomEdge( bool b ) { activateOnBottomEdge = b; }
+  bool getActivateOnRightEdge() const { return activateOnRightEdge; }
+  void setActivateOnRightEdge( bool b ) { activateOnRightEdge = b; }
+
   uint getAutoLockDelay() { return autoLockDelay; }
   void setAutoLockDelay( uint val ) { autoLockDelay=val; }
- 
+
+  void setShowDesktopNum( bool b ) { showDesktopNum = b; }
+  bool getShowDesktopNum() const { return showDesktopNum; }
+
 public slots:
   void showPreferencesDlg();
 
@@ -112,19 +124,19 @@ signals:
 private:
   KGlobalAccel *globalAccel;
   bool dialogOpen;
-  
+
   bool useComposite;
   bool passiveScreenshots;
   uint screenshotGrabDelay;
-  
+
   bool dynamicVirtDeskLayout;
-  
+
   bool imageEffects;
   int defaultView;
-  
+
   int iconSize;
   bool showIcons;
-  
+
   bool showWindowTitles;
   QFont windowTitleFont;
   QFontMetrics *windowTitleFontMetrics;
@@ -144,7 +156,15 @@ private:
   bool activateOnTopRightCorner;
   bool activateOnBottomLeftCorner;
   bool activateOnBottomRightCorner;
+
+  bool activateOnTopEdge;
+  bool activateOnLeftEdge;
+  bool activateOnBottomEdge;
+  bool activateOnRightEdge;
+
   uint autoLockDelay;
+
+  bool showDesktopNum;
 };
 
 #endif

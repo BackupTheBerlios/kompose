@@ -379,4 +379,9 @@ void KomposeTaskManager::slotCurrentDesktopChanged(int d)
 #endif
 }
 
+int KomposeTaskManager::getCurrentDesktopNum()
+{
+  return kwin_module->currentDesktop();
+}
+
 #include "komposetaskmanager.moc"

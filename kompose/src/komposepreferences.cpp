@@ -39,7 +39,7 @@ KomposePreferences::KomposePreferences()
 {
   // FIXME: this is the biggest constructor I've EVER written!
   // How about Qt Designer?!
-  
+
   QFrame *page1 = addPage( i18n("Behavior"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
   QFrame *page3 = addPage( i18n("Layouts"), QString::null, DesktopIcon("window_list", KIcon::SizeMedium) );
@@ -76,8 +76,8 @@ KomposePreferences::KomposePreferences()
   connect( useComposite, SIGNAL(toggled(bool)), SLOT(setUseCompositeToggled(bool)) );
 #else
   QGroupBox *screenshotsGroupBox = new QGroupBox( 3, Vertical, i18n("Screenshots"), page1 );
-#endif  
-  
+#endif
+
   passiveScreenshots = new QCheckBox(i18n("Passive screenshots"), screenshotsGroupBox);
   QString passiveScreenshotsHelp = i18n("Create a screenshot whenever you raise or active a window.\nWhen selected the amount the annoying popup-effect before every Komposé activation will be minimized to nearly zero.\nThe drawback is that the screenshots are not so recent and may not display the actual content.");
   QWhatsThis::add( passiveScreenshots, passiveScreenshotsHelp );
@@ -102,18 +102,26 @@ KomposePreferences::KomposePreferences()
 
 
   // Autolock
-  QGroupBox* autoLockGroup = new QGroupBox( i18n("Autoactivate when mouse moves into"), page1 );
-  autoLockGroup->setColumnLayout( 0, Qt::Vertical );
-  QBoxLayout* autoLockLayout = new QVBoxLayout( autoLockGroup->layout(), KDialog::spacingHint() );
+  QGroupBox* autoLockGroup = new QGroupBox( 0, Qt::Horizontal, i18n("Autoactivate when mouse moves into"), page1 );
+  QGridLayout* autoLockLayout = new QGridLayout( autoLockGroup->layout(), 5, 2, KDialog::spacingHint() );
   m_topLeftCorner = new QCheckBox( i18n("Top-left corner"), autoLockGroup);
-  autoLockLayout->addWidget( m_topLeftCorner );
+  autoLockLayout->addWidget( m_topLeftCorner, 0, 0 );
   m_topRightCorner = new QCheckBox( i18n("Top-right corner"), autoLockGroup );
-  autoLockLayout->addWidget( m_topRightCorner );
+  autoLockLayout->addWidget( m_topRightCorner, 1, 0 );
   m_bottomLeftCorner = new QCheckBox( i18n("Bottom-left corner"), autoLockGroup );
-  autoLockLayout->addWidget( m_bottomLeftCorner );
+  autoLockLayout->addWidget( m_bottomLeftCorner, 2, 0 );
   m_bottomRightCorner = new QCheckBox( i18n("Bottom-right corner"), autoLockGroup );
-  autoLockLayout->addWidget( m_bottomRightCorner );
-  
+  autoLockLayout->addWidget( m_bottomRightCorner, 3, 0 );
+
+  m_topEdge = new QCheckBox( i18n("Top edge"), autoLockGroup);
+  autoLockLayout->addWidget( m_topEdge, 0, 1 );
+  m_bottomEdge = new QCheckBox( i18n("Bottom edge"), autoLockGroup );
+  autoLockLayout->addWidget( m_bottomEdge, 1, 1 );
+  m_leftEdge = new QCheckBox( i18n("Left edge"), autoLockGroup );
+  autoLockLayout->addWidget( m_leftEdge, 2, 1 );
+  m_rightEdge = new QCheckBox( i18n("Right edge"), autoLockGroup );
+  autoLockLayout->addWidget( m_rightEdge, 3, 1 );
+
   QHBox *hLayAutoLockDelay = new QHBox(autoLockGroup);
   QLabel *autoLockDelayLabel = new QLabel(i18n("Delay until activation (ms):"), hLayAutoLockDelay);
   autoLockDelay = new QSpinBox(0, 5000, 10, hLayAutoLockDelay);
@@ -123,7 +131,7 @@ KomposePreferences::KomposePreferences()
   QToolTip::add( autoLockDelay, autoLockDelayHelp );
   QWhatsThis::add( autoLockDelayLabel, autoLockDelayHelp );
   QToolTip::add( autoLockDelayLabel, autoLockDelayHelp );
-  autoLockLayout->addWidget( hLayAutoLockDelay );
+  autoLockLayout->addMultiCellWidget( hLayAutoLockDelay, 4, 4, 0, 1 );
 
   page1Layout->addWidget(autoLockGroup);
 
@@ -139,6 +147,11 @@ KomposePreferences::KomposePreferences()
   QToolTip::add( imageEffects, imageEffectsHelp );
   page2Layout->addWidget(imageEffects);
 
+  showDesktopNum = new QCheckBox(i18n("Show Desktop number on Systray icon"), page2);
+  QString showDesktopNumHelp = i18n("Displays the number of the currently active Desktop on the Komposé systray icon." );
+  QWhatsThis::add( showDesktopNum, showDesktopNumHelp );
+  QToolTip::add( showDesktopNum, showDesktopNumHelp );
+  page2Layout->addWidget(showDesktopNum);
 
   QGroupBox *windowTitleGroupBox = new QGroupBox( 3, Vertical, i18n("Window Titles"), page2 );
 
@@ -259,13 +272,14 @@ void KomposePreferences::fillPages()
 
 #ifdef COMPOSITE
   useComposite->setChecked( KomposeSettings::instance()->getUseComposite() );
-#endif  
+#endif
   passiveScreenshots->setChecked( KomposeSettings::instance()->getPassiveScreenshots() );
   screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() / 1000000 );
   cacheScaledPixmaps->setChecked( KomposeSettings::instance()->getCacheScaledPixmaps() );
   dynamicVirtDeskLayout->setChecked( KomposeSettings::instance()->getDynamicVirtDeskLayout() );
 
   imageEffects->setChecked( KomposeSettings::instance()->getImageEffects() );
+  showDesktopNum->setChecked( KomposeSettings::instance()->getShowDesktopNum() );
 
   showWindowTitles->setChecked( KomposeSettings::instance()->getShowWindowTitles() );
   windowTitleFont = new QFont(KomposeSettings::instance()->getWindowTitleFont());
@@ -288,11 +302,16 @@ void KomposePreferences::fillPages()
   iconSize->setEnabled( showIcons->isChecked() );
   iconSizeDescription->setEnabled( showIcons->isChecked() );
   updateIconSliderDesc( iconSize->value() );
-  
+
   m_topLeftCorner->setChecked( KomposeSettings::instance()->getActivateOnTopLeftCorner() );
   m_bottomLeftCorner->setChecked( KomposeSettings::instance()->getActivateOnBottomLeftCorner() );
   m_topRightCorner->setChecked( KomposeSettings::instance()->getActivateOnTopRightCorner() );
   m_bottomRightCorner->setChecked( KomposeSettings::instance()->getActivateOnBottomRightCorner() );
+
+  m_topEdge->setChecked( KomposeSettings::instance()->getActivateOnTopEdge() );
+  m_bottomEdge->setChecked( KomposeSettings::instance()->getActivateOnBottomEdge() );
+  m_rightEdge->setChecked( KomposeSettings::instance()->getActivateOnRightEdge() );
+  m_leftEdge->setChecked( KomposeSettings::instance()->getActivateOnLeftEdge() );
   autoLockDelay->setValue( KomposeSettings::instance()->getAutoLockDelay() );
 }
 
@@ -306,12 +325,13 @@ void KomposePreferences::slotApply()
 #ifdef COMPOSITE
   KomposeSettings::instance()->setUseComposite( useComposite->isChecked() );
 #endif
-  
+
   KomposeSettings::instance()->setPassiveScreenshots( passiveScreenshots->isChecked() );
   KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() * 1000000 );
   KomposeSettings::instance()->setCacheScaledPixmaps( cacheScaledPixmaps->isChecked() );
   KomposeSettings::instance()->setDynamicVirtDeskLayout( dynamicVirtDeskLayout->isChecked() );
   KomposeSettings::instance()->setImageEffects( imageEffects->isChecked() );
+  KomposeSettings::instance()->setShowDesktopNum( showDesktopNum->isChecked() );
 
   KomposeSettings::instance()->setShowWindowTitles( showWindowTitles->isChecked() );
   KomposeSettings::instance()->setWindowTitleFont( *windowTitleFont );
@@ -330,8 +350,13 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setActivateOnTopRighCorner( m_topRightCorner->isChecked() );
   KomposeSettings::instance()->setActivateOnBottomLeftCorner( m_bottomLeftCorner->isChecked() );
   KomposeSettings::instance()->setActivateOnBottomRightCorner( m_bottomRightCorner->isChecked() );
+
+  KomposeSettings::instance()->setActivateOnTopEdge( m_topEdge->isChecked() );
+  KomposeSettings::instance()->setActivateOnRightEdge( m_rightEdge->isChecked() );
+  KomposeSettings::instance()->setActivateOnBottomEdge( m_bottomEdge->isChecked() );
+  KomposeSettings::instance()->setActivateOnLeftEdge( m_leftEdge->isChecked() );
   KomposeSettings::instance()->setAutoLockDelay( autoLockDelay->value() );
-  
+
   KomposeSettings::instance()->writeConfig();
 
   KDialogBase::slotApply();
@@ -345,7 +370,6 @@ void KomposePreferences::slotOk()
 
 void KomposePreferences::setUseCompositeToggled( bool )
 {
-  
 }
 
 #include "komposepreferences.moc"

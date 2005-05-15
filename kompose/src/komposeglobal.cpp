@@ -87,7 +87,7 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
   initCompositeExt();
   initImlib();
 
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(initCompositeExt()) );
+  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(slotConfigChanged()) );
 }
 
 KomposeGlobal::~KomposeGlobal()
@@ -104,9 +104,14 @@ KomposeGlobal::~KomposeGlobal()
   delete desktopBgPixmap;
 }
 
+void KomposeGlobal::slotConfigChanged( )
+{
+  initCompositeExt();
+}
+
 /**
  * Gives us control about when the GUI should appear. Called from outside
- * Called from outside as KkomposeGlobal is a singleton that can be instantiated at any time
+ * Called from outside as KomposeGlobal is a singleton that can be instantiated at any time
  */
 void KomposeGlobal::initGui()
 {
@@ -125,7 +130,7 @@ void KomposeGlobal::initGui()
     // Create systray
     systray = new KomposeSysTray();
     kapp->setMainWidget( systray );
-    systray->setPixmap( systray->loadIcon( "kompose" ) );
+    systray->currentDesktopChanged( currentDesktop );
 
     actionCollection->setWidget( systray );
     systray->show();
@@ -198,6 +203,7 @@ void KomposeGlobal::initSharedPixmaps()
 
 void KomposeGlobal::slotDesktopChanged(int desktop)
 {
+  systray->currentDesktopChanged( desktop );
   if (desktop != -2)
   {
     // -2 is for manual loading, everything else enables the following checks:
@@ -364,5 +370,6 @@ void KomposeGlobal::initCompositeExt()
   if ( xcomposite )
     kdDebug() << "KomposeGlobal::initCompositeExt() - XComposite extension found and enabled." << endl;
 }
+
 
 #include "komposeglobal.moc"

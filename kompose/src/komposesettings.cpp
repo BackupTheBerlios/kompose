@@ -46,7 +46,7 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
     dialogOpen(0),
     windowTitleFontMetrics(0)
 {
-  
+
   // Init global shortcut object
   globalAccel = new KGlobalAccel( this );
   globalAccel->insert( "showDefaultView", i18n("Show Komposé (default view)"),
@@ -68,7 +68,7 @@ KomposeSettings::KomposeSettings(QObject *parent, const char *name)
 
   // read Settings from cfg file
   readConfig();
-  
+
   settingsInstance = this;
 }
 
@@ -90,19 +90,19 @@ void KomposeSettings::readConfig()
   kapp->config()->setGroup("Main window");
 
   defaultView = kapp->config()->readNumEntry("defaultView", KOMPOSEDISPLAY_VIRTUALDESKS);
-  
+
   useComposite = kapp->config()->readBoolEntry("useComposite", false);
-  
+
   passiveScreenshots = kapp->config()->readBoolEntry("passiveScreenshots", true);
   screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400000000);
 
   dynamicVirtDeskLayout = kapp->config()->readBoolEntry("dynamicVirtDeskLayout", true);
-  
+
   imageEffects = kapp->config()->readBoolEntry("imageEffects", true);
 
   showIcons = kapp->config()->readBoolEntry("showIcons", true);
   iconSize = kapp->config()->readNumEntry("iconSize", 3);
-  
+
   showWindowTitles = kapp->config()->readBoolEntry("showWindowTitles", true );
   windowTitleFont = kapp->config()->readFontEntry("windowTitleFont", new QFont( "arial", 11, QFont::Bold ) );
   windowTitleFontColor = kapp->config()->readColorEntry("windowTitleFontColor", new QColor(Qt::black) );
@@ -114,13 +114,21 @@ void KomposeSettings::readConfig()
   desktopTitleFontHighlightColor = kapp->config()->readColorEntry("desktopTitleFontHighlightColor", new QColor(Qt::black) );
 
   cacheScaledPixmaps = kapp->config()->readBoolEntry("cacheScaledPixmaps", true);
-    
+
   activateOnTopLeftCorner = kapp->config()->readBoolEntry("activateOnTopLeftCorner", false );
   activateOnTopRightCorner = kapp->config()->readBoolEntry("activateOnTopRightCorner", false );
   activateOnBottomLeftCorner = kapp->config()->readBoolEntry("activateOnBottomLeftCorner", false );
   activateOnBottomRightCorner = kapp->config()->readBoolEntry("activateOnBottomRightCorner", false );
+
+  activateOnTopEdge = kapp->config()->readBoolEntry("activateOnTopEdge", false );
+  activateOnBottomEdge = kapp->config()->readBoolEntry("activateOnBottomEdge", false );
+  activateOnLeftEdge = kapp->config()->readBoolEntry("activateOnLeftEdge", false );
+  activateOnRightEdge = kapp->config()->readBoolEntry("activateOnRightEdge", false );
+
   autoLockDelay = kapp->config()->readNumEntry("autoLockDelay", 1000);
-  
+
+  showDesktopNum = kapp->config()->readBoolEntry("showDesktopNum", false );
+
   calcFontMetrics();
   emit settingsChanged();
 }
@@ -128,7 +136,7 @@ void KomposeSettings::readConfig()
 void KomposeSettings::writeConfig()
 {
   kdDebug() << "KomposeSettings::writeConfig()" << endl;
-  
+
   globalAccel->writeSettings();
   globalAccel->updateConnections();
 
@@ -136,37 +144,44 @@ void KomposeSettings::writeConfig()
   kapp->config()->setGroup("Main window");
 
   kapp->config()->writeEntry("defaultView", defaultView );
-  
+
   kapp->config()->writeEntry("useComposite", useComposite );
-  
+
   kapp->config()->writeEntry("passiveScreenshots", passiveScreenshots );
   kapp->config()->writeEntry("screenshotGrabDelay", screenshotGrabDelay);
 
   kapp->config()->writeEntry("dynamicVirtDeskLayout", dynamicVirtDeskLayout);
-  
+
   kapp->config()->writeEntry("imageEffects", imageEffects);
-  
+
   kapp->config()->writeEntry("showIcons", showIcons);
   kapp->config()->writeEntry("iconSize", iconSize);
-  
+
   kapp->config()->writeEntry("showWindowTitles", showWindowTitles);
   kapp->config()->writeEntry("windowTitleFont", windowTitleFont);
   kapp->config()->writeEntry("windowTitleFontColor", windowTitleFontColor);
   kapp->config()->writeEntry("showWindowTitleShadow", showWindowTitleShadow);
   kapp->config()->writeEntry("windowTitleFontShadowColor", windowTitleFontShadowColor);
-  
+
   kapp->config()->writeEntry("desktopTitleFont", desktopTitleFont);
   kapp->config()->writeEntry("desktopTitleFontColor", desktopTitleFontColor);
   kapp->config()->writeEntry("desktopTitleFontHighlightColor", desktopTitleFontHighlightColor);
-  
+
   kapp->config()->writeEntry("cacheScaledPixmaps", cacheScaledPixmaps);
-  
+
   kapp->config()->writeEntry("activateOnTopLeftCorner", activateOnTopLeftCorner);
   kapp->config()->writeEntry("activateOnTopRightCorner", activateOnTopRightCorner);
   kapp->config()->writeEntry("activateOnBottomLeftCorner", activateOnBottomLeftCorner);
   kapp->config()->writeEntry("activateOnBottomRightCorner", activateOnBottomRightCorner);
+
+  kapp->config()->writeEntry("activateOnTopEdge", activateOnTopEdge);
+  kapp->config()->writeEntry("activateOnBottomEdge", activateOnBottomEdge);
+  kapp->config()->writeEntry("activateOnLeftEdge", activateOnLeftEdge);
+  kapp->config()->writeEntry("activateOnRightEdge", activateOnRightEdge);
   kapp->config()->writeEntry("autoLockDelay", autoLockDelay);
-  
+
+  kapp->config()->writeEntry("showDesktopNum", showDesktopNum);
+
   kapp->config()->sync();
 
   kdDebug() << "KomposeSettings::writeConfig() - Settings saved to cfg file" << endl;
@@ -192,14 +207,14 @@ int KomposeSettings::getIconSizePixels()
 {
   switch( iconSize )
   {
-    case 0:
-      return 16;
-    case 1:
-      return 32;
-    case 2:
-      return 64;
-    case 3:
-      return -1;
+  case 0:
+    return 16;
+  case 1:
+    return 32;
+  case 2:
+    return 64;
+  case 3:
+    return -1;
   }
   return 32;
 }

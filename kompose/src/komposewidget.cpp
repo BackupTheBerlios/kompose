@@ -62,6 +62,7 @@ void KomposeWidget::childEvent ( QChildEvent * ce)
     kdDebug() << "KomposeWidget::childEvent : Removed widget " << ce->child()->className() << " from " << className() << endl;
     layout->remove( kwChild );
   }
+  layout->arrangeLayout();
 }
 
 /*

@@ -102,7 +102,15 @@ void KomposeDesktopWidget::initFonts()
 
 void KomposeDesktopWidget::leaveEvent ( QEvent * )
 {
-  highlight = false;
+  // Unset highlight if cursor moves out of our rect
+  // but not if it enters a child widget
+  QRect deskRect;
+  deskRect.setTopLeft(mapToGlobal( QPoint(0,0) ));
+  deskRect.setWidth(width());
+  deskRect.setHeight(height());
+  if ( !deskRect.contains( QCursor::pos() ) )
+    highlight = false;
+
   unsetCursor();
   repaint();
 }
@@ -123,7 +131,15 @@ void KomposeDesktopWidget::focusInEvent ( QFocusEvent * )
 
 void KomposeDesktopWidget::focusOutEvent ( QFocusEvent * )
 {
-  highlight = false;
+  // Unset highlight if cursor moves out of our rect
+  // but not if it enters a child widget
+  QRect deskRect;
+  deskRect.setTopLeft(mapToGlobal( QPoint(0,0) ));
+  deskRect.setWidth(width());
+  deskRect.setHeight(height());
+  if ( !deskRect.contains( QCursor::pos() ) )
+    highlight = false;
+
   repaint();
 }
 

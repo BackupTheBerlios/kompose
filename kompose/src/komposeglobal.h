@@ -78,6 +78,7 @@ protected slots:
   void slotBackgroundChanged(int desktop);
   void refreshSharedPixmaps();
   
+  void slotConfigChanged();
   void initCompositeExt();
   void showGlobalShortcutsSettingsDialog();
   void showAboutDlg();

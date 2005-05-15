@@ -86,7 +86,11 @@ void KomposeViewManager::slotStartCursorUpdateTimer()
   if ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() ||
        KomposeSettings::instance()->getActivateOnBottomRightCorner() ||
        KomposeSettings::instance()->getActivateOnTopLeftCorner() ||
-       KomposeSettings::instance()->getActivateOnTopRightCorner() )
+       KomposeSettings::instance()->getActivateOnTopRightCorner() ||
+       KomposeSettings::instance()->getActivateOnTopEdge() ||
+       KomposeSettings::instance()->getActivateOnBottomEdge() ||
+       KomposeSettings::instance()->getActivateOnLeftEdge() ||
+       KomposeSettings::instance()->getActivateOnRightEdge() )
   {
     kdDebug() << "KomposeViewManager::slotStartCursorUpdateTimer() - QCursor::pos() checks enabled" << endl;
     QRect deskRect = QApplication::desktop()->screenGeometry();
@@ -115,7 +119,15 @@ void KomposeViewManager::checkCursorPos()
     ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() &&
       !activeView && QCursor::pos() == bottomLeftCorner ) ||
     ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
-      !activeView && QCursor::pos() == bottomRightCorner )
+      !activeView && QCursor::pos() == bottomRightCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnTopEdge() &&
+      !activeView && QCursor::pos().y() == topLeftCorner.y() ) ||
+    ( KomposeSettings::instance()->getActivateOnBottomEdge() &&
+      !activeView && QCursor::pos().y() == bottomLeftCorner.y() ) ||
+    ( KomposeSettings::instance()->getActivateOnLeftEdge() &&
+      !activeView && QCursor::pos().x() == topLeftCorner.x() ) ||
+    ( KomposeSettings::instance()->getActivateOnRightEdge() &&
+      !activeView && QCursor::pos().x() == topRightCorner.x() )
   )
   {
     //cursorUpdateTimer->stop();
@@ -136,7 +148,15 @@ void KomposeViewManager::reCheckCursorPos()
     ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() &&
       !activeView && QCursor::pos() == bottomLeftCorner ) ||
     ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
-      !activeView && QCursor::pos() == bottomRightCorner )
+      !activeView && QCursor::pos() == bottomRightCorner ) ||
+    ( KomposeSettings::instance()->getActivateOnTopEdge() &&
+      !activeView && QCursor::pos().y() == topLeftCorner.y() ) ||
+    ( KomposeSettings::instance()->getActivateOnBottomEdge() &&
+      !activeView && QCursor::pos().y() == bottomLeftCorner.y() ) ||
+    ( KomposeSettings::instance()->getActivateOnLeftEdge() &&
+      !activeView && QCursor::pos().x() == topLeftCorner.x() ) ||
+    ( KomposeSettings::instance()->getActivateOnRightEdge() &&
+      !activeView && QCursor::pos().x() == topRightCorner.x() )
   )
   {
     cursorUpdateTimer->stop();

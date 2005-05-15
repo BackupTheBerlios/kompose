@@ -36,13 +36,13 @@ public:
 
   ~KomposeDesktopWidget();
 
-//   int getHeightForWidth( int w ) const;
-//   int getWidthForHeight( int h ) const;
-//   double getAspectRatio();
+  //   int getHeightForWidth( int w ) const;
+  //   int getWidthForHeight( int h ) const;
+  //   double getAspectRatio();
 
 signals:
   void contentsChanged();
-  
+
 protected:
   void paintEvent ( QPaintEvent * );
   void dragEnterEvent ( QDragEnterEvent * );
@@ -58,7 +58,7 @@ protected:
 
 protected slots:
   void initFonts();
-  
+
 private:
   QRect deskRect;
   QString deskName;

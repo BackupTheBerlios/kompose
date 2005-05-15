@@ -31,7 +31,7 @@ class QRadioButton;
 */
 class KomposePreferences : public KDialogBase
 {
-Q_OBJECT
+  Q_OBJECT
 public:
   KomposePreferences();
 
@@ -40,7 +40,7 @@ public:
 
 protected:
   void fillPages();
-  
+
 protected slots:
   void slotApply();
   void slotOk();
@@ -52,47 +52,54 @@ protected slots:
 private:
   QFrame *page1;
   QFrame *page2;
-  
+
   QButtonGroup *defaultViewBtnGroup;
   QRadioButton *defaultViewWorld;
   QRadioButton *defaultViewVirtualDesks;
   QRadioButton *defaultViewCurrentDesk;
-  
+
   QCheckBox *useComposite;
-  
+
   QCheckBox *passiveScreenshots;
   QCheckBox *dynamicVirtDeskLayout;
   QCheckBox *cacheScaledPixmaps;
-  
+
   QCheckBox *imageEffects;
-  
+
   QSpinBox *screenshotGrabDelay;
-  
+
   QCheckBox *showIcons;
   QSlider *iconSize;
   QLabel *iconSizeDescription;
-  
+
   QCheckBox *showWindowTitles;
   QPushButton *windowTitleFontBtn;
   QFont *windowTitleFont;
-  
+
   KColorButton *windowTitleFontColor;
   QCheckBox *showWindowTitleShadow;
   KColorButton *windowTitleFontShadowColor;
   QLabel *windowTitleFontColorLabel;
-  
+
   QPushButton *desktopTitleFontBtn;
   QLabel *desktopTitleFontColorLabel;
   QLabel *desktopTitleFontHighlightColorLabel;
   KColorButton *desktopTitleFontColor;
   KColorButton *desktopTitleFontHighlightColor;
   QFont *desktopTitleFont;
-  
+
   QCheckBox *m_topLeftCorner;
   QCheckBox *m_bottomLeftCorner;
   QCheckBox *m_topRightCorner;
   QCheckBox *m_bottomRightCorner;
+
+  QCheckBox *m_topEdge;
+  QCheckBox *m_bottomEdge;
+  QCheckBox *m_rightEdge;
+  QCheckBox *m_leftEdge;
   QSpinBox *autoLockDelay;
+
+  QCheckBox *showDesktopNum;
 };
 
 #endif
