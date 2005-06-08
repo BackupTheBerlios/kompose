@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@users.berlios.de                                                 *
+ *   hans.oischinger@kde-mail.net                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -267,7 +267,6 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
       // Set the x offset for the next column
       if (alignmentXoffset==0)
         xOffsetFromLastCol += widgetw-w;
-
       if (maxHeightInRow < widgeth)
         maxHeightInRow = widgeth;
     }
@@ -280,8 +279,6 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
   int topOffset = 0;
   for ( int i=0; i<rows; ++i )
   {
-    topOffset += (h - *maxRowHeightIt)/2;
-    ++maxRowHeightIt;
     // Process columns again
     for ( int j=0; j<columns; ++j )
     {
@@ -290,13 +287,16 @@ void KomposeLayout::rearrangeContents( const QRect& availRect, const QPtrList<Ko
         break;
 
       QRect geom = *geomIt;
-      geom.setY( geom.y() - topOffset );
-      geom.setHeight( geom.height() - topOffset );
+      geom.setY( geom.y() + topOffset );
+//       geom.setHeight( geom.height() - topOffset );
       task->setGeometry( geom );
       kdDebug() << "KomposeLayout::rearrangeContents() - Put item " << task->className() << " at x: " <<  geom.x() << " y: " <<  geom.y() << " with size: " <<  geom.width() << "x" << geom.height() << endl;
       ++geomIt;
       ++it;
     }
+    if ( *maxRowHeightIt-h > 0 )
+      topOffset += *maxRowHeightIt-h;
+    ++maxRowHeightIt;
   }
 
   // Sync cols/rows member vars to current cols/rows

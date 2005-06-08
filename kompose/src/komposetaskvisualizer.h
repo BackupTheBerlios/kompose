@@ -52,11 +52,11 @@ protected slots:
   void captureScreenshot_GrabWindow();
   void updateXCompositeNamedPixmap();
   void renderScaledScreenshot( QSize size );
-  
+
   void setScaledScreenshotDirty() { scaledScreenshotDirty = true; }
   void clearCached();
   void enablePasvScreenshots();
-  
+
 public slots:
   void slotTaskActivated();
   void slotUpdateScreenshot();
@@ -68,11 +68,10 @@ private:
   bool scaledScreenshotDirty;
   bool screenshotSuspended;   // suspend pasv screenshots for this task
   bool screenshotBlocked;   // dis/enable pasv screenshots for this task
-  
-  
+
   Imlib_Color_Modifier cmHighlight, cmMinimized;
   int lasteffect; // the effect that has been applied to scaledScreenshot
-  
+
 #ifdef COMPOSITE
   Pixmap windowBackingPix;
   bool validBackingPix;

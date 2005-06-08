@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
+// Author: Hans Oischinger <hans.oischinger@kde-mail.net>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //

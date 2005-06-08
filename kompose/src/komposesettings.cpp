@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
+// Author: Hans Oischinger <hans.oischinger@kde-mail.net>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -129,6 +129,8 @@ void KomposeSettings::readConfig()
 
   showDesktopNum = kapp->config()->readBoolEntry("showDesktopNum", false );
 
+  viewScreen = kapp->config()->readNumEntry("viewScreen", -1);
+
   calcFontMetrics();
   emit settingsChanged();
 }
@@ -181,6 +183,8 @@ void KomposeSettings::writeConfig()
   kapp->config()->writeEntry("autoLockDelay", autoLockDelay);
 
   kapp->config()->writeEntry("showDesktopNum", showDesktopNum);
+
+  kapp->config()->writeEntry("viewScreen", viewScreen);
 
   kapp->config()->sync();
 

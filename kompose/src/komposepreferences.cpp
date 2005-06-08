@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
+// Author: Hans Oischinger <hans.oischinger@kde-mail.net>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -39,6 +39,7 @@ KomposePreferences::KomposePreferences()
 {
   // FIXME: this is the biggest constructor I've EVER written!
   // How about Qt Designer?!
+  m_hasXinerama = QDesktopWidget().numScreens() > 1;
 
   QFrame *page1 = addPage( i18n("Behavior"), QString::null, DesktopIcon("winprops", KIcon::SizeMedium) );
   QFrame *page2 = addPage( i18n("Appearance"), QString::null, DesktopIcon("appearance", KIcon::SizeMedium) );
@@ -65,6 +66,26 @@ KomposePreferences::KomposePreferences()
   QToolTip::add( defaultViewCurrentDesk, defaultViewCurrentDeskHelp );
   page1Layout->addWidget(defaultViewBtnGroup);
 
+  if (m_hasXinerama)
+  {
+    QGroupBox *xineramaGroupBox = new QGroupBox( 2, Vertical, i18n("Xinerama"), page1 );
+
+    QDesktopWidget deskwidget;
+    m_viewScreenAll = new QCheckBox(i18n("Use the whole desktop for Komposé"), xineramaGroupBox);
+
+    QHBox *hLayXineramaGrabDelay = new QHBox(xineramaGroupBox);
+    QLabel *xineramaLabel = new QLabel(i18n("Use screen:"), hLayXineramaGrabDelay);
+    m_viewScreen = new QSpinBox(0, deskwidget.numScreens()-1, 1, hLayXineramaGrabDelay);
+    connect( m_viewScreenAll, SIGNAL(toggled(bool)), m_viewScreen, SLOT(setDisabled(bool)) );
+    xineramaLabel->setBuddy(m_viewScreen);
+    QString xineramaHelp = i18n("Specify the screen where Komposé should appear." );
+    QWhatsThis::add( m_viewScreen, xineramaHelp );
+    QToolTip::add( m_viewScreen, xineramaHelp );
+    QWhatsThis::add( xineramaLabel, xineramaHelp );
+    QToolTip::add( xineramaLabel, xineramaHelp );
+
+    page1Layout->addWidget(xineramaGroupBox);
+  }
 
 #ifdef COMPOSITE
   QGroupBox *screenshotsGroupBox = new QGroupBox( 4, Vertical, i18n("Screenshots"), page1 );
@@ -313,6 +334,14 @@ void KomposePreferences::fillPages()
   m_rightEdge->setChecked( KomposeSettings::instance()->getActivateOnRightEdge() );
   m_leftEdge->setChecked( KomposeSettings::instance()->getActivateOnLeftEdge() );
   autoLockDelay->setValue( KomposeSettings::instance()->getAutoLockDelay() );
+
+  if (m_hasXinerama)
+  {
+    m_viewScreenAll->setChecked( KomposeSettings::instance()->getViewScreen() == -1 );
+    if (KomposeSettings::instance()->getViewScreen() >= 0 )
+      m_viewScreen->setValue( KomposeSettings::instance()->getViewScreen() );
+    m_viewScreen->setDisabled( m_viewScreenAll->isChecked() );
+  }
 }
 
 
@@ -357,6 +386,14 @@ void KomposePreferences::slotApply()
   KomposeSettings::instance()->setActivateOnLeftEdge( m_leftEdge->isChecked() );
   KomposeSettings::instance()->setAutoLockDelay( autoLockDelay->value() );
 
+  if (m_hasXinerama)
+  {
+    int viewScreen = m_viewScreen->value();
+    if ( m_viewScreenAll->isChecked() )
+      viewScreen = -1;
+    KomposeSettings::instance()->setViewScreen( viewScreen );
+  }
+
   KomposeSettings::instance()->writeConfig();
 
   KDialogBase::slotApply();
@@ -369,7 +406,6 @@ void KomposePreferences::slotOk()
 }
 
 void KomposePreferences::setUseCompositeToggled( bool )
-{
-}
+{}
 
 #include "komposepreferences.moc"

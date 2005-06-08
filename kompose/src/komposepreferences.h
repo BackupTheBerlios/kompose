@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
+// Author: Hans Oischinger <hans.oischinger@kde-mail.net>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -50,6 +50,7 @@ protected slots:
   void setUseCompositeToggled( bool );
 
 private:
+  bool m_hasXinerama;
   QFrame *page1;
   QFrame *page2;
 
@@ -100,6 +101,9 @@ private:
   QSpinBox *autoLockDelay;
 
   QCheckBox *showDesktopNum;
+
+  QSpinBox *m_viewScreen;
+  QCheckBox *m_viewScreenAll;
 };
 
 #endif

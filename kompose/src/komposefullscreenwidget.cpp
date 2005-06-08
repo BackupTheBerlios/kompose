@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
+// Author: Hans Oischinger <hans.oischinger@kde-mail.net>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -21,6 +21,7 @@
 #include <qobjectlist.h>
 #include <qptrlist.h>
 #include <qpainter.h>
+#include <qdesktopwidget.h>
 
 #include <kwin.h>
 #include <kapplication.h>
@@ -52,8 +53,17 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
   // Alternate showFullscreen
   setWindowState(windowState() | WindowFullScreen);
   //setWFlags(WStyle_NoBorder);
-//   setGeometry( KGlobalSettings::splashScreenDesktopGeometry() );
-  setGeometry( KGlobalSettings::desktopGeometry( this ) );
+
+    kdDebug() << KomposeSettings::instance()->getViewScreen() << endl;
+  if (KomposeSettings::instance()->getViewScreen() == -1)
+    setGeometry( KGlobalSettings::desktopGeometry( this ) );
+  else
+  {
+    QDesktopWidget deskwidget;
+    QRect deskRect = deskwidget.screenGeometry(KomposeSettings::instance()->getViewScreen());
+    setGeometry(deskRect);
+    kdDebug() << deskRect << endl;
+  }
 
   if (!isTopLevel())
     QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);

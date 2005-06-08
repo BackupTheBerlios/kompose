@@ -4,7 +4,7 @@
 // Description:
 //
 //
-// Author: Hans Oischinger <oisch@users.berlios.de>, (C) 2004
+// Author: Hans Oischinger <hans.oischinger@kde-mail.net>, (C) 2004
 //
 // Copyright: See COPYING file that comes with this distribution
 //
@@ -112,6 +112,9 @@ public:
   void setShowDesktopNum( bool b ) { showDesktopNum = b; }
   bool getShowDesktopNum() const { return showDesktopNum; }
 
+  void setViewScreen( int screen ) { viewScreen = screen; }
+  int getViewScreen() const { return viewScreen; }
+
 public slots:
   void showPreferencesDlg();
 
@@ -165,6 +168,7 @@ private:
   uint autoLockDelay;
 
   bool showDesktopNum;
+  int viewScreen;
 };
 
 #endif

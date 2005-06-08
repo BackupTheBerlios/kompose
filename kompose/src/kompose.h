@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@users.berlios.de                                                *
+ *   hans.oischinger@kde-mail.net                                                *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -25,14 +25,14 @@
 // #include <config.h>
 // #endif
 
-#include <kapplication.h>
+#include <kuniqueapplication.h>
 
 
 /**
  * @short Application Main entry point and x11 Event Receiver
  * @author Hans Oischinger <hans.oischinger@kde-mail.net>
  */
-class Kompose : public KApplication
+class Kompose : public KUniqueApplication
 {
   Q_OBJECT
 public:

@@ -1,6 +1,6 @@
 /***************************************************************************
  *   Copyright (C) 2004 by Hans Oischinger                                 *
- *   oisch@users.berlios.de                                                 *
+ *   hans.oischinger@kde-mail.net                                                 *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -31,7 +31,7 @@
 static const char description[] = 
   I18N_NOOP("A fullscreen task manager for KDE");
 
-static const char version[] = "0.5";
+static const char version[] = "0.5.2 beta1";
 
 static KCmdLineOptions options[] =
   {
@@ -62,8 +62,8 @@ int main(int argc, char **argv)
 //   qInstallMsgHandler( myMessageOutput );
   
   KAboutData about("kompose", I18N_NOOP("Kompose"), version, description,
-                   KAboutData::License_GPL, "(C) 2004 Hans Oischinger", "", "http://developer.berlios.de/projects/kompose", "oisch@users.berlios.de");
-  about.addAuthor( "Hans Oischinger", 0, "oisch@users.berlios.de" );
+                   KAboutData::License_GPL, "(C) 2005 Hans Oischinger", "", "http://developer.berlios.de/projects/kompose", "hans.oischinger@kde-mail.net");
+  about.addAuthor( "Hans Oischinger", 0, "hans.oischinger@kde-mail.net" );
   KCmdLineArgs::init(argc, argv, &about);
   KCmdLineArgs::addCmdLineOptions( options );
 
