@@ -31,7 +31,7 @@
 static const char description[] = 
   I18N_NOOP("A fullscreen task manager for KDE");
 
-static const char version[] = "0.5.2 beta1";
+static const char version[] = "0.5.3";
 
 static KCmdLineOptions options[] =
   {

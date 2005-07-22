@@ -31,6 +31,7 @@
 #include <kcursor.h>
 #include <kglobalsettings.h>
 #include <kdebug.h>
+#include <krootpixmap.h>
 
 
 KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout *l )
@@ -45,7 +46,9 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
 
   // Set Desktop background as our background
   setBackgroundMode( Qt::FixedPixmap );
-  setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));
+//   setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));
+  rootpix = new KRootPixmap (this);
+  rootpix->start();
   initMenu();
   initView();
   //showFullScreen();
@@ -209,12 +212,12 @@ double KomposeFullscreenWidget::getAspectRatio()
   return (double)width() / (double)height();
 }
 
-void KomposeFullscreenWidget::paintEvent ( QPaintEvent * )
-{
-  QPainter p( this );
-  p.drawPixmap(rect(), *(KomposeGlobal::instance()->getDesktopBgPixmap()));
-  p.end();
-}
+// void KomposeFullscreenWidget::paintEvent ( QPaintEvent * )
+// {
+//   QPainter p( this );
+//   p.drawPixmap(rect(), *(KomposeGlobal::instance()->getDesktopBgPixmap()));
+//   p.end();
+// }
 
 
 #include "komposefullscreenwidget.moc"

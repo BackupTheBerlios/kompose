@@ -36,6 +36,7 @@
 #include <klocale.h>
 #include <kwin.h>
 #include <ksharedpixmap.h>
+#include <krootpixmap.h>
 #include <kwinmodule.h>
 #include <kcursor.h>
 #include <kdebug.h>
@@ -59,6 +60,8 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
   QToolTip::add( this, i18n("Desktop %1 - %2").arg(desktop).arg(deskName) );
 
+  rootpix = new KRootPixmap (this);
+  rootpix->start();
   setAcceptDrops(TRUE);
 
   createTaskWidgets();
@@ -164,9 +167,9 @@ void KomposeDesktopWidget::paintEvent ( QPaintEvent * )
   // KomposeWidget::paintEvent(e);
   QPainter p;
   p.begin( this );
-  QPoint tl = mapToGlobal(QPoint(0,0));
-  p.drawPixmap(0,0, *KomposeGlobal::instance()->getDesktopBgPixmap(),
-               tl.x(), tl.y(), width(), height());
+//   QPoint tl = mapToGlobal(QPoint(0,0));
+//   p.drawPixmap(0,0, *KomposeGlobal::instance()->getDesktopBgPixmap(),
+//                tl.x(), tl.y(), width(), height());
 
   p.setFont(titleFont);
 

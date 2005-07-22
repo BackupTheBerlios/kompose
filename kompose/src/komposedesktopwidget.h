@@ -24,7 +24,7 @@
 
 class KomposeLayout;
 class KomposeTask;
-
+class KRootPixmap;
 /**
 @author Hans Oischinger
 */
@@ -64,6 +64,7 @@ private:
   QString deskName;
   bool highlight; // Highlight widget?
   QFont titleFont;
+  KRootPixmap *rootpix;
 };
 
 #endif

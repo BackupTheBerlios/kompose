@@ -53,8 +53,11 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
   imlib_modify_color_modifier_brightness(-0.13);
   imlib_context_set_color_modifier(0);
 
-  // clear cached pixmaps on viewclose
-  connect( KomposeViewManager::instance(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
+  if ( !KomposeSettings::instance()->getCacheScaledPixmaps() )
+  {
+      // clear cached pixmaps on viewclose
+      connect( KomposeViewManager::instance(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
+  }
 
   initXComposite();
   connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(initXComposite()) );
@@ -361,6 +364,7 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
   // screenshot = QPixmap::grabWindow( rootWin->winId(), geom.x(), geom.y(), geom.width(), geom.height() );
 
   screenshot = QPixmap::grabWindow( task->window() );
+  scaledScreenshotDirty = true;
 
   // We've just grabbed a screenshot and don't want this to happen again in the next 3?! seconds
   screenshotBlocked = true;

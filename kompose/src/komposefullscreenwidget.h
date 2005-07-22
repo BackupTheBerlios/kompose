@@ -47,7 +47,7 @@ protected:
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
   void keyReleaseEvent ( QKeyEvent * e );
-  void paintEvent ( QPaintEvent * );
+//   void paintEvent ( QPaintEvent * );
 
   void destroyChildWidgets();
 //   virtual void closeEvent ( QCloseEvent * e );
@@ -55,6 +55,7 @@ protected:
 private:
   int type;
   KPopupMenu *menu;
+  KRootPixmap *rootpix;
 };
 
 #endif
