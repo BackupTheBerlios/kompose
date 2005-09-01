@@ -90,6 +90,7 @@ void KomposeSettings::readConfig()
   kapp->config()->setGroup("Main window");
 
   defaultView = kapp->config()->readNumEntry("defaultView", KOMPOSEDISPLAY_VIRTUALDESKS);
+  useGL = kapp->config()->readBoolEntry("useGL", true);
 
   useComposite = kapp->config()->readBoolEntry("useComposite", false);
 
@@ -146,6 +147,7 @@ void KomposeSettings::writeConfig()
   kapp->config()->setGroup("Main window");
 
   kapp->config()->writeEntry("defaultView", defaultView );
+  kapp->config()->writeEntry("useGL", useGL );
 
   kapp->config()->writeEntry("useComposite", useComposite );
 

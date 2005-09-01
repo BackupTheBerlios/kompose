@@ -33,7 +33,8 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
     scaledScreenshotDirty(false),
     screenshotSuspended(false),
     screenshotBlocked(false),
-    lasteffect( IEFFECT_NONE )
+    lasteffect( IEFFECT_NONE ),
+    m_glTexID(0)
 {
 #ifdef COMPOSITE
   validBackingPix = false;
@@ -181,7 +182,45 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
   scaledScreenshotDirty = false;
 }
 
+/**
+ * Renders a scaled version of screenshot and stores it as scaledScreenshot
+ * @param newSize 
+ */
+QPixmap* KomposeTaskVisualizer::getOrigPixmap()
+{
+  QPixmap* pm = new QPixmap( task->getGeometry().size() );
 
+  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  {
+#ifdef COMPOSITE
+    if ( !validBackingPix )
+    {
+      // When we get here we have never referenced a backingpix...
+      // FIXME: Currently it seems that there is no way to retrieve unmapped backing pixmaps,
+      // even switching desktops won't work due to the latency of XComposite :(
+      // Return a empty pixmap
+      return pm;
+    }
+
+    Picture picture = XRenderCreatePicture( dpy, windowBackingPix, format, CPSubwindowMode, &pa );
+    XRenderComposite( dpy,
+                      hasAlpha ? PictOpOver : PictOpSrc,
+                      picture,
+                      None,
+                      pm->x11RenderHandle(),
+                      task->getGeometry().x() - task->getFrameGeometry().x(),
+                      task->getGeometry().y() - task->getFrameGeometry().y(),
+                      0, 0, 0, 0,
+                      pm->width(), pm->height() );
+    XRenderFreePicture (dpy, picture);
+
+    return pm;
+#endif
+  } else {
+    *pm = screenshot;
+    return pm;
+  }
+}
 
 /**
  * Called whenever the Window has been activated

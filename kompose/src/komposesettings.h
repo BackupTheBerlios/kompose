@@ -43,6 +43,9 @@ public:
   bool hasDialogOpen() { return dialogOpen; }
   KGlobalAccel *getGlobalAccel() const { return globalAccel; }
 
+  bool getUseGL() const { return useGL; }
+  void setUseGL( bool b ) { useGL = b; }
+
   bool getUseComposite() const { return useComposite; }
   void setUseComposite( bool b ) { useComposite = b; }
 
@@ -136,6 +139,7 @@ private:
 
   bool imageEffects;
   int defaultView;
+  bool useGL;
 
   int iconSize;
   bool showIcons;

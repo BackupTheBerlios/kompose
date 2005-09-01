@@ -124,6 +124,7 @@ void KomposeGlobal::initGui()
   kapp->dcopClient()->setDefaultObject( "KomposeTaskMgrDcopIface" );
 
   initActions();
+  initMenus();
 
   if ( !hideSystray && !singleShot )
   {
@@ -177,6 +178,21 @@ void KomposeGlobal::initActions()
                                  0,
                                  this, SLOT(showAboutDlg()),
                                  actionCollection, "showAboutDlg");
+}
+
+void KomposeGlobal::initMenus()
+{
+  m_viewMenu = new KPopupMenu();
+
+  getActShowWorldView()->plug(m_viewMenu);
+  getActShowVirtualDesktopView()->plug(m_viewMenu);
+  getActShowCurrentDesktopView()->plug(m_viewMenu);
+  m_viewMenu->insertSeparator();
+  getActPreferencesDialog()->plug(m_viewMenu);
+  getActConfigGlobalShortcuts()->plug(m_viewMenu);
+  getActAboutDlg()->plug(m_viewMenu);
+  //menu->insertSeparator();
+  //KomposeGlobal::instance()->getActQuit()->plug(m_viewMenu);
 }
 
 void KomposeGlobal::initSharedPixmaps()

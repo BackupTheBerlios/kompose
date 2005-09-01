@@ -32,7 +32,7 @@
  * @short Application Main entry point and x11 Event Receiver
  * @author Hans Oischinger <hans.oischinger@kde-mail.net>
  */
-class Kompose : public KUniqueApplication
+class Kompose : public KApplication
 {
   Q_OBJECT
 public:

@@ -60,6 +60,9 @@ public:
   QRect getGeometry() const { return windowInfo.geometry(); }
   QRect getFrameGeometry() const { return windowInfo.frameGeometry(); }
 
+  void setKomposeGeom(QRect r) { m_komposeGeom = r; }
+  QRect getKomposeGeom() { return m_komposeGeom; }
+
   QPixmap getIcon( int size );
   double getAspectRatio();
   int getHeightForWidth( int w ) const;
@@ -110,6 +113,7 @@ private:
   WId windowID;
   WId wmframeID;
   KWin::WindowInfo windowInfo;
+  QRect m_komposeGeom;
 
   bool blockDamageEvents;
   KomposeTaskVisualizer* visualizer;

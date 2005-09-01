@@ -37,12 +37,18 @@ class QSize;
 */
 class KomposeTaskVisualizer : public QObject
 {
+  friend class KomposeGLWidget;
+  friend class KomposeGLViewWidget;
   Q_OBJECT
 public:
   KomposeTaskVisualizer(KomposeTask *parent, const char *name = 0);
   ~KomposeTaskVisualizer();
 
   void renderOnPixmap( QPixmap* pix, int effect );
+  QPixmap* getOrigPixmap();
+
+  uint getGlTexID() { return m_glTexID; }
+  void setGlTexID( uint id ) { m_glTexID = id; }
 
 protected:
   void applyEffect();
@@ -71,6 +77,8 @@ private:
 
   Imlib_Color_Modifier cmHighlight, cmMinimized;
   int lasteffect; // the effect that has been applied to scaledScreenshot
+
+  uint m_glTexID;
 
 #ifdef COMPOSITE
   Pixmap windowBackingPix;

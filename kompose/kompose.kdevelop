@@ -57,7 +57,7 @@
         <cflags/>
         <f77flags/>
         <envvars>
-          <envvar value="/usr/kde/3.4" name="KDEDIR" />
+          <envvar value="/usr/kde/devel" name="KDEDIR" />
         </envvars>
       </debug>
       <default>

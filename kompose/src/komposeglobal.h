@@ -46,14 +46,14 @@ public:
   static KomposeGlobal *instance();
   KomposeSysTray* getSysTray() { return systray; }
   void initGui();
-  
+
   bool hasAboutDialogOpen() { return aboutDialogOpen; }
   void setHideSystray( bool b ) { hideSystray = b; }
   void setSingleShot( bool b ) { singleShot = b; }
   bool getSingleShot() { return singleShot; }
   bool hasXcomposite() { return xcomposite; }
   int getDamageEvent() { return damageEvent; }
-  
+
   // Action getters
   KAction *getActConfigGlobalShortcuts() { return actConfigGlobalShortcuts; }
   KAction *getActPreferencesDialog() { return actPreferencesDialog; }
@@ -63,11 +63,13 @@ public:
   KAction *getActAboutDlg() { return actAboutDlg; }
   KAction *getActQuit() { return actQuit; }
 
+  KPopupMenu *getViewMenu() { return m_viewMenu; }
   const KSharedPixmap *getDesktopBgPixmap() const { return desktopBgPixmap; }
-  
+
 protected:
   void initActions();
   void initImlib();
+  void initMenus();
 
 protected slots:
   void initSharedPixmaps();
@@ -102,7 +104,9 @@ private:
   KAction *actShowWorldView;
   KAction *actAboutDlg;
   KAction *actQuit;
-  
+
+  KPopupMenu *m_viewMenu;
+
   KWinModule* kwin_module;
 };
 

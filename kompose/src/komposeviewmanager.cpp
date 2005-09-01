@@ -16,6 +16,9 @@
 #include "komposesettings.h"
 #include "komposesystray.h"
 
+#include "komposefullscreenwidget.h"
+#include "komposeglviewwidget.h"
+
 #include <qtimer.h>
 #include <qcursor.h>
 #include <qapplication.h>
@@ -196,7 +199,10 @@ void KomposeViewManager::createView( int type )
   }
 
   if ( !activeView )
-    viewWidget = new KomposeFullscreenWidget( type );
+    if ( KomposeSettings::instance()->getUseGL() )
+      viewWidget = new KomposeGLViewWidget( type );
+    else
+      viewWidget = new KomposeFullscreenWidget( type );
   else
     viewWidget->setType( type );
 

@@ -13,7 +13,7 @@
 #define KOMPOSEFULLSCREENWIDGET_H
 
 
-#include "komposetaskcontainerwidget.h"
+#include "abstractviewwidget.h"
 #include "komposesettings.h"
 
 
@@ -24,21 +24,17 @@ class KPopupMenu;
 /**
 @author Hans Oischinger
 */
-class KomposeFullscreenWidget : public KomposeTaskContainerWidget
+class KomposeFullscreenWidget : public AbstractViewWidget
 {
 Q_OBJECT
 public:
   KomposeFullscreenWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
-
   virtual ~KomposeFullscreenWidget();
 
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
   double getAspectRatio();
- 
-  void setType( int t ) { type = t; initView(); }
-  int getType() { return type; }
-  
+
 protected:
   void initView();
   void initMenu();
@@ -47,14 +43,11 @@ protected:
   void mouseReleaseEvent (QMouseEvent *);
   void mousePressEvent (QMouseEvent *);
   void keyReleaseEvent ( QKeyEvent * e );
-//   void paintEvent ( QPaintEvent * );
 
   void destroyChildWidgets();
-//   virtual void closeEvent ( QCloseEvent * e );
- 
+
 private:
-  int type;
-  KPopupMenu *menu;
+  KPopupMenu *m_menu;
   KRootPixmap *rootpix;
 };
 

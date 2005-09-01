@@ -16,11 +16,11 @@
 #include <dcopobject.h>
 
 #include "komposedcopiface.h"
-#include "komposefullscreenwidget.h"
+#include "abstractviewwidget.h"
 
 class KomposeTask;
 class QTimer;
-
+class KomposeGLViewWidget;
 /**
 @author Hans Oischinger
 */
@@ -34,7 +34,7 @@ protected:
 public:
   static KomposeViewManager *instance();
 
-  KomposeFullscreenWidget* getViewWidget() { return viewWidget; }
+  AbstractViewWidget* getViewWidget() { return viewWidget; }
 
 public slots:
   void createView( int type = -1 ); // -1 means the user's default
@@ -63,7 +63,8 @@ signals:
   void viewClosed();
 
 private:
-  KomposeFullscreenWidget *viewWidget;    // the widget where all action takes place
+  AbstractViewWidget *viewWidget;    // the widget where all action takes place
+  KomposeGLViewWidget *glWidget;    // the widget where all action takes place
   bool activeView;        // used to check if a view is active
   bool blockScreenshots;   // no screenshots when true
   int deskBeforeSnaps;    // the virtual desk we were on befor screenshots were taken
