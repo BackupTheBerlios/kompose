@@ -295,7 +295,7 @@ void KomposePreferences::fillPages()
   useComposite->setChecked( KomposeSettings::instance()->getUseComposite() );
 #endif
   passiveScreenshots->setChecked( KomposeSettings::instance()->getPassiveScreenshots() );
-  screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() / 1000000 );
+  screenshotGrabDelay->setValue( KomposeSettings::instance()->getScreenshotGrabDelay() );
   cacheScaledPixmaps->setChecked( KomposeSettings::instance()->getCacheScaledPixmaps() );
   dynamicVirtDeskLayout->setChecked( KomposeSettings::instance()->getDynamicVirtDeskLayout() );
 
@@ -356,7 +356,7 @@ void KomposePreferences::slotApply()
 #endif
 
   KomposeSettings::instance()->setPassiveScreenshots( passiveScreenshots->isChecked() );
-  KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() * 1000000 );
+  KomposeSettings::instance()->setScreenshotGrabDelay( screenshotGrabDelay->value() );
   KomposeSettings::instance()->setCacheScaledPixmaps( cacheScaledPixmaps->isChecked() );
   KomposeSettings::instance()->setDynamicVirtDeskLayout( dynamicVirtDeskLayout->isChecked() );
   KomposeSettings::instance()->setImageEffects( imageEffects->isChecked() );

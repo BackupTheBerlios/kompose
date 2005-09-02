@@ -25,6 +25,7 @@
 #include <kwin.h>
 #include <kglobalsettings.h>
 #include <kdebug.h>
+#include <ksharedpixmap.h>
 
 #define ANIM_DURATION 500
 
@@ -50,7 +51,6 @@ static int nearest_gl_texture_size(int v)
 KomposeGLWidget::KomposeGLWidget( QWidget* parent, int displayType, KomposeLayout *l)
     : QGLWidget(parent), m_scale(0.)
 {
-  kdDebug() << k_funcinfo << endl;
   m_animTimer = new QTimer(this);
   m_animProgress = new QTime();
   connect(m_animTimer, SIGNAL(timeout()), this, SLOT(scaleOneStep()));
@@ -88,7 +88,9 @@ void KomposeGLWidget::initializeGL()
   //   glMatrixMode(GL_PROJECTION);
   //   glLoadIdentity();
   //   glOrtho(0.0,0.0,1280,800, -1.0, 1.0);
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
+  kdDebug() << "KomposeGLWidget::initializeGL() - creating textures..." << endl;
   TaskList tl = KomposeTaskManager::instance()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
   KomposeTask *task;
@@ -96,8 +98,12 @@ void KomposeGLWidget::initializeGL()
   {
     ++it;
     Q_CHECK_PTR(task);
-    bindTexture( task );
+    QPixmap *pm = task->getVisualizer()->getOrigPixmap();
+    bindTexture( pm, task->getVisualizer()->m_glTexID );
+    delete pm;
   }
+  bindTexture( KomposeGlobal::instance()->getDesktopBgPixmap(), m_BgTexID );
+  kdDebug() << "KomposeGLWidget::initializeGL() - all textures created" << endl;
 }
 
 void KomposeGLWidget::resizeGL( int w, int h )
@@ -118,12 +124,19 @@ void KomposeGLWidget::paintGL()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
+  glBindTexture(GL_TEXTURE_2D, m_BgTexID);
+  glColor4f(0.6, 0.6, 0.6, 1.0);
+  drawTextureRect( geometry(), 0.0 );
+
+  glColor4f(1.0, 1.0, 1.0, 1.0);
+  float z = 0.0;
   TaskList tl = KomposeTaskManager::instance()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
+  it.toLast();
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
   {
-    ++it;
+    --it;
     Q_CHECK_PTR(task);
     if (task->getVisualizer()->m_glTexID != 0)
       glBindTexture(GL_TEXTURE_2D, task->getVisualizer()->m_glTexID );
@@ -145,33 +158,32 @@ void KomposeGLWidget::paintGL()
                                              task->getFrameGeometry().height() ) );
 
 
-    drawTextureRect( currentGeom, 1. );
+    drawTextureRect( currentGeom, z+0.001 );
   }
   glFlush();
 }
 
-void KomposeGLWidget::drawTextureRect(QRect pos, float scale)
+void KomposeGLWidget::drawTextureRect(QRect pos, float zIndex)
 {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glPushAttrib(GL_CURRENT_BIT);
-  glColor4f(1.0, 1.0, 1.0, 1.0);
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_BLEND);
-  glScalef(scale, scale, 0.);
+
   glBegin(GL_QUADS);
   {
-    glTexCoord2f(0.0, 1.0);
-    glVertex2d(pos.x(), pos.y());
-
-    glTexCoord2f(1.0, 1.0);
-    glVertex2d(pos.x() + pos.width(), pos.y());
+    glTexCoord2f(0.0, 0.0);
+    glVertex3d(pos.x(), pos.y(), zIndex);
 
     glTexCoord2f(1.0, 0.0);
-    glVertex2d(pos.x() + pos.width(), pos.y() + pos.height());
+    glVertex3d(pos.x() + pos.width(), pos.y(), zIndex);
 
-    glTexCoord2f(0.0, 0.0);
-    glVertex2d(pos.x(), pos.y() + pos.height());
+    glTexCoord2f(1.0, 1.0);
+    glVertex3d(pos.x() + pos.width(), pos.y() + pos.height(), zIndex);
+
+    glTexCoord2f(0.0, 1.0);
+    glVertex3d(pos.x(), pos.y() + pos.height(), zIndex);
   }
   glEnd();
 
@@ -179,41 +191,51 @@ void KomposeGLWidget::drawTextureRect(QRect pos, float scale)
   glPopAttrib();
 }
 
-void KomposeGLWidget::bindTexture(KomposeTask* t)
+void KomposeGLWidget::bindTexture( const QPixmap* pixmap, uint& texIDStorage )
 {
-  QPixmap *pixmap = t->getVisualizer()->getOrigPixmap();
-  QImage image = pixmap->convertToImage();
-  delete pixmap;
-
-  // Scale the pixmap if needed. GL textures needs to have the
-  // dimensions 2^n+2(border) x 2^m+2(border).
+  kdDebug() << k_funcinfo << endl;
   QImage tx;
-  int tx_w = nearest_gl_texture_size(image.width()) /2;
-  int tx_h = nearest_gl_texture_size(image.height()) /2;
-  if (tx_w != image.width() || tx_h != image.height())
-    tx = QGLWidget::convertToGLFormat(image.smoothScale(tx_w, tx_h));
+  QImage image;
+  int tx_w = nearest_gl_texture_size(pixmap->width()) /2;
+  int tx_h = nearest_gl_texture_size(pixmap->height()) /2;
+  unsigned char* screenshot_data = new unsigned char [tx_w * tx_h * 4];
+
+  imlib_context_set_anti_alias(1);
+  imlib_context_set_drawable( pixmap->handle() );
+  Imlib_Image imgOrig = imlib_create_image_from_drawable((Pixmap)0, 0, 0, pixmap->width(), pixmap->height(), 1);
+  imlib_context_set_image( imgOrig );
+  if (tx_w != pixmap->width() || tx_h != pixmap->height())
+  {
+    Imlib_Image img = imlib_create_cropped_scaled_image(0, 0, pixmap->width(), pixmap->height(), tx_w, tx_h);
+    imlib_free_image();
+    imlib_context_set_image( img );
+    QPixmap scaledScreenshot(tx_w, tx_h);
+    imlib_context_set_drawable( scaledScreenshot.handle() );
+    imlib_render_image_on_drawable_at_size(0, 0, tx_w, tx_h);
+
+    convert_imlib_image_to_opengl_data( tx_w, tx_h, img, screenshot_data );
+    imlib_context_set_image( img );
+    imlib_free_image();
+  }
   else
-    tx = QGLWidget::convertToGLFormat(image);
+  {
+    convert_imlib_image_to_opengl_data( tx_w, tx_h, imgOrig, screenshot_data );
+    imlib_context_set_image( imgOrig );
+    imlib_free_image();
+  }
 
-  glGenTextures(1, &(t->getVisualizer()->m_glTexID));
-  glBindTexture(GL_TEXTURE_2D, t->getVisualizer()->m_glTexID);
+  glGenTextures(1, &texIDStorage);
+  glBindTexture(GL_TEXTURE_2D, texIDStorage);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  /*  if (QGLExtensions::glExtensions & QGLExtensions::GenerateMipmap
-        && GL_TEXTURE_2D == GL_TEXTURE_2D)
-    {
-      glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-      glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-      glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    /*}
-    else
-    {*/
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  // }
 
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, tx.width(), tx.height(), 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, tx.bits());
-  // this assumes the size of a texture is always smaller than the max cache size
-  // int cost = tx.width()*tx.height()*4/1024;
+
+//     gluBuild2DMipmaps(GL_TEXTURE_2D, 3, tx_w, tx_h, GL_RGBA, GL_UNSIGNED_BYTE, screenshot_data);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, 3, tx_w, tx_h, 0, GL_RGBA,
+               GL_UNSIGNED_BYTE, screenshot_data);
+
+  delete screenshot_data;
 }
 
 #include <math.h>
@@ -305,7 +327,9 @@ void KomposeGLWidget::scaleOneStep()
   {
     m_scale = 1.;
     m_animTimer->stop();
-  } else {
+  }
+  else
+  {
     m_scale = diff / (float)ANIM_DURATION;
   }
   updateGL();
@@ -313,8 +337,52 @@ void KomposeGLWidget::scaleOneStep()
 
 void KomposeGLWidget::showEvent( QShowEvent * )
 {
-  kdDebug() << k_funcinfo << endl;
+  KomposeTaskManager::instance()->orderListByStacking();
+
   m_scale = 0.;
   m_animProgress->start();
   m_animTimer->start(0);
+}
+
+/**
+ * Taken from the desk3d project: http://desk3d.sourceforge.net
+ * @param texture_size 
+ * @param imlib_img 
+ * @param out_buff 
+ */
+void KomposeGLWidget::convert_imlib_image_to_opengl_data(int texture_width, int texture_height, Imlib_Image imlib_img, unsigned char *out_buff)
+{
+  imlib_context_set_image(imlib_img);
+  Imlib_Image imgfinal = imlib_create_cropped_scaled_image(0, 0,
+                         imlib_image_get_width(),
+                         imlib_image_get_height(),
+                         texture_width,
+                         texture_height);
+
+  imlib_context_set_image(imgfinal);
+  unsigned int *tmp = imlib_image_get_data();
+
+  int w, h;
+  int x, y;
+  int offset;
+  int img_offset;
+
+  w = texture_width;
+  h = texture_height;
+
+  for (y = 0; y < h; y++)
+  {
+    for (x = 0; x < w; x++)
+    {
+      offset = (y * w + x) * 4;
+      img_offset = (y * w + x);
+
+      out_buff[offset]     = (tmp[img_offset] >> 16) & 0xff;
+      out_buff[offset + 1] = (tmp[img_offset] >> 8) & 0xff;
+      out_buff[offset + 2] =  tmp[img_offset] & 0xff;
+      out_buff[offset + 3] = (tmp[img_offset] >> 24) & 0xff;
+    }
+  }
+  imlib_image_put_back_data(tmp);
+  imlib_free_image();
 }

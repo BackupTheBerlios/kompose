@@ -52,6 +52,7 @@ public:
   int getCurrentDesktopNum();
 
   TaskList getTasks() const { return tasklist; }
+  void orderListByStacking();
 
 public slots:
   bool processX11Event( XEvent *event );

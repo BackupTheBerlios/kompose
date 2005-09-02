@@ -384,4 +384,25 @@ int KomposeTaskManager::getCurrentDesktopNum()
   return kwin_module->currentDesktop();
 }
 
+void KomposeTaskManager::orderListByStacking( )
+{
+  TaskList stackingOrderedList;
+
+  QValueList<WId>::ConstIterator begin(kwin_module->stackingOrder().constBegin());
+  QValueList<WId>::ConstIterator end(kwin_module->stackingOrder().constEnd());
+  for ( QValueList<WId>::ConstIterator it = kwin_module->stackingOrder().constBegin(); it != end; ++it )
+  {
+    KomposeTask* t = findTask(*it);
+    if (t)
+    {
+      stackingOrderedList.append(t);
+    }
+  }
+  tasklist.clear();
+  for (KomposeTask* t = stackingOrderedList.first(); t != 0; t = stackingOrderedList.next())
+  {
+    tasklist.append(t);
+  }
+}
+
 #include "komposetaskmanager.moc"

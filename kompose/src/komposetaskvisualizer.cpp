@@ -23,6 +23,7 @@
 #include <kdebug.h>
 
 #include <time.h>
+#include <math.h>
 
 #include "komposetaskvisualizer.h"
 
@@ -290,17 +291,18 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
     QApplication::syncX();
 
     // Wait until window is fully redrawn
-    struct timespec req, rem;
-    req.tv_sec = 0;
-    req.tv_nsec = KomposeSettings::instance()->getScreenshotGrabDelay();
-    while(nanosleep(&req, &rem))
-      req = rem;
+    // Thanks to desk3d (http://desk3d.sourceforge.net) for the non-blocking sleep
+    struct timeval tm;
+    int ms = KomposeSettings::instance()->getScreenshotGrabDelay();
+    tm.tv_sec = (time_t)floor(ms / 1000);
+    tm.tv_usec = (ms - (tm.tv_sec * 1000)) * 1000;
+    select (0, 0, 0, 0, &tm);
 
     QApplication::flushX();
     //task->refresh();
 
     // Finally capture!
-    screenshot = QPixmap::grabWindow( task->window() );
+    screenshot = QPixmap::grabWindow( task->wmFrame() );
     //captureScreenshot_GrabWindow();
 
     // Restore if formerly iconified

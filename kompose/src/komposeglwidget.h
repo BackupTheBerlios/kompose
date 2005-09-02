@@ -12,10 +12,14 @@
 #ifndef KOMPOSEGLWIDGET_H
 #define KOMPOSEGLWIDGET_H
 
-# include <GL/gl.h>
-# include <GL/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include <qgl.h>
+
 #include "komposesettings.h"
+
+typedef void *Imlib_Image;
 
 class KomposeLayout;
 class KomposeTask;
@@ -36,10 +40,11 @@ protected:
   void resizeGL(int w, int h);
   void showEvent ( QShowEvent * );
 
-  void bindTexture(KomposeTask* t);
-  void drawTextureRect(QRect pos, float scale);
+  void bindTexture( const QPixmap* pixmap, uint& texIDStorage );
+  void drawTextureRect(QRect pos, float zIndex);
 
   void rearrangeContents( const QRect& availRect );
+  static void convert_imlib_image_to_opengl_data(int texture_width, int texture_height, Imlib_Image imlib_img, unsigned char *out_buff);
 
 protected slots:
   void scaleOneStep();
@@ -48,7 +53,7 @@ private:
   QTimer* m_animTimer;
   QTime* m_animProgress;
   double m_scale;
-double z;
+  uint m_BgTexID;
 };
 
 #endif

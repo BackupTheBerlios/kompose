@@ -95,7 +95,7 @@ void KomposeSettings::readConfig()
   useComposite = kapp->config()->readBoolEntry("useComposite", false);
 
   passiveScreenshots = kapp->config()->readBoolEntry("passiveScreenshots", true);
-  screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400000000);
+  screenshotGrabDelay = kapp->config()->readNumEntry("screenshotGrabDelay", 400);
 
   dynamicVirtDeskLayout = kapp->config()->readBoolEntry("dynamicVirtDeskLayout", true);
 
