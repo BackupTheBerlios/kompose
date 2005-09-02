@@ -404,7 +404,7 @@ void KomposeTaskVisualizer::captureScreenshot_GrabWindow()
   // QWidget *rootWin = qApp->desktop();
   // screenshot = QPixmap::grabWindow( rootWin->winId(), geom.x(), geom.y(), geom.width(), geom.height() );
 
-  screenshot = QPixmap::grabWindow( task->window() );
+  screenshot = QPixmap::grabWindow( task->wmFrame() );
   scaledScreenshotDirty = true;
 
   // We've just grabbed a screenshot and don't want this to happen again in the next 3?! seconds
