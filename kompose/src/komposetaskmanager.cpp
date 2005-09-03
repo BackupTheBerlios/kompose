@@ -162,8 +162,9 @@ void KomposeTaskManager::slotWindowChanged( WId w, unsigned int dirty)
   }
 
   // check if any state we are interested in is marked dirty
-  if(!(dirty & (NET::WMVisibleName|NET::WMVisibleIconName|NET::WMName|NET::WMState|NET::WMIcon|NET::XAWMState|NET::WMDesktop)) )
-    return;
+//  if(!(dirty & (NET::WMVisibleName|NET::WMVisibleIconName|NET::WMName|NET::WMState|NET::WMIcon|NET::XAWMState|NET::WMDesktop)) )
+//    return;
+  //FIXME: the above check doesn't let through geometry changes. is there no NET Property for those???
 
   // find task
   KomposeTask* t = findTask( w );
@@ -379,7 +380,7 @@ void KomposeTaskManager::slotCurrentDesktopChanged(int d)
 #endif
 }
 
-int KomposeTaskManager::getCurrentDesktopNum()
+int KomposeTaskManager::getCurrentDesktopNum() const
 {
   return kwin_module->currentDesktop();
 }

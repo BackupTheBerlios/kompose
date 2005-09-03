@@ -49,9 +49,9 @@ public:
 
   int getNumDesktops() const { return numDesks; }
   QString getDesktopName(int desk) const;
-  int getCurrentDesktopNum();
+  int getCurrentDesktopNum() const;
 
-  TaskList getTasks() const { return tasklist; }
+  TaskList& getTasks() { return tasklist; }
   void orderListByStacking();
 
 public slots:

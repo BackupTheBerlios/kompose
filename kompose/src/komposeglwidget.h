@@ -18,6 +18,7 @@
 #include <qgl.h>
 
 #include "komposesettings.h"
+#include "komposetaskmanager.h"
 
 typedef void *Imlib_Image;
 
@@ -46,6 +47,8 @@ protected:
   void rearrangeContents( const QRect& availRect );
   static void convert_imlib_image_to_opengl_data(int texture_width, int texture_height, Imlib_Image imlib_img, unsigned char *out_buff);
 
+  void createOrderedTaskList( TaskList& inList, const QRect& availRect, uint rows, uint columns );
+
 protected slots:
   void scaleOneStep();
 
@@ -54,6 +57,7 @@ private:
   QTime* m_animProgress;
   double m_scale;
   uint m_BgTexID;
+  TaskList m_orderedTasks;
 };
 
 #endif

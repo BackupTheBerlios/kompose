@@ -62,8 +62,7 @@ KomposeGLWidget::~KomposeGLWidget()
   delete m_animProgress;
 
   makeCurrent();
-  TaskList tl = KomposeTaskManager::instance()->getTasks();
-  QPtrListIterator<KomposeTask> it( tl );
+  QPtrListIterator<KomposeTask> it( m_orderedTasks );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
   {
@@ -247,6 +246,7 @@ void KomposeGLWidget::rearrangeContents( const QRect& availRect )
 {
   kdDebug() << k_funcinfo << endl;
   TaskList tasks = KomposeTaskManager::instance()->getTasks();
+
   // Check or empty list
   if (tasks.count() == 0)
   {
@@ -273,11 +273,14 @@ void KomposeGLWidget::rearrangeContents( const QRect& availRect )
 
   kdDebug() << "rearrangeContents() - Relayouting " << tasks.count() << " windows with " << rows << " rows & " << columns << " columns" << endl;
 
+  // Now find the right order
+  createOrderedTaskList( m_orderedTasks, availRect, rows, columns );
+
   // Calculate width & height
   int w = (availRect.width() - (columns+1) * spacing ) / columns;
   int h = (availRect.height() - (rows+1) * spacing ) / rows;
 
-  QPtrListIterator<KomposeTask> it( tasks );
+  QPtrListIterator<KomposeTask> it( m_orderedTasks );
   KomposeTask *task = 0;
   int y = spacing;
   for ( int i=0; i<rows; ++i )
@@ -314,6 +317,7 @@ void KomposeGLWidget::rearrangeContents( const QRect& availRect )
       geom.setWidth(widgetw);
       geom.setHeight(widgeth);
       task->setKomposeGeom(geom);
+
       x+=w+spacing;
     }
     y+=h+spacing;
@@ -385,4 +389,56 @@ void KomposeGLWidget::convert_imlib_image_to_opengl_data(int texture_width, int 
   }
   imlib_image_put_back_data(tmp);
   imlib_free_image();
+}
+
+/**
+ * Finds the best order for the layout
+ * @param inList 
+ * @param availRect 
+ * @param rows 
+ * @param columns 
+ */
+void KomposeGLWidget::createOrderedTaskList( TaskList& inList, const QRect& availRect, uint rows, uint columns  )
+{
+  inList.clear();
+  TaskList tasks = TaskList(KomposeTaskManager::instance()->getTasks());
+  uint cellWidth = availRect.width() / columns;
+  uint cellHeight = availRect.height() / rows;
+
+  KomposeTask* task;
+  uint nearestDist = 0;
+  for (uint r = 0; r < rows; ++r)
+  {
+    for (uint c = 0; c < columns; ++c)
+    {
+      uint x = c * cellWidth + cellWidth / 2;
+      uint y = r * cellHeight + cellHeight / 2;
+
+      // Find the shortest diagonale between cell and window
+      if ( tasks.count() == 0)
+        break;
+      nearestDist = 0;
+      KomposeTask* nearestWindow = 0;
+      QPtrListIterator<KomposeTask> it( tasks );
+      while ( (task = it.current()) != 0 )
+      {
+        ++it;
+        Q_CHECK_PTR(task);
+
+        int xdist = task->getFrameGeometry().x() - x +
+                    task->getFrameGeometry().width() / 2;
+        int ydist = task->getFrameGeometry().y() - y +
+                    task->getFrameGeometry().height() / 2;
+        int dist = sqrt( xdist*xdist + ydist*ydist );
+        if ( nearestDist == 0 || dist < nearestDist )
+        {
+          nearestDist = dist;
+          nearestWindow = task;
+        }
+      }
+
+      inList.append(nearestWindow);
+      tasks.remove(nearestWindow);
+    }
+  }
 }
