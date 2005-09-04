@@ -22,32 +22,27 @@
 
 #include <kwin.h>
 #include <kpopupmenu.h>
-#include <kglobalsettings.h>
 #include <kdebug.h>
 
 KomposeGLViewWidget::KomposeGLViewWidget( int displayType , KomposeLayout *l )
- : AbstractViewWidget(0,l)
+ : AbstractViewWidget( 0, l, 0 )
 {
-  setBackgroundMode( Qt::FixedPixmap );
   m_menu = KomposeGlobal::instance()->getViewMenu();
 
   m_glWidget = new KomposeGLWidget(this,displayType,l);
-  setWindowState(windowState() | WindowFullScreen);
 
+  QDesktopWidget deskwidget;
   if (KomposeSettings::instance()->getViewScreen() == -1)
-    setGeometry( KGlobalSettings::desktopGeometry( this ) );
-  else
   {
-    QDesktopWidget deskwidget;
-    QRect deskRect = deskwidget.screenGeometry(KomposeSettings::instance()->getViewScreen());
+    setGeometry( deskwidget.availableGeometry( this ) );
+  } else {
+    QRect deskRect = deskwidget.availableGeometry(KomposeSettings::instance()->getViewScreen());
     setGeometry(deskRect);
-    kdDebug() << deskRect << endl;
   }
 
-  if (!isTopLevel())
-    QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
   setActiveWindow();
-
+  // Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool | Qt::WPaintUnclipped | Qt::WNoAutoErase
+  KWin::setType(winId(), NET::Dock);
   KWin::setOnAllDesktops( winId(), true );
 }
 

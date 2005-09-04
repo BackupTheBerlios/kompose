@@ -11,8 +11,8 @@
 //
 #include "abstractviewwidget.h"
 
-AbstractViewWidget::AbstractViewWidget( int displayType, KomposeLayout *l)
- : KomposeTaskContainerWidget( -1,  0, l ),
+AbstractViewWidget::AbstractViewWidget( int displayType, KomposeLayout *l, WFlags f)
+ : KomposeTaskContainerWidget( -1,  0, l, "abstrviewvidget", f ),
     type(displayType)
 {
 }

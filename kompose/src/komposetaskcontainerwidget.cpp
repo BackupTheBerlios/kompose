@@ -23,8 +23,8 @@
 
 static bool controlHold = false; // is the control key pressed
 
-KomposeTaskContainerWidget::KomposeTaskContainerWidget( int desk, QWidget *parent, KomposeLayout *l, const char *name)
-    : KomposeWidget(parent, l, name),
+KomposeTaskContainerWidget::KomposeTaskContainerWidget( int desk, QWidget *parent, KomposeLayout *l, const char *name, WFlags f)
+    : KomposeWidget(parent, l, name, f),
     desktop( desk )
 {
   connect(KomposeTaskManager::instance(), SIGNAL(taskDesktopChanged(KomposeTask*, int, int )),

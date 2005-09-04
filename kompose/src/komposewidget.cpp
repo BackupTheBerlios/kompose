@@ -26,8 +26,8 @@
 /*
  * The constructor accepts a custom layout, if none is specified a defaultlayout is used
  */
-KomposeWidget::KomposeWidget(QWidget *parent, KomposeLayout *l, const char *name)
-    : QWidget(parent, name)
+KomposeWidget::KomposeWidget(QWidget *parent, KomposeLayout *l, const char *name, WFlags f)
+    : QWidget(parent, name, f)
 {
   if (!l)
     layout = new KomposeLayout( this );

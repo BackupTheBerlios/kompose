@@ -21,7 +21,7 @@
 class AbstractViewWidget : public KomposeTaskContainerWidget
 {
 public:
-    AbstractViewWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
+    AbstractViewWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0, WFlags f = 0 );
     ~AbstractViewWidget();
 
   virtual void setType( int t ) { type = t; }

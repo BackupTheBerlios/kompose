@@ -54,6 +54,8 @@ KomposeGLWidget::KomposeGLWidget( QWidget* parent, int displayType, KomposeLayou
   m_animTimer = new QTimer(this);
   m_animProgress = new QTime();
   connect(m_animTimer, SIGNAL(timeout()), this, SLOT(scaleOneStep()));
+  m_target = GL_TEXTURE_RECTANGLE_NV;
+  // GL_TEXTURE_2D
 }
 
 
@@ -81,9 +83,9 @@ void KomposeGLWidget::initializeGL()
   kdDebug() << k_funcinfo << endl;
   // Set up the rendering context, define display lists etc.:
   glClearColor( 0.0, 0.0, 0.0, 0.0 );
-  glEnable(GL_DEPTH_TEST);
-  glShadeModel(GL_FLAT);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  //   glEnable(GL_DEPTH_TEST);
+  //   glShadeModel(GL_FLAT);
+  //   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //   glMatrixMode(GL_PROJECTION);
   //   glLoadIdentity();
   //   glOrtho(0.0,0.0,1280,800, -1.0, 1.0);
@@ -107,11 +109,11 @@ void KomposeGLWidget::initializeGL()
 
 void KomposeGLWidget::resizeGL( int w, int h )
 {
-  kdDebug() << k_funcinfo << endl;
+  glShadeModel(GL_FLAT);
   glViewport(0, 0, w, h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(0, w, h, 0, -1.0l, 1.0l);
+  glOrtho(0, w, h, 0, -999999, 999999);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
@@ -123,70 +125,86 @@ void KomposeGLWidget::paintGL()
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
-  glBindTexture(GL_TEXTURE_2D, m_BgTexID);
-  glColor4f(0.6, 0.6, 0.6, 1.0);
-  drawTextureRect( geometry(), 0.0 );
+  glBindTexture(m_target, m_BgTexID);
+//   glColor4f(0.6, 0.6, 0.6, 1.0);
+  glColor4f(1.0, 1.0, 1.0, 1.0);
+  QSize bgSize = ((QPixmap*)(KomposeGlobal::instance()->getDesktopBgPixmap()))->size();
+  drawTextureRect( QRect(mapFromGlobal(pos()),bgSize), bgSize, 0.0 );
 
   glColor4f(1.0, 1.0, 1.0, 1.0);
   float z = 0.0;
   TaskList tl = KomposeTaskManager::instance()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
-  it.toLast();
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
   {
-    --it;
+    ++it;
     Q_CHECK_PTR(task);
     if (task->getVisualizer()->m_glTexID != 0)
-      glBindTexture(GL_TEXTURE_2D, task->getVisualizer()->m_glTexID );
+      glBindTexture(m_target, task->getVisualizer()->m_glTexID );
 
+    QRect frameGeom( mapFromGlobal( task->getFrameGeometry().topLeft()),
+                     task->getFrameGeometry().size() );
+    QRect komposeGeom( task->getKomposeGeom() );
     QRect currentGeom;
+
     currentGeom.setX( task->getFrameGeometry().x() +
-                      m_scale*(double)( task->getKomposeGeom().x() -
-                                        task->getFrameGeometry().x() ) );
+                      m_scale*(double)( komposeGeom.x() - frameGeom.x() ) );
     currentGeom.setY( task->getFrameGeometry().y() +
-                      m_scale*(double)( task->getKomposeGeom().y() -
-                                        task->getFrameGeometry().y() ) );
+                      m_scale*(double)( komposeGeom.y() - frameGeom.y() ) );
 
     currentGeom.setWidth( task->getFrameGeometry().width() +
-                          m_scale*(double)( task->getKomposeGeom().width() -
-                                            task->getFrameGeometry().width() ) );
+                          m_scale*(double)( komposeGeom.width() - frameGeom.width() ) );
 
     currentGeom.setHeight( task->getFrameGeometry().height() +
-                           m_scale*(double)( task->getKomposeGeom().height() -
-                                             task->getFrameGeometry().height() ) );
+                           m_scale*(double)( komposeGeom.height() - frameGeom.height() ) );
 
-
-    drawTextureRect( currentGeom, z+0.001 );
+    QRect currentGeom2( mapFromGlobal( currentGeom.topLeft()),
+                     currentGeom.size() );
+    drawTextureRect( currentGeom2, frameGeom.size(), z+0.001 );
   }
   glFlush();
 }
 
-void KomposeGLWidget::drawTextureRect(QRect pos, float zIndex)
+void KomposeGLWidget::drawTextureRect(QRect pos, QSize texSize, float zIndex)
 {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glPushAttrib(GL_CURRENT_BIT);
-  glEnable(GL_TEXTURE_2D);
+  glEnable(m_target);
   glEnable(GL_BLEND);
+  glMatrixMode(GL_TEXTURE);
+
+  double tx_w;
+  double tx_h;
+  if (m_target == GL_TEXTURE_RECTANGLE_NV)
+  {
+    tx_w = texSize.width();
+    tx_h = texSize.height();
+  }
+  else
+  {
+    tx_w = 1.0;
+    tx_h = 1.0;
+  }
 
   glBegin(GL_QUADS);
   {
     glTexCoord2f(0.0, 0.0);
     glVertex3d(pos.x(), pos.y(), zIndex);
 
-    glTexCoord2f(1.0, 0.0);
+    glTexCoord2f(tx_w, 0.0);
     glVertex3d(pos.x() + pos.width(), pos.y(), zIndex);
 
-    glTexCoord2f(1.0, 1.0);
+    glTexCoord2f(tx_w, tx_h);
     glVertex3d(pos.x() + pos.width(), pos.y() + pos.height(), zIndex);
 
-    glTexCoord2f(0.0, 1.0);
+    glTexCoord2f(0.0, tx_h);
     glVertex3d(pos.x(), pos.y() + pos.height(), zIndex);
   }
   glEnd();
 
-  glDisable(GL_TEXTURE_2D);
+  glDisable(m_target);
   glPopAttrib();
 }
 
@@ -195,8 +213,19 @@ void KomposeGLWidget::bindTexture( const QPixmap* pixmap, uint& texIDStorage )
   kdDebug() << k_funcinfo << endl;
   QImage tx;
   QImage image;
-  int tx_w = nearest_gl_texture_size(pixmap->width()) /2;
-  int tx_h = nearest_gl_texture_size(pixmap->height()) /2;
+  int tx_w;
+  int tx_h;
+
+  if (m_target == GL_TEXTURE_2D)
+  {
+    tx_w = nearest_gl_texture_size(pixmap->width()) /2;
+    tx_h = nearest_gl_texture_size(pixmap->height()) /2;
+  }
+  else
+  {
+    tx_w = pixmap->width();
+    tx_h = pixmap->height();
+  }
   unsigned char* screenshot_data = new unsigned char [tx_w * tx_h * 4];
 
   imlib_context_set_anti_alias(1);
@@ -224,14 +253,14 @@ void KomposeGLWidget::bindTexture( const QPixmap* pixmap, uint& texIDStorage )
   }
 
   glGenTextures(1, &texIDStorage);
-  glBindTexture(GL_TEXTURE_2D, texIDStorage);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glBindTexture(m_target, texIDStorage);
+  glTexParameterf(m_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameterf(m_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 
-//     gluBuild2DMipmaps(GL_TEXTURE_2D, 3, tx_w, tx_h, GL_RGBA, GL_UNSIGNED_BYTE, screenshot_data);
+  //     gluBuild2DMipmaps(m_target, 3, tx_w, tx_h, GL_RGBA, GL_UNSIGNED_BYTE, screenshot_data);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, 3, tx_w, tx_h, 0, GL_RGBA,
+  glTexImage2D(m_target, 0, 3, tx_w, tx_h, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, screenshot_data);
 
   delete screenshot_data;

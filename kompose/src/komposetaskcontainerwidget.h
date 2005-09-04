@@ -27,7 +27,7 @@ class KomposeTaskContainerWidget : public KomposeWidget
 {
   Q_OBJECT
 public:
-  KomposeTaskContainerWidget( int desk = 0, QWidget *parent = 0, KomposeLayout *l = 0, const char *name = 0);
+  KomposeTaskContainerWidget( int desk = 0, QWidget *parent = 0, KomposeLayout *l = 0, const char *name = 0, WFlags f = 0);
 
   virtual ~KomposeTaskContainerWidget();
 

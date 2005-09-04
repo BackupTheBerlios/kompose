@@ -32,7 +32,7 @@ class KomposeWidget : public QWidget
 {
   Q_OBJECT
 public:
-  KomposeWidget( QWidget *parent = 0, KomposeLayout *l = 0, const char *name = 0);
+  KomposeWidget( QWidget *parent = 0, KomposeLayout *l = 0, const char *name = 0, WFlags f = 0);
 
   virtual ~KomposeWidget();
 

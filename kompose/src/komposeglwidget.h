@@ -42,7 +42,7 @@ protected:
   void showEvent ( QShowEvent * );
 
   void bindTexture( const QPixmap* pixmap, uint& texIDStorage );
-  void drawTextureRect(QRect pos, float zIndex);
+  void drawTextureRect(QRect pos, QSize texSize, float zIndex);
 
   void rearrangeContents( const QRect& availRect );
   static void convert_imlib_image_to_opengl_data(int texture_width, int texture_height, Imlib_Image imlib_img, unsigned char *out_buff);
@@ -58,6 +58,7 @@ private:
   double m_scale;
   uint m_BgTexID;
   TaskList m_orderedTasks;
+  GLenum m_target;
 };
 
 #endif
