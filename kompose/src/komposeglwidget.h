@@ -36,13 +36,16 @@ public:
   virtual ~KomposeGLWidget();
 
 protected:
+  enum AnimMode { ANIM_IN, ANIM_OUT };
   void initializeGL();
   void paintGL();
   void resizeGL(int w, int h);
   void showEvent ( QShowEvent * );
+  void mouseReleaseEvent (QMouseEvent *);
 
+  void paintTask(KomposeTask* task);
   void bindTexture( const QPixmap* pixmap, uint& texIDStorage );
-  void drawTextureRect(QRect pos, QSize texSize, float zIndex);
+  void drawTextureRect(QRect pos, QSize texSize );
 
   void rearrangeContents( const QRect& availRect );
   static void convert_imlib_image_to_opengl_data(int texture_width, int texture_height, Imlib_Image imlib_img, unsigned char *out_buff);
@@ -59,6 +62,8 @@ private:
   uint m_BgTexID;
   TaskList m_orderedTasks;
   GLenum m_target;
+  AnimMode m_animMode;
+  KomposeTask* m_activateLaterTask;
 };
 
 #endif

@@ -49,7 +49,9 @@ static int nearest_gl_texture_size(int v)
 
 
 KomposeGLWidget::KomposeGLWidget( QWidget* parent, int displayType, KomposeLayout *l)
-    : QGLWidget(parent), m_scale(0.)
+    : QGLWidget(parent),
+    m_scale(0.),
+    m_activateLaterTask(0)
 {
   m_animTimer = new QTimer(this);
   m_animProgress = new QTime();
@@ -126,13 +128,12 @@ void KomposeGLWidget::paintGL()
   glLoadIdentity();
 
   glBindTexture(m_target, m_BgTexID);
-//   glColor4f(0.6, 0.6, 0.6, 1.0);
+  //   glColor4f(0.6, 0.6, 0.6, 1.0);
   glColor4f(1.0, 1.0, 1.0, 1.0);
   QSize bgSize = ((QPixmap*)(KomposeGlobal::instance()->getDesktopBgPixmap()))->size();
-  drawTextureRect( QRect(mapFromGlobal(pos()),bgSize), bgSize, 0.0 );
+  drawTextureRect( QRect(mapFromGlobal(pos()),bgSize), bgSize );
 
   glColor4f(1.0, 1.0, 1.0, 1.0);
-  float z = 0.0;
   TaskList tl = KomposeTaskManager::instance()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
   KomposeTask *task;
@@ -140,33 +141,47 @@ void KomposeGLWidget::paintGL()
   {
     ++it;
     Q_CHECK_PTR(task);
-    if (task->getVisualizer()->m_glTexID != 0)
-      glBindTexture(m_target, task->getVisualizer()->m_glTexID );
-
-    QRect frameGeom( mapFromGlobal( task->getFrameGeometry().topLeft()),
-                     task->getFrameGeometry().size() );
-    QRect komposeGeom( task->getKomposeGeom() );
-    QRect currentGeom;
-
-    currentGeom.setX( task->getFrameGeometry().x() +
-                      m_scale*(double)( komposeGeom.x() - frameGeom.x() ) );
-    currentGeom.setY( task->getFrameGeometry().y() +
-                      m_scale*(double)( komposeGeom.y() - frameGeom.y() ) );
-
-    currentGeom.setWidth( task->getFrameGeometry().width() +
-                          m_scale*(double)( komposeGeom.width() - frameGeom.width() ) );
-
-    currentGeom.setHeight( task->getFrameGeometry().height() +
-                           m_scale*(double)( komposeGeom.height() - frameGeom.height() ) );
-
-    QRect currentGeom2( mapFromGlobal( currentGeom.topLeft()),
-                     currentGeom.size() );
-    drawTextureRect( currentGeom2, frameGeom.size(), z+0.001 );
+    // Postpone the drawing of the yet to activate task for proper zorder
+    if ( task == m_activateLaterTask )
+      continue;
+    paintTask(task);
   }
+
+  // Now draw the yet to actiate task
+  if ( m_activateLaterTask )
+    paintTask(m_activateLaterTask);
+
   glFlush();
 }
 
-void KomposeGLWidget::drawTextureRect(QRect pos, QSize texSize, float zIndex)
+void KomposeGLWidget::paintTask(KomposeTask* task)
+{
+  if (task->getVisualizer()->m_glTexID != 0)
+    glBindTexture(m_target, task->getVisualizer()->m_glTexID );
+
+  QRect frameGeom( mapFromGlobal( task->getFrameGeometry().topLeft()),
+                   task->getFrameGeometry().size() );
+  QRect komposeGeom( task->getKomposeGeom() );
+  QRect currentGeom;
+
+  currentGeom.setX( task->getFrameGeometry().x() +
+                    m_scale*(double)( komposeGeom.x() - frameGeom.x() ) );
+  currentGeom.setY( task->getFrameGeometry().y() +
+                    m_scale*(double)( komposeGeom.y() - frameGeom.y() ) );
+
+  currentGeom.setWidth( task->getFrameGeometry().width() +
+                        m_scale*(double)( komposeGeom.width() - frameGeom.width() ) );
+
+  currentGeom.setHeight( task->getFrameGeometry().height() +
+                         m_scale*(double)( komposeGeom.height() - frameGeom.height() ) );
+
+  QRect currentGeom2( mapFromGlobal( currentGeom.topLeft()),
+                      currentGeom.size() );
+
+  drawTextureRect( currentGeom2, frameGeom.size() );
+}
+
+void KomposeGLWidget::drawTextureRect(QRect pos, QSize texSize)
 {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -191,16 +206,16 @@ void KomposeGLWidget::drawTextureRect(QRect pos, QSize texSize, float zIndex)
   glBegin(GL_QUADS);
   {
     glTexCoord2f(0.0, 0.0);
-    glVertex3d(pos.x(), pos.y(), zIndex);
+    glVertex2d(pos.x(), pos.y());
 
     glTexCoord2f(tx_w, 0.0);
-    glVertex3d(pos.x() + pos.width(), pos.y(), zIndex);
+    glVertex2d(pos.x() + pos.width(), pos.y());
 
     glTexCoord2f(tx_w, tx_h);
-    glVertex3d(pos.x() + pos.width(), pos.y() + pos.height(), zIndex);
+    glVertex2d(pos.x() + pos.width(), pos.y() + pos.height());
 
     glTexCoord2f(0.0, tx_h);
-    glVertex3d(pos.x(), pos.y() + pos.height(), zIndex);
+    glVertex2d(pos.x(), pos.y() + pos.height());
   }
   glEnd();
 
@@ -358,12 +373,24 @@ void KomposeGLWidget::scaleOneStep()
   float diff = m_animProgress->elapsed();
   if (diff > ANIM_DURATION)
   {
+    if ( m_animMode == ANIM_OUT )
+      m_scale = 0.;
+    else
+      m_scale = 1.;
     m_scale = 1.;
     m_animTimer->stop();
+    if ( m_animMode == ANIM_OUT )
+    {
+      hide();
+      KomposeViewManager::instance()->activateTask( m_activateLaterTask );
+    }
   }
   else
   {
-    m_scale = diff / (float)ANIM_DURATION;
+    if ( m_animMode == ANIM_OUT )
+      m_scale = 1. - diff / (float)ANIM_DURATION;
+    else
+      m_scale = diff / (float)ANIM_DURATION;
   }
   updateGL();
 }
@@ -371,10 +398,44 @@ void KomposeGLWidget::scaleOneStep()
 void KomposeGLWidget::showEvent( QShowEvent * )
 {
   KomposeTaskManager::instance()->orderListByStacking();
-
+  m_animMode = ANIM_IN;
   m_scale = 0.;
   m_animProgress->start();
   m_animTimer->start(0);
+}
+
+void KomposeGLWidget::mouseReleaseEvent( QMouseEvent *e )
+{
+  if ( !rect().contains( e->pos() ) )
+    return;
+
+  switch ( e->button() )
+  {
+  case LeftButton:
+    {
+      QPtrListIterator<KomposeTask> it( m_orderedTasks );
+      KomposeTask *task;
+      while ( (task = it.current()) != 0 )
+      {
+        ++it;
+        Q_CHECK_PTR(task);
+        if ( task->getKomposeGeom().contains(e->pos()) )
+        {
+          m_animMode = ANIM_OUT;
+          m_activateLaterTask = task;
+          m_scale = 1.;
+          m_animProgress->start();
+          m_animTimer->start(0);
+          m_activateLaterTask->activate();
+          break;
+        }
+      }
+      e->accept();
+    }
+    break;
+  default:
+    break;
+  }
 }
 
 /**
