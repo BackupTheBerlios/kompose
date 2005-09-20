@@ -52,7 +52,7 @@ public:
   void add( KomposeWidget *w );
   void remove( KomposeWidget *w );
   void setType( int t );
-int getType() { return layoutType; }
+  int getType() { return layoutType; }
 
   const QPtrList<KomposeWidget> *getManagedWidgets() { return &list; }
   int getNumofChilds() { return list.count(); }

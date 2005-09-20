@@ -66,7 +66,7 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
   createTaskWidgets();
 
-  connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+  connect( KomposeTaskManager::self(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
 
   setFocusPolicy(QWidget::ClickFocus);
 
@@ -75,12 +75,12 @@ KomposeDesktopWidget::KomposeDesktopWidget(int desktop, QWidget *parent, Kompose
 
 KomposeDesktopWidget::~KomposeDesktopWidget()
 {
-  disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+  disconnect( KomposeTaskManager::self(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
 }
 
 void KomposeDesktopWidget::initFonts()
 {
-  titleFont = KomposeSettings::instance()->getDesktopTitleFont();
+  titleFont = KomposeSettings::self()->desktopTitleFont();
 }
 
 
@@ -150,7 +150,7 @@ void KomposeDesktopWidget::mouseReleaseEvent ( QMouseEvent * e )
 {
   if ( !rect().contains( e->pos() ) )
     return;
-  KomposeViewManager::instance()->setCurrentDesktop(desktop);
+  KomposeViewManager::self()->setCurrentDesktop(desktop);
 }
 
 
@@ -158,7 +158,7 @@ void KomposeDesktopWidget::mouseDoubleClickEvent ( QMouseEvent * e )
 {
   if ( !rect().contains( e->pos() ) )
     return;
-  KomposeViewManager::instance()->setCurrentDesktop(desktop);
+  KomposeViewManager::self()->setCurrentDesktop(desktop);
 }
 
 
@@ -168,15 +168,15 @@ void KomposeDesktopWidget::paintEvent ( QPaintEvent * )
   QPainter p;
   p.begin( this );
 //   QPoint tl = mapToGlobal(QPoint(0,0));
-//   p.drawPixmap(0,0, *KomposeGlobal::instance()->getDesktopBgPixmap(),
+//   p.drawPixmap(0,0, *KomposeGlobal::self()->getDesktopBgPixmap(),
 //                tl.x(), tl.y(), width(), height());
 
   p.setFont(titleFont);
 
   if (highlight)
-    p.setPen( KomposeSettings::instance()->getDesktopTitleFontHighlightColor() );
+    p.setPen( KomposeSettings::self()->desktopHighlightColor() );
   else
-    p.setPen( KomposeSettings::instance()->getDesktopTitleFontColor() );
+    p.setPen( KomposeSettings::self()->desktopTitleFontColor() );
 
   // Bounding rect
   p.drawRect(rect());
@@ -224,7 +224,7 @@ void KomposeDesktopWidget::keyReleaseEvent ( QKeyEvent * e )
   if ( e->key() == Qt::Key_Return || e->key() == Qt::Key_Space )
   {
     kdDebug() << "KomposeDesktopWidget::keyReleaseEvent - Switching to Desktop!" << endl;
-    KomposeViewManager::instance()->setCurrentDesktop(desktop);
+    KomposeViewManager::self()->setCurrentDesktop(desktop);
     e->accept();
   }
   else

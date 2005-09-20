@@ -43,7 +43,7 @@ protected:
   ~KomposeTaskManager();
 
 public:
-  static KomposeTaskManager *instance();
+  static KomposeTaskManager *self();
 
   bool isOnTop(const KomposeTask* task );
 

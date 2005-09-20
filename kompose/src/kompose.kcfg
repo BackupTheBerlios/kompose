@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE kcfg SYSTEM "http://www.kde.org/standards/kcfg/1.0/kcfg.dtd">
+<kcfg> 
+  <kcfgfile name="komposerc"/>
+  <include>qapplication.h</include>
+  <group name="kompose"> 
+    <entry name="Composite" type="Bool"> 
+      <label>Make use of the XComposite extension</label>
+      <default>false</default> 
+    </entry>
+    <entry name="OpenGL" type="Bool"> 
+      <label>Make use of OpenGL</label>
+      <default>true</default>
+    </entry>
+    <entry name="ImageEffects" type="Bool"> 
+      <label>Do some image effects in non OpenGL mode</label>
+      <default>true</default> 
+    </entry>
+    <entry name="PassiveScreenshots" type="Bool"> 
+      <label>Take screenshots when windows get activated</label>
+      <default>true</default> 
+    </entry>
+    <entry name="WindowCaptureDelay" type="Int"> 
+      <label>The amount of time in ms between activation of a window and the screen capture</label>
+      <default>200</default>
+    </entry>
+    <entry name="DynamicVirtDeskLayout" type="Bool"> 
+      <label>Allow the desktop widgets to dynamically take up space depending on their contents</label>
+      <default>true</default> 
+    </entry>
+    <entry name="ShowIcons" type="Bool"> 
+      <label>Show icons on windows</label>
+      <default>true</default> 
+    </entry>
+    <entry name="IconSize" type="Int"> 
+      <label>Icon size for window icons</label>
+      <default>3</default>
+    </entry>
+    <entry name="ShowWindowTitles" type="Bool"> 
+      <label>Show window titles on windows</label>
+      <default>true</default> 
+    </entry>
+    <entry name="WindowTitleFont" type="Font"> 
+      <label>The font used to display the window titles</label> 
+      <default code="true">KGlobalSettings::generalFont()</default> 
+    </entry> 
+    <entry name="WindowTitleFontColor" type="Color" >
+      <label>The color used to display the window titles</label>
+      <default code="true">(QApplication::palette().active().mid())</default>
+    </entry>
+    <entry name="ShowWindowTitleShadow" type="Bool"> 
+      <label>Show shadows behind window titles</label>
+      <default>true</default> 
+    </entry>
+    <entry name="WindowTitleShadowColor" type="Color" >
+      <label>The color for the window title shadows</label>
+      <default code="true">(QApplication::palette().active().mid())</default>
+    </entry>
+    <entry name="DesktopTitleFont" type="Font"> 
+      <label>The font used to display the desktop titles</label> 
+      <default code="true">KGlobalSettings::generalFont()</default> 
+    </entry> 
+    <entry name="DesktopTitleFontColor" type="Color" >
+      <label>The color used to display the desktop titles</label>
+      <default code="true">(QApplication::palette().active().mid())</default>
+    </entry>
+    <entry name="DesktopHighlightColor" type="Color"> 
+      <label>The color used to display selected desktops</label> 
+      <default code="true">(QApplication::palette().active().mid())</default> 
+    </entry> 
+    <entry name="AutoLockDelay" type="Int"> 
+      <label>Delay for hot spot/edge activation in ms</label>
+      <default>1000</default>
+    </entry>
+    <entry name="ShowDesktopNum" type="Bool"> 
+      <label>Show desktop number on systray icon</label>
+      <default>false</default> 
+    </entry>
+    <entry name="ViewScreen" type="Int"> 
+      <label>The screen where Kompose should be shown</label>
+      <default>0</default>
+    </entry>
+
+  <entry name="View$(ViewMode)" type="Enum" key="view_$(ViewMode)">
+    <parameter name="ViewMode" type="Enum">
+      <values>
+        <value>Default</value>
+        <value>ActivateOnTopLeftCorner</value>
+        <value>ActivateOnTopRightCorner</value>
+        <value>ActivateOnBottomLeftCorner</value>
+        <value>ActivateOnBottomRightCorner</value>
+        <value>ActivateOnTopEdge</value>
+        <value>ActivateOnLeftEdge</value>
+        <value>ActivateOnRightEdge</value>
+        <value>ActivateOnBottomEdge</value>
+      </values>
+    </parameter>
+    <choices>
+      <choice name="None">
+        <label>No view</label>
+      </choice>
+      <choice name="Default">
+        <label>Displays the default view</label>
+      </choice>
+      <choice name="World">
+        <label>Displays all windows on all desktops in an unsorted view</label>
+      </choice>
+      <choice name="VirtualDesktops">
+        <label>Displays all windows of all desktops orderd by virtual desktops</label>
+      </choice>
+      <choice name="CurrentDesktop">
+        <label>Displays only windows from the current desktop</label>
+      </choice>
+    </choices>
+    <default param="Default">VirtualDesktops</default>
+    <default param="ActivateOnTopLeftCorner">None</default>
+    <default param="ActivateOnTopRightCorner">None</default>
+    <default param="ActivateOnBottomLeftCorner">None</default>
+    <default param="ActivateOnBottomRightCorner">None</default>
+    <default param="ActivateOnTopEdge">None</default>
+    <default param="ActivateOnLeftEdge">None</default>
+    <default param="ActivateOnRightEdge">None</default>
+    <default param="ActivateOnBottomEdge">None</default>
+  </entry>
+
+  </group>
+</kcfg>

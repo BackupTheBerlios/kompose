@@ -99,7 +99,7 @@ void KomposeTask::slotUpdateScreenshot()
 
 bool KomposeTask::isOnTop() const
 {
-  return KomposeTaskManager::instance()->isOnTop( this );
+  return KomposeTaskManager::self()->isOnTop( this );
 }
 
 

@@ -27,7 +27,7 @@ KomposeTaskContainerWidget::KomposeTaskContainerWidget( int desk, QWidget *paren
     : KomposeWidget(parent, l, name, f),
     desktop( desk )
 {
-  connect(KomposeTaskManager::instance(), SIGNAL(taskDesktopChanged(KomposeTask*, int, int )),
+  connect(KomposeTaskManager::self(), SIGNAL(taskDesktopChanged(KomposeTask*, int, int )),
           SLOT(reparentTaskWidget(KomposeTask*, int, int )) );
 }
 
@@ -195,7 +195,7 @@ bool KomposeTaskContainerWidget::focusNeighbourChild( int direction )
 
 void KomposeTaskContainerWidget::createTaskWidgets()
 {
-  TaskList tl = KomposeTaskManager::instance()->getTasks();
+  TaskList tl = KomposeTaskManager::self()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -247,7 +247,7 @@ void KomposeTaskContainerWidget::childEvent( QChildEvent * ce)
 {
   KomposeWidget::childEvent(ce);
   // ReLayout when we are in a active view and a new window appeared somewhere
-  if ( KomposeViewManager::instance()->hasActiveView() )
+  if ( KomposeViewManager::self()->hasActiveView() )
     layout->arrangeLayout();
 }
 

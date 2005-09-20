@@ -28,7 +28,7 @@ class KomposeFullscreenWidget : public AbstractViewWidget
 {
 Q_OBJECT
 public:
-  KomposeFullscreenWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
+  KomposeFullscreenWidget( int displayType = KomposeSettings::EnumView::VirtualDesktops ,KomposeLayout *l = 0 );
   virtual ~KomposeFullscreenWidget();
 
   int getHeightForWidth( int w ) const;

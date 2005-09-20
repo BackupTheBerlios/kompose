@@ -32,15 +32,15 @@ protected:
   ~KomposeViewManager();
 
 public:
-  static KomposeViewManager *instance();
+  static KomposeViewManager *self();
 
   AbstractViewWidget* getViewWidget() { return viewWidget; }
 
 public slots:
   void createView( int type = -1 ); // -1 means the user's default
-  void createVirtualDesktopView() { createView( KOMPOSEDISPLAY_VIRTUALDESKS ); }
-  void createCurrentDesktopView() { createView( KOMPOSEDISPLAY_CURRENTDESK ); }
-  void createWorldView() { createView( KOMPOSEDISPLAY_WORLD ); }
+  void createVirtualDesktopView() { createView( KomposeSettings::EnumView::VirtualDesktops ); }
+  void createCurrentDesktopView() { createView( KomposeSettings::EnumView::CurrentDesktop ); }
+  void createWorldView() { createView( KomposeSettings::EnumView::World ); }
   void createDefaultView() { createView(); }
 
   void closeCurrentView();

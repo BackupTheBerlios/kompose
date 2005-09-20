@@ -27,7 +27,8 @@
 #include <kdebug.h>
 #include <ksharedpixmap.h>
 
-#define ANIM_DURATION 500
+#include <math.h>
+#define ANIM_DURATION 300
 
 // returns the highest number closest to v, which is a power of 2
 // NB! assumes 32 bit ints
@@ -94,7 +95,7 @@ void KomposeGLWidget::initializeGL()
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
   kdDebug() << "KomposeGLWidget::initializeGL() - creating textures..." << endl;
-  TaskList tl = KomposeTaskManager::instance()->getTasks();
+  TaskList tl = KomposeTaskManager::self()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -105,7 +106,7 @@ void KomposeGLWidget::initializeGL()
     bindTexture( pm, task->getVisualizer()->m_glTexID );
     delete pm;
   }
-  bindTexture( KomposeGlobal::instance()->getDesktopBgPixmap(), m_BgTexID );
+  bindTexture( KomposeGlobal::self()->getDesktopBgPixmap(), m_BgTexID );
   kdDebug() << "KomposeGLWidget::initializeGL() - all textures created" << endl;
 }
 
@@ -119,7 +120,40 @@ void KomposeGLWidget::resizeGL( int w, int h )
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  rearrangeContents( rect() );
+  if (  KomposeSettings::self()->view( KomposeSettings::EnumViewMode::Default ) ==
+        KomposeSettings::EnumView::VirtualDesktops )
+  {
+    int numDesks = KomposeTaskManager::self()->getNumDesktops();
+    int spacing=10; // FIXME: MoveME
+    int columns=0;
+    int rows=0;
+
+    double parentRatio = (double)rect().width() / (double)rect().height();
+    // Use more columns than rows when parent's width > parent's height
+    if ( parentRatio > 1 )
+    {
+      columns = (int)ceil( sqrt(numDesks) );
+      rows = (int)ceil( (double)numDesks / (double)columns );
+    }
+    else
+    {
+      rows = (int)ceil( sqrt(numDesks) );
+      columns = (int)ceil( (double)numDesks / (double)rows );
+    }
+    int w = (rect().width() - (columns+1) * spacing ) / columns;
+    int h = (rect().height() - (rows+1) * spacing ) / rows;
+
+    for (int i=0; i < numDesks; ++i)
+    {
+      int row = i / 2;
+      int col = i % 2;
+
+      //kdDebug() << "rc %d %d", row, col);
+      rearrangeContents( QRect( col*w, row*h, w, h ), i );
+    }
+  }
+  else
+    rearrangeContents( rect() );
 }
 
 void KomposeGLWidget::paintGL()
@@ -130,11 +164,11 @@ void KomposeGLWidget::paintGL()
   glBindTexture(m_target, m_BgTexID);
   //   glColor4f(0.6, 0.6, 0.6, 1.0);
   glColor4f(1.0, 1.0, 1.0, 1.0);
-  QSize bgSize = ((QPixmap*)(KomposeGlobal::instance()->getDesktopBgPixmap()))->size();
+  QSize bgSize = ((QPixmap*)(KomposeGlobal::self()->getDesktopBgPixmap()))->size();
   drawTextureRect( QRect(mapFromGlobal(pos()),bgSize), bgSize );
 
   glColor4f(1.0, 1.0, 1.0, 1.0);
-  TaskList tl = KomposeTaskManager::instance()->getTasks();
+  TaskList tl = KomposeTaskManager::self()->getTasks();
   QPtrListIterator<KomposeTask> it( tl );
   KomposeTask *task;
   while ( (task = it.current()) != 0 )
@@ -281,15 +315,25 @@ void KomposeGLWidget::bindTexture( const QPixmap* pixmap, uint& texIDStorage )
   delete screenshot_data;
 }
 
-#include <math.h>
 /**
  * availRect specifies the size&pos of the contents
  * Specify either rows or cols to set a fixed number of those (setting both won't work correctly)
  */
-void KomposeGLWidget::rearrangeContents( const QRect& availRect )
+void KomposeGLWidget::rearrangeContents( const QRect& availRect, int desktop )
 {
   kdDebug() << k_funcinfo << endl;
-  TaskList tasks = KomposeTaskManager::instance()->getTasks();
+  TaskList tmp_tasks = KomposeTaskManager::self()->getTasks();
+  TaskList tasks;
+
+  KomposeTask* task = 0;
+  QPtrListIterator<KomposeTask> tmp_it( tmp_tasks );
+  while ( (task = tmp_it.current()) != 0 )
+  {
+    ++tmp_it;
+    Q_CHECK_PTR(task);
+    if ( desktop == -1 || task->onDesktop()-1 == desktop)
+      tasks.append( task );
+  }
 
   // Check or empty list
   if (tasks.count() == 0)
@@ -325,7 +369,6 @@ void KomposeGLWidget::rearrangeContents( const QRect& availRect )
   int h = (availRect.height() - (rows+1) * spacing ) / rows;
 
   QPtrListIterator<KomposeTask> it( m_orderedTasks );
-  KomposeTask *task = 0;
   int y = spacing;
   for ( int i=0; i<rows; ++i )
   {
@@ -356,8 +399,8 @@ void KomposeGLWidget::rearrangeContents( const QRect& availRect )
         widgetw = wforh;
       }
 
-      geom.setX(x);
-      geom.setY(y);
+      geom.setX(availRect.x() + x);
+      geom.setY(availRect.y() + y);
       geom.setWidth(widgetw);
       geom.setHeight(widgeth);
       task->setKomposeGeom(geom);
@@ -382,7 +425,7 @@ void KomposeGLWidget::scaleOneStep()
     if ( m_animMode == ANIM_OUT )
     {
       hide();
-      KomposeViewManager::instance()->activateTask( m_activateLaterTask );
+      KomposeViewManager::self()->activateTask( m_activateLaterTask );
     }
   }
   else
@@ -397,7 +440,7 @@ void KomposeGLWidget::scaleOneStep()
 
 void KomposeGLWidget::showEvent( QShowEvent * )
 {
-  KomposeTaskManager::instance()->orderListByStacking();
+  KomposeTaskManager::self()->orderListByStacking();
   m_animMode = ANIM_IN;
   m_scale = 0.;
   m_animProgress->start();
@@ -488,10 +531,10 @@ void KomposeGLWidget::convert_imlib_image_to_opengl_data(int texture_width, int 
  * @param rows 
  * @param columns 
  */
-void KomposeGLWidget::createOrderedTaskList( TaskList& inList, const QRect& availRect, uint rows, uint columns  )
+void KomposeGLWidget::createOrderedTaskList( TaskList& inList, const QRect& availRect, uint rows, uint columns )
 {
   inList.clear();
-  TaskList tasks = TaskList(KomposeTaskManager::instance()->getTasks());
+  TaskList tasks = TaskList(KomposeTaskManager::self()->getTasks());
   uint cellWidth = availRect.width() / columns;
   uint cellHeight = availRect.height() / rows;
 

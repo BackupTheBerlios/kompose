@@ -48,7 +48,7 @@ KomposeLayout::~KomposeLayout()
 void KomposeLayout::setType( int t )
 {
   if ( t == TLAYOUT_TASKCONTAINERS &&
-       !KomposeSettings::instance()->getDynamicVirtDeskLayout() )
+       !KomposeSettings::self()->dynamicVirtDeskLayout() )
     t = TLAYOUT_GENERIC;
   layoutType = t;
 }

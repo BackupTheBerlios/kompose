@@ -45,21 +45,21 @@ KomposeFullscreenWidget::KomposeFullscreenWidget( int displayType, KomposeLayout
 
   // Set Desktop background as our background
   setBackgroundMode( Qt::FixedPixmap );
-//   setBackgroundPixmap(*(KomposeGlobal::instance()->getDesktopBgPixmap()));
+//   setBackgroundPixmap(*(KomposeGlobal::self()->getDesktopBgPixmap()));
   rootpix = new KRootPixmap (this);
   rootpix->start();
-  m_menu = KomposeGlobal::instance()->getViewMenu();
+  m_menu = KomposeGlobal::self()->getViewMenu();
   initView();
 
   // Alternate showFullscreen
   setWindowState(windowState() | WindowFullScreen);
 
-  if (KomposeSettings::instance()->getViewScreen() == -1)
+  if (KomposeSettings::self()->viewScreen() == -1)
     setGeometry( KGlobalSettings::desktopGeometry( this ) );
   else
   {
     QDesktopWidget deskwidget;
-    QRect deskRect = deskwidget.screenGeometry(KomposeSettings::instance()->getViewScreen());
+    QRect deskRect = deskwidget.screenGeometry(KomposeSettings::self()->viewScreen());
     setGeometry(deskRect);
     kdDebug() << deskRect << endl;
   }
@@ -95,26 +95,26 @@ void KomposeFullscreenWidget::initView()
 
   destroyChildWidgets();
 
-  if ( type == KOMPOSEDISPLAY_VIRTUALDESKS )
+  if ( type == KomposeSettings::EnumView::VirtualDesktops )
   {
-    disconnect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+    disconnect( KomposeTaskManager::self(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
     layout->setType( TLAYOUT_TASKCONTAINERS );
     setDesktop( -2 );
     createDesktopWidgets();
   }
-  else if ( type == KOMPOSEDISPLAY_WORLD )
+  else if ( type == KomposeSettings::EnumView::World )
   {
     layout->setType( TLAYOUT_GENERIC );
     setDesktop( -1 );
     createTaskWidgets();
-    connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+    connect( KomposeTaskManager::self(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
-  else if ( type == KOMPOSEDISPLAY_CURRENTDESK )
+  else if ( type == KomposeSettings::EnumView::CurrentDesktop )
   {
     layout->setType( TLAYOUT_GENERIC );
-    setDesktop( KomposeViewManager::instance()->getDesktopBeforeSnaps() );
+    setDesktop( KomposeViewManager::self()->getDesktopBeforeSnaps() );
     createTaskWidgets();
-    connect( KomposeTaskManager::instance(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
+    connect( KomposeTaskManager::self(), SIGNAL( newTask( KomposeTask* ) ), this, SLOT( createTaskWidget( KomposeTask* ) ) );
   }
 
   unsetCursor();
@@ -124,7 +124,7 @@ void KomposeFullscreenWidget::createDesktopWidgets()
 {
   kdDebug() << "KomposeFullscreenWidget::createDesktopWidgets()" << endl;
   // Create a Widget for every desktop
-  for (int i=0; i < KomposeTaskManager::instance()->getNumDesktops(); ++i)
+  for (int i=0; i < KomposeTaskManager::self()->getNumDesktops(); ++i)
   {
     //int row = i / 2;
     //int col = i % 2;
@@ -163,7 +163,7 @@ void KomposeFullscreenWidget::keyReleaseEvent ( QKeyEvent * e )
   if ( e->key() == Qt::Key_Escape )
   {
     kdDebug() << "KomposeFullscreenWidget::keyReleaseEvent - Esc key pressed - Closing view" << endl;
-    KomposeViewManager::instance()->closeCurrentView();
+    KomposeViewManager::self()->closeCurrentView();
     e->accept();
   }
   else

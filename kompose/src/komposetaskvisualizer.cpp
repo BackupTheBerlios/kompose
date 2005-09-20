@@ -55,14 +55,14 @@ KomposeTaskVisualizer::KomposeTaskVisualizer(KomposeTask *parent, const char *na
   imlib_modify_color_modifier_brightness(-0.13);
   imlib_context_set_color_modifier(0);
 
-  if ( !KomposeSettings::instance()->getCacheScaledPixmaps() )
-  {
-      // clear cached pixmaps on viewclose
-      connect( KomposeViewManager::instance(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
-  }
+  //   if ( !KomposeSettings::self()->cacheScaledPixmaps() )
+  //   {
+  //       // clear cached pixmaps on viewclose
+  //       connect( KomposeViewManager::self(), SIGNAL(viewClosed()), this, SLOT(clearCached()) );
+  //   }
 
   initXComposite();
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(initXComposite()) );
+  connect( KomposeGlobal::self(), SIGNAL(settingsChanged()), this, SLOT(initXComposite()) );
 }
 
 KomposeTaskVisualizer::~KomposeTaskVisualizer()
@@ -83,7 +83,7 @@ KomposeTaskVisualizer::~KomposeTaskVisualizer()
 void KomposeTaskVisualizer::renderOnPixmap(QPixmap* pix, int effect)
 {
   if ( scaledScreenshotDirty || scaledScreenshot.isNull() || scaledScreenshot.size() != pix->size() ||
-       KomposeSettings::instance()->getImageEffects() && (lasteffect != effect ) )
+       KomposeSettings::self()->imageEffects() && (lasteffect != effect ) )
   {
     lasteffect = effect;
     renderScaledScreenshot( pix->size() );
@@ -107,7 +107,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 
   scaledScreenshot.resize( newSize );
 
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
 #ifdef COMPOSITE
     if ( !validBackingPix )
@@ -137,7 +137,7 @@ void KomposeTaskVisualizer::renderScaledScreenshot( QSize newSize )
 #endif
 
   }
-  /*  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  /*  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
     {
       // The XComposite way
   #ifdef COMPOSITE
@@ -191,7 +191,7 @@ QPixmap* KomposeTaskVisualizer::getOrigPixmap()
 {
   QPixmap* pm = new QPixmap( task->getGeometry().size() );
 
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
 #ifdef COMPOSITE
     if ( !validBackingPix )
@@ -217,7 +217,10 @@ QPixmap* KomposeTaskVisualizer::getOrigPixmap()
 
     return pm;
 #endif
-  } else {
+
+  }
+  else
+  {
     *pm = screenshot;
     return pm;
   }
@@ -228,12 +231,12 @@ QPixmap* KomposeTaskVisualizer::getOrigPixmap()
  */
 void KomposeTaskVisualizer::slotTaskActivated()
 {
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
     return;
   }
 
-  if ( KomposeViewManager::instance()->getBlockScreenshots() && !screenshotSuspended )
+  if ( KomposeViewManager::self()->getBlockScreenshots() && !screenshotSuspended )
   {
     // Retry 1 sec later
     screenshotSuspended = true;
@@ -242,9 +245,9 @@ void KomposeTaskVisualizer::slotTaskActivated()
   screenshotSuspended = false;
 
   // Grab a Passive Screenshot
-  if ( KomposeSettings::instance()->getPassiveScreenshots() &&
-       !KomposeViewManager::instance()->hasActiveView() &&
-       !KomposeViewManager::instance()->getBlockScreenshots() )
+  if ( KomposeSettings::self()->passiveScreenshots() &&
+       !KomposeViewManager::self()->hasActiveView() &&
+       !KomposeViewManager::self()->getBlockScreenshots() )
   {
     kdDebug() << "KomposeTaskVisualizer::slotTaskActivated() (WId " << task->window() << ") - Screenshot already exists, but passive mode on - Grabbing new one." << endl;
     // Use a timer to make task switching feel more responsive
@@ -260,7 +263,7 @@ void KomposeTaskVisualizer::slotTaskActivated()
 void KomposeTaskVisualizer::slotUpdateScreenshot()
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
     if ( !validBackingPix )
     {
@@ -293,7 +296,7 @@ void KomposeTaskVisualizer::slotUpdateScreenshot()
     // Wait until window is fully redrawn
     // Thanks to desk3d (http://desk3d.sourceforge.net) for the non-blocking sleep
     struct timeval tm;
-    int ms = KomposeSettings::instance()->getScreenshotGrabDelay();
+    int ms = KomposeSettings::self()->windowCaptureDelay();
     tm.tv_sec = (time_t)floor(ms / 1000);
     tm.tv_usec = (ms - (tm.tv_sec * 1000)) * 1000;
     select (0, 0, 0, 0, &tm);
@@ -322,7 +325,7 @@ void KomposeTaskVisualizer::updateXCompositeNamedPixmap()
 {
 #ifdef COMPOSITE
   if ( compositeInit &&
-       KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite())
+       KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite())
   {
     if( !task->isOnCurrentDesktop() )
     {
@@ -349,7 +352,7 @@ void KomposeTaskVisualizer::updateXCompositeNamedPixmap()
 void KomposeTaskVisualizer::initXComposite()
 {
 #ifdef COMPOSITE
-  if ( !compositeInit && KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite())
+  if ( !compositeInit && KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite())
   {
     dpy = QPaintDevice::x11AppDisplay();
 
@@ -387,7 +390,7 @@ void KomposeTaskVisualizer::initXComposite()
 #endif
 }
 
-  
+
 /**
  * Grabs a screenshot the old fashioned way
  */
@@ -489,7 +492,8 @@ void KomposeTaskVisualizer::applyEffect()
     imlib_add_color_to_color_range(1000);
     /* draw the range */
     //imlib_context_set_image(myIm);
-    imlib_image_fill_color_range_rectangle(0, 0, scaledScreenshot.width(), KomposeSettings::instance()->getWindowTitleFontAscent() * 3, -180.0);
+    QFontMetrics fm( KomposeSettings::self()->windowTitleFont() );
+    imlib_image_fill_color_range_rectangle(0, 0, scaledScreenshot.width(), fm.ascent() * 3, -180.0);
     /* free it */
     imlib_free_color_range();
   }

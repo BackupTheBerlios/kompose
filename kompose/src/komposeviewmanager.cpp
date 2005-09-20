@@ -36,11 +36,11 @@ static KomposeViewManager* viewManagerInstance = 0;
 /**
  * Viewmanager is a singleton
  */
-KomposeViewManager* KomposeViewManager::instance()
+KomposeViewManager* KomposeViewManager::self()
 {
   if ( !viewManagerInstance )
   {
-    kdDebug() << "KomposeViewManager::instance() - Creating Singleton instance" << endl;
+    kdDebug() << "KomposeViewManager::self() - Creating Singleton instance" << endl;
     viewManagerInstance = new KomposeViewManager();
   }
   return viewManagerInstance;
@@ -75,7 +75,7 @@ KomposeViewManager::~KomposeViewManager()
  */
 void KomposeViewManager::uglyQtHackInitFunction()
 {
-  connect( KomposeSettings::instance(), SIGNAL( settingsChanged() ), SLOT( slotStartCursorUpdateTimer() ) );
+  connect( KomposeGlobal::self(), SIGNAL( settingsChanged() ), SLOT( slotStartCursorUpdateTimer() ) );
 }
 
 /**
@@ -86,14 +86,14 @@ void KomposeViewManager::slotStartCursorUpdateTimer()
 {
   disconnect( cursorUpdateTimer, SIGNAL( timeout() ), this, SLOT( checkCursorPos() ) );
 
-  if ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() ||
-       KomposeSettings::instance()->getActivateOnBottomRightCorner() ||
-       KomposeSettings::instance()->getActivateOnTopLeftCorner() ||
-       KomposeSettings::instance()->getActivateOnTopRightCorner() ||
-       KomposeSettings::instance()->getActivateOnTopEdge() ||
-       KomposeSettings::instance()->getActivateOnBottomEdge() ||
-       KomposeSettings::instance()->getActivateOnLeftEdge() ||
-       KomposeSettings::instance()->getActivateOnRightEdge() )
+  if ( KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomLeftCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomRightCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopLeftCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopRightCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnLeftEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnRightEdge ) )
   {
     kdDebug() << "KomposeViewManager::slotStartCursorUpdateTimer() - QCursor::pos() checks enabled" << endl;
     QRect deskRect = QApplication::desktop()->screenGeometry();
@@ -114,27 +114,17 @@ void KomposeViewManager::slotStartCursorUpdateTimer()
  */
 void KomposeViewManager::checkCursorPos()
 {
-  if (
-    ( KomposeSettings::instance()->getActivateOnTopLeftCorner() &&
-      !activeView && QCursor::pos() == topLeftCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnTopRightCorner() &&
-      !activeView && QCursor::pos() == topRightCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() &&
-      !activeView && QCursor::pos() == bottomLeftCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
-      !activeView && QCursor::pos() == bottomRightCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnTopEdge() &&
-      !activeView && QCursor::pos().y() == topLeftCorner.y() ) ||
-    ( KomposeSettings::instance()->getActivateOnBottomEdge() &&
-      !activeView && QCursor::pos().y() == bottomLeftCorner.y() ) ||
-    ( KomposeSettings::instance()->getActivateOnLeftEdge() &&
-      !activeView && QCursor::pos().x() == topLeftCorner.x() ) ||
-    ( KomposeSettings::instance()->getActivateOnRightEdge() &&
-      !activeView && QCursor::pos().x() == topRightCorner.x() )
-  )
+  if ( KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomLeftCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomRightCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopLeftCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopRightCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnLeftEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnRightEdge ) )
   {
     //cursorUpdateTimer->stop();
-    QTimer::singleShot( KomposeSettings::instance()->getAutoLockDelay(), this, SLOT( reCheckCursorPos() ) );
+    QTimer::singleShot( KomposeSettings::self()->autoLockDelay(), this, SLOT( reCheckCursorPos() ) );
   }
 }
 
@@ -143,24 +133,14 @@ void KomposeViewManager::checkCursorPos()
  */
 void KomposeViewManager::reCheckCursorPos()
 {
-  if (
-    ( KomposeSettings::instance()->getActivateOnTopLeftCorner() &&
-      !activeView && QCursor::pos() == topLeftCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnTopRightCorner() &&
-      !activeView && QCursor::pos() == topRightCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnBottomLeftCorner() &&
-      !activeView && QCursor::pos() == bottomLeftCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnBottomRightCorner() &&
-      !activeView && QCursor::pos() == bottomRightCorner ) ||
-    ( KomposeSettings::instance()->getActivateOnTopEdge() &&
-      !activeView && QCursor::pos().y() == topLeftCorner.y() ) ||
-    ( KomposeSettings::instance()->getActivateOnBottomEdge() &&
-      !activeView && QCursor::pos().y() == bottomLeftCorner.y() ) ||
-    ( KomposeSettings::instance()->getActivateOnLeftEdge() &&
-      !activeView && QCursor::pos().x() == topLeftCorner.x() ) ||
-    ( KomposeSettings::instance()->getActivateOnRightEdge() &&
-      !activeView && QCursor::pos().x() == topRightCorner.x() )
-  )
+  if ( KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomLeftCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomRightCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopLeftCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopRightCorner ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnTopEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnBottomEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnLeftEdge ) ||
+       KomposeSettings::self()->view( KomposeSettings::EnumViewMode::ActivateOnRightEdge ) )
   {
     cursorUpdateTimer->stop();
     createView();
@@ -170,15 +150,15 @@ void KomposeViewManager::reCheckCursorPos()
 
 void KomposeViewManager::createView( int type )
 {
-  if (KomposeSettings::instance()->hasDialogOpen() ||
-      KomposeGlobal::instance()->hasAboutDialogOpen())
+  kdDebug() << k_funcinfo << endl;
+  if ( KomposeGlobal::self()->hasDialogOpen() )
   {
     kdDebug() << "KomposeViewManager::createView() - Another Kompose Dialog is open... close it first" << endl;
     return;
   }
 
   if (type == -1)
-    type = KomposeSettings::instance()->getDefaultView();
+    type = KomposeSettings::self()->view( KomposeSettings::EnumViewMode::Default );
 
   kdDebug() << "KomposeViewManager::createView( type " << type << " )" << endl;
 
@@ -188,18 +168,18 @@ void KomposeViewManager::createView( int type )
     deskBeforeSnaps = KWin::currentDesktop();
     kdDebug() << "KomposeViewManager::createView() - Remembering desktop " << deskBeforeSnaps << endl;
     // Update screenshot of the current window to be more up2date
-    // KomposeTaskManager::instance()->simulatePasvScreenshotEvent();
+    // KomposeTaskManager::self()->simulatePasvScreenshotEvent();
     // Update all other
     blockScreenshots = true;
-    if ( type == KOMPOSEDISPLAY_CURRENTDESK )
-      KomposeTaskManager::instance()->slotUpdateScreenshots( false );
+    if ( type == KomposeSettings::EnumView::CurrentDesktop )
+      KomposeTaskManager::self()->slotUpdateScreenshots( false );
     else
-      KomposeTaskManager::instance()->slotUpdateScreenshots();
+      KomposeTaskManager::self()->slotUpdateScreenshots();
     blockScreenshots = false;
   }
 
   if ( !activeView )
-    if ( KomposeSettings::instance()->getUseGL() )
+    if ( KomposeSettings::self()->openGL() )
       viewWidget = new KomposeGLViewWidget( type );
     else
       viewWidget = new KomposeFullscreenWidget( type );
@@ -229,7 +209,7 @@ void KomposeViewManager::closeCurrentView()
 
   emit viewClosed();
 
-  if ( KomposeGlobal::instance()->getSingleShot() )
+  if ( KomposeGlobal::self()->getSingleShot() )
     kapp->quit();
 
   // Reset old Desktop

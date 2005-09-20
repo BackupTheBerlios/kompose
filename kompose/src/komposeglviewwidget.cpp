@@ -27,16 +27,16 @@
 KomposeGLViewWidget::KomposeGLViewWidget( int displayType , KomposeLayout *l )
  : AbstractViewWidget( 0, l, 0 )
 {
-  m_menu = KomposeGlobal::instance()->getViewMenu();
+  m_menu = KomposeGlobal::self()->getViewMenu();
 
   m_glWidget = new KomposeGLWidget(this,displayType,l);
 
   QDesktopWidget deskwidget;
-  if (KomposeSettings::instance()->getViewScreen() == -1)
+  if (KomposeSettings::self()->viewScreen() == -1)
   {
     setGeometry( deskwidget.availableGeometry( this ) );
   } else {
-    QRect deskRect = deskwidget.availableGeometry(KomposeSettings::instance()->getViewScreen());
+    QRect deskRect = deskwidget.availableGeometry(KomposeSettings::self()->viewScreen());
     setGeometry(deskRect);
   }
 
@@ -95,7 +95,7 @@ void KomposeGLViewWidget::keyReleaseEvent ( QKeyEvent * e )
   if ( e->key() == Qt::Key_Escape )
   {
     kdDebug() << "KomposeGLViewWidget::keyReleaseEvent - Esc key pressed - Closing view" << endl;
-    KomposeViewManager::instance()->closeCurrentView();
+    KomposeViewManager::self()->closeCurrentView();
     e->accept();
   }
   else

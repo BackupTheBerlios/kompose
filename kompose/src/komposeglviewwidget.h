@@ -23,7 +23,7 @@ class KomposeGLWidget;
 class KomposeGLViewWidget : public AbstractViewWidget
 {
 public:
-  KomposeGLViewWidget( int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
+  KomposeGLViewWidget( int displayType = KomposeSettings::EnumView::VirtualDesktops ,KomposeLayout *l = 0 );
 
   ~KomposeGLViewWidget();
 

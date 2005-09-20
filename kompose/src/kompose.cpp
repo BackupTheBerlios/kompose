@@ -46,11 +46,11 @@ Kompose::~Kompose()
 bool Kompose::x11EventFilter (XEvent *event)
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
-    if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    if ( event->type == KomposeGlobal::self()->getDamageEvent() + XDamageNotify )
     {
-      KomposeTaskManager::instance()->processX11Event( event );
+      KomposeTaskManager::self()->processX11Event( event );
       //     XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
       //     // e->drawable is the window ID of the damaged window
       //     // e->geometry is the geometry of the damaged window
@@ -73,7 +73,7 @@ bool Kompose::x11EventFilter (XEvent *event)
       // XConfigureEvent *e = &event->xconfigure;
       // The windows size, position or Z index in the stacking
       // order has changed
-      KomposeTaskManager::instance()->processX11Event( event );
+      KomposeTaskManager::self()->processX11Event( event );
     }
 
   }

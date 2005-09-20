@@ -34,16 +34,16 @@ KomposeSysTray::KomposeSysTray(QWidget *parent, const char *name)
   menu = contextMenu();
   move( -1000, -1000 );
   // Fill Menu
-  KomposeGlobal::instance()->getActShowWorldView()->plug(menu);
-  KomposeGlobal::instance()->getActShowVirtualDesktopView()->plug(menu);
-  KomposeGlobal::instance()->getActShowCurrentDesktopView()->plug(menu);
+  KomposeGlobal::self()->getActShowWorldView()->plug(menu);
+  KomposeGlobal::self()->getActShowVirtualDesktopView()->plug(menu);
+  KomposeGlobal::self()->getActShowCurrentDesktopView()->plug(menu);
   menu->insertSeparator();
-  KomposeGlobal::instance()->getActPreferencesDialog()->plug(menu);
-  KomposeGlobal::instance()->getActConfigGlobalShortcuts()->plug(menu);
-  KomposeGlobal::instance()->getActAboutDlg()->plug(menu);
+  KomposeGlobal::self()->getActPreferencesDialog()->plug(menu);
+  KomposeGlobal::self()->getActConfigGlobalShortcuts()->plug(menu);
+  KomposeGlobal::self()->getActAboutDlg()->plug(menu);
 
   slotConfigChanged();
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(slotConfigChanged()) );
+  connect( KomposeGlobal::self(), SIGNAL(settingsChanged()), this, SLOT(slotConfigChanged()) );
 }
 
 
@@ -56,7 +56,7 @@ void KomposeSysTray::slotConfigChanged( )
   QPixmap iconPixmap = loadIcon("kompose");
   setPixmap(iconPixmap);
   icon = iconPixmap.convertToImage();
-  currentDesktopChanged(KomposeTaskManager::instance()->getCurrentDesktopNum());
+  currentDesktopChanged(KomposeTaskManager::self()->getCurrentDesktopNum());
 }
 
 void KomposeSysTray::mouseReleaseEvent (QMouseEvent * )
@@ -70,7 +70,7 @@ void KomposeSysTray::mousePressEvent ( QMouseEvent * e )
   switch ( e->button() )
   {
   case LeftButton:
-    KomposeViewManager::instance()->createView( KomposeSettings::instance()->getDefaultView() );
+    KomposeViewManager::self()->createView( KomposeSettings::self()->view( KomposeSettings::EnumViewMode::Default ) );
     break;
   case MidButton:
     // fall through
@@ -86,7 +86,7 @@ void KomposeSysTray::mousePressEvent ( QMouseEvent * e )
 
 void KomposeSysTray::currentDesktopChanged(int desktop)
 {
-  if (!KomposeSettings::instance()->getShowDesktopNum())
+  if (!KomposeSettings::self()->showDesktopNum())
     return;
   // update the icon to display the current desktop number
   // qDebug("Displaying current desktop number on the tray icon....\n");

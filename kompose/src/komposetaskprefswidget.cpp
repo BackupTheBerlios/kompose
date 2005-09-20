@@ -28,7 +28,7 @@
 KomposeTaskPrefsWidget::KomposeTaskPrefsWidget(KomposeTaskWidget *parent, const char *name)
     : QDockArea(Qt::Horizontal , QDockArea::Normal, parent, name)
 {
-  KToolBar* pToolBar = new KToolBar( this, i18n("Task Actions") );
+  KToolBar* pToolBar = new KToolBar( this ); //, i18n("Task Actions") );
   pToolBar->setLabel(i18n("Task"));
   pToolBar->setResizeEnabled ( false );
   pToolBar->setMovingEnabled ( false );

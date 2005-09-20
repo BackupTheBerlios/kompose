@@ -33,8 +33,9 @@
 #include <kdebug.h>
 #include <dcopclient.h>
 #include <dcopref.h>
-
+#include <kconfigdialog.h>
 #include <dcopclient.h>
+#include <kglobalaccel.h>
 
 // #include those AFTER Qt-includes!
 #include <X11/Xlib.h>
@@ -59,11 +60,11 @@ static QString wallpaperForDesktop(int desktop)
 /**
  * KomposeSettings is a singleton
  */
-KomposeGlobal* KomposeGlobal::instance()
+KomposeGlobal* KomposeGlobal::self()
 {
   if ( !globalInstance )
   {
-    kdDebug() << "KomposeSettings::instance() - Creating Singleton instance" << endl;
+    kdDebug() << "KomposeSettings::self() - Creating Singleton instance" << endl;
     KomposeGlobal *settiglobalInstance = new KomposeGlobal();
   }
   return globalInstance;
@@ -71,11 +72,12 @@ KomposeGlobal* KomposeGlobal::instance()
 
 KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
     : QObject(parent, name),
-    aboutDialogOpen(0),
+    m_dialogOpen(0),
     hideSystray( false ),
     singleShot( false ),
     xcomposite(0),
-    damageEvent(0)
+    damageEvent(0),
+    m_cfgDialog(0)
 {
   globalInstance = this;
   kwin_module = new KWinModule(); //FIXME: only needed for sharedpixmap :(
@@ -87,7 +89,7 @@ KomposeGlobal::KomposeGlobal(QObject *parent, const char *name)
   initCompositeExt();
   initImlib();
 
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(slotConfigChanged()) );
+  connect( KomposeGlobal::self(), SIGNAL(settingsChanged()), this, SLOT(slotConfigChanged()) );
 }
 
 KomposeGlobal::~KomposeGlobal()
@@ -116,9 +118,27 @@ void KomposeGlobal::slotConfigChanged( )
 void KomposeGlobal::initGui()
 {
   // Initialise the Singleton instances
-  KomposeSettings::instance();
-  KomposeViewManager::instance();
-  KomposeTaskManager::instance();
+  KomposeSettings::self();
+  KomposeViewManager::self();
+  KomposeTaskManager::self();
+
+  m_globalAccel = new KGlobalAccel( this );
+  m_globalAccel->insert( "showDefaultView", i18n("Show Komposé (default view)"),
+                       i18n("Displays the view you have configured as default"),
+                       KKey::QtWIN+Key_Tab, KKey::QtWIN+CTRL+SHIFT+Key_Tab,
+                       KomposeViewManager::self(), SLOT(createDefaultView()) );
+  m_globalAccel->insert( "showWorldView", i18n("Show Komposé (ungrouped)"),
+                       i18n("Displays all windows unsorted"),
+                       CTRL+SHIFT+Key_J, KKey::QtWIN+CTRL+SHIFT+Key_J,
+                       KomposeViewManager::self(), SLOT(createWorldView()) );
+  m_globalAccel->insert( "showVirtualDesktopView", i18n("Show Komposé (grouped by virtual desktops)"),
+                       i18n("Displays all windows sorted by virtual desktops"),
+                       CTRL+SHIFT+Key_I, KKey::QtWIN+CTRL+SHIFT+Key_I,
+                       KomposeViewManager::self(), SLOT(createVirtualDesktopView()) );
+  m_globalAccel->insert( "showCurrentDesktopView", i18n("Show Komposé (current virtual desktop)"),
+                       i18n("Displays all windows on the current desktop"),
+                       CTRL+SHIFT+Key_K, KKey::QtWIN+CTRL+SHIFT+Key_K,
+                       KomposeViewManager::self(), SLOT(createCurrentDesktopView()) );
 
   // Create DCop Client
   kapp->dcopClient()->setDefaultObject( "KomposeTaskMgrDcopIface" );
@@ -142,7 +162,7 @@ void KomposeGlobal::initGui()
   if ( singleShot )
   {
     kdDebug() << "KomposeGlobal::initGui() - SingleShot has been selected" << endl;
-    KomposeViewManager::instance()->createView();
+    KomposeViewManager::self()->createView();
   }
 }
 
@@ -158,18 +178,18 @@ void KomposeGlobal::initActions()
   actQuit = KStdAction::quit( kapp, SLOT(quit()), actionCollection );
   actShowWorldView = new KAction(i18n("Komposé (ungrouped)"), "kompose_ungrouped",
                                  0,
-                                 KomposeViewManager::instance(), SLOT(createWorldView()),
+                                 KomposeViewManager::self(), SLOT(createWorldView()),
                                  actionCollection, "showWorldView");
   actShowVirtualDesktopView = new KAction(i18n("Komposé (grouped by virtual desktops)"), "kompose_grouped_by_virtual_desktop",
                                           0,
-                                          KomposeViewManager::instance(), SLOT(createVirtualDesktopView()),
+                                          KomposeViewManager::self(), SLOT(createVirtualDesktopView()),
                                           actionCollection, "showVirtualDesktopView");
   actShowCurrentDesktopView = new KAction(i18n("Komposé (current virtual desktop)"), "kompose_current_virtual_desktop",
                                           0,
-                                          KomposeViewManager::instance(), SLOT(createCurrentDesktopView()),
+                                          KomposeViewManager::self(), SLOT(createCurrentDesktopView()),
                                           actionCollection, "showCurrentDesktopView");
 
-  actPreferencesDialog      = KStdAction::preferences( KomposeSettings::instance(), SLOT(showPreferencesDlg()), actionCollection );
+  actPreferencesDialog      = KStdAction::preferences( KomposeGlobal::self(), SLOT(showPreferencesDlg()), actionCollection );
 
   actConfigGlobalShortcuts  = KStdAction::keyBindings(this, SLOT(showGlobalShortcutsSettingsDialog()),
                               actionCollection, "options_configure_global_keybinding");
@@ -192,7 +212,7 @@ void KomposeGlobal::initMenus()
   getActConfigGlobalShortcuts()->plug(m_viewMenu);
   getActAboutDlg()->plug(m_viewMenu);
   //menu->insertSeparator();
-  //KomposeGlobal::instance()->getActQuit()->plug(m_viewMenu);
+  //KomposeGlobal::self()->getActQuit()->plug(m_viewMenu);
 }
 
 void KomposeGlobal::initSharedPixmaps()
@@ -291,8 +311,8 @@ void KomposeGlobal::enablePixmapExports()
  */
 void KomposeGlobal::showGlobalShortcutsSettingsDialog()
 {
-  KKeyDialog::configure( KomposeSettings::instance()->getGlobalAccel() );
-  KomposeSettings::instance()->writeConfig();
+  KKeyDialog::configure( KomposeGlobal::self()->globalAccel() );
+  KomposeSettings::self()->writeConfig();
 }
 
 /**
@@ -300,11 +320,11 @@ void KomposeGlobal::showGlobalShortcutsSettingsDialog()
  */
 void KomposeGlobal::showAboutDlg()
 {
-  aboutDialogOpen = true;
+  m_dialogOpen = true;
   KAboutApplication* kabout = new KAboutApplication();
   kabout->exec();
   delete kabout;
-  aboutDialogOpen = false;
+  m_dialogOpen = false;
 }
 
 /**
@@ -338,7 +358,7 @@ void KomposeGlobal::initImlib()
  */
 void KomposeGlobal::initCompositeExt()
 {
-  if ( !(!xcomposite && KomposeSettings::instance()->getUseComposite()) )
+  if ( !(!xcomposite && KomposeSettings::self()->composite()) )
     return;
 
   xcomposite = false;
@@ -386,6 +406,27 @@ void KomposeGlobal::initCompositeExt()
   if ( xcomposite )
     kdDebug() << "KomposeGlobal::initCompositeExt() - XComposite extension found and enabled." << endl;
 }
+#include "prefsbehaviour.h"
+void KomposeGlobal::showPreferencesDlg( )
+{
+  m_dialogOpen = true;
+  if (m_cfgDialog)
+  {
+    m_cfgDialog->show();
+    return;
+  }
 
+  m_cfgDialog = new KConfigDialog( 0, "settings", KomposeSettings::self() );
+  m_cfgDialog->addPage( new PrefsBehaviour(), "Behaviour", "winprops" );
+  m_cfgDialog->show();
+  connect( m_cfgDialog, SIGNAL(settingsChanged()), this, SIGNAL(settingsChanged()) );
+  connect( m_cfgDialog, SIGNAL(finished()), this, SLOT(cfgDlgFinished()) );
+}
+
+void KomposeGlobal::cfgDlgFinished()
+{
+  m_dialogOpen = false;
+  delete m_cfgDialog;
+}
 
 #include "komposeglobal.moc"

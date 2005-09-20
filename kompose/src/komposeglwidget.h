@@ -32,7 +32,7 @@ class KomposeGLWidget : public QGLWidget
 {
   Q_OBJECT
 public:
-  KomposeGLWidget( QWidget* parent, int displayType = KOMPOSEDISPLAY_VIRTUALDESKS ,KomposeLayout *l = 0 );
+  KomposeGLWidget( QWidget* parent, int displayType = KomposeSettings::EnumView::VirtualDesktops ,KomposeLayout *l = 0 );
   virtual ~KomposeGLWidget();
 
 protected:
@@ -47,7 +47,7 @@ protected:
   void bindTexture( const QPixmap* pixmap, uint& texIDStorage );
   void drawTextureRect(QRect pos, QSize texSize );
 
-  void rearrangeContents( const QRect& availRect );
+  void rearrangeContents( const QRect& availRect, int desktop=-1 );
   static void convert_imlib_image_to_opengl_data(int texture_width, int texture_height, Imlib_Image imlib_img, unsigned char *out_buff);
 
   void createOrderedTaskList( TaskList& inList, const QRect& availRect, uint rows, uint columns );

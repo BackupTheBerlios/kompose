@@ -74,15 +74,15 @@ int main(int argc, char **argv)
   
   if ( !args->isSet("systray") )
   {
-    KomposeGlobal::instance()->setHideSystray(true);
+    KomposeGlobal::self()->setHideSystray(true);
   }
   if ( args->isSet("singleshot") )
   {
-    KomposeGlobal::instance()->setHideSystray(true);
-    KomposeGlobal::instance()->setSingleShot(true);
+    KomposeGlobal::self()->setHideSystray(true);
+    KomposeGlobal::self()->setSingleShot(true);
   }
 
-  KomposeGlobal::instance()->initGui();
+  KomposeGlobal::self()->initGui();
   
   //app.setMainWidget( mainWin );
 

@@ -54,11 +54,11 @@ static KomposeTaskManager* taskManagerInstance = 0;
 /**
  * Taskmanager is a singleton
  */
-KomposeTaskManager* KomposeTaskManager::instance()
+KomposeTaskManager* KomposeTaskManager::self()
 {
   if ( !taskManagerInstance )
   {
-    kdDebug() << "KomposeTaskManager::instance() - Creating Singleton instance" << endl;
+    kdDebug() << "KomposeTaskManager::self() - Creating Singleton instance" << endl;
     taskManagerInstance = new KomposeTaskManager();
   }
   return taskManagerInstance;
@@ -80,8 +80,8 @@ KomposeTaskManager::KomposeTaskManager()
   connect( kwin_module, SIGNAL(numberOfDesktopsChanged(int)), this, SLOT(slotDesktopCountChanged(int)) );
   connect( kwin_module, SIGNAL(currentDesktopChanged(int)), this, SLOT(slotCurrentDesktopChanged(int)) );
 
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(slotStartWindowListeners()) );
-  connect( KomposeSettings::instance(), SIGNAL(settingsChanged()), this, SLOT(callCompositeRedirect()) );
+  connect( KomposeGlobal::self(), SIGNAL(settingsChanged()), this, SLOT(slotStartWindowListeners()) );
+  connect( KomposeGlobal::self(), SIGNAL(settingsChanged()), this, SLOT(callCompositeRedirect()) );
 
   // register existing windows
   const QValueList<WId> windows = kwin_module->windows();
@@ -103,16 +103,16 @@ KomposeTaskManager::~KomposeTaskManager()
 void KomposeTaskManager::callCompositeRedirect()
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() )
   {
     Display *dpy = QPaintDevice::x11AppDisplay();
-    if ( KomposeSettings::instance()->getUseComposite() )
+    if ( KomposeSettings::self()->composite() )
     {
       // Redirect
       for ( int i = 0; i < ScreenCount( dpy ); i++ )
         XCompositeRedirectSubwindows( dpy, RootWindow( dpy, i ), CompositeRedirectAutomatic );
     }
-    else if ( !KomposeSettings::instance()->getUseComposite() )
+    else if ( !KomposeSettings::self()->composite() )
     {
       // Unredirect
       for ( int i = 0; i < ScreenCount( dpy ); i++ )
@@ -197,7 +197,7 @@ void KomposeTaskManager::slotWindowAdded(WId w )
   // ignore myself
   if ( QWidget::find(w) != 0 )
     return;
-  //   if ( KomposeViewManager::instance()->hasActiveView() && w == KomposeViewManager::instance()->getViewWidget()->winId() )
+  //   if ( KomposeViewManager::self()->hasActiveView() && w == KomposeViewManager::self()->getViewWidget()->winId() )
   //   {
   //     return;
   //   }
@@ -242,7 +242,7 @@ void KomposeTaskManager::slotUpdateScreenshots( bool switchDesktops )
   for ( int desk = -1; desk <= numDesks; ++desk )
   {
     // Desk == 0 should not be possible, however -1 means on all desks
-    if (desk==0 || ( !switchDesktops && desk != KomposeViewManager::instance()->getDesktopBeforeSnaps()+1 ) )
+    if (desk==0 || ( !switchDesktops && desk != KomposeViewManager::self()->getDesktopBeforeSnaps()+1 ) )
       continue;
 
     it.toFirst();
@@ -326,7 +326,7 @@ QString KomposeTaskManager::getDesktopName(int desk) const
 bool KomposeTaskManager::processX11Event( XEvent *event )
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
     if ( event->type == ConfigureNotify )
     {
@@ -338,7 +338,7 @@ bool KomposeTaskManager::processX11Event( XEvent *event )
       t->slotX11ConfigureNotify();
       return true;
     }
-    else if ( event->type == KomposeGlobal::instance()->getDamageEvent() + XDamageNotify )
+    else if ( event->type == KomposeGlobal::self()->getDamageEvent() + XDamageNotify )
     {
       XDamageNotifyEvent *e = reinterpret_cast<XDamageNotifyEvent*>( event );
       // e->drawable is the window ID of the damaged window
@@ -348,7 +348,7 @@ bool KomposeTaskManager::processX11Event( XEvent *event )
 
       // Subtract all the damage, repairing the window.
       XDamageSubtract( QPaintDevice::x11AppDisplay(), e->damage, None, None );
-      if ( !KomposeViewManager::instance()->hasActiveView() )
+      if ( !KomposeViewManager::self()->hasActiveView() )
         return true;
 
       // FIXME: too many damage events are called. block findTask here...
@@ -367,7 +367,7 @@ bool KomposeTaskManager::processX11Event( XEvent *event )
 void KomposeTaskManager::slotCurrentDesktopChanged(int d)
 {
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
     // Strangely a ConfigureNotify is only sent when I click on a window on the new desktop
     // and not when I cahnge the desktop, although the windows get mapped at this point.

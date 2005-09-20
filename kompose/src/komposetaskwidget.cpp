@@ -76,7 +76,7 @@ KomposeTaskWidget::KomposeTaskWidget(KomposeTask *t, QWidget *parent, KomposeLay
   connect( t, SIGNAL( stateChanged() ), this, SLOT( reInitMenu() ) );
 
 #ifdef COMPOSITE
-  if ( KomposeGlobal::instance()->hasXcomposite() && KomposeSettings::instance()->getUseComposite() )
+  if ( KomposeGlobal::self()->hasXcomposite() && KomposeSettings::self()->composite() )
   {
     connect( t, SIGNAL( x11DamageNotify() ), this, SLOT( drawWidgetAndRepaint() ) );
   }
@@ -106,7 +106,7 @@ void KomposeTaskWidget::reInitMenu()
 
 void KomposeTaskWidget::initFonts()
 {
-  titleFont = KomposeSettings::instance()->getWindowTitleFont();
+  titleFont = KomposeSettings::self()->windowTitleFont();
 }
 
 void KomposeTaskWidget::slotTaskDestroyed()
@@ -114,7 +114,7 @@ void KomposeTaskWidget::slotTaskDestroyed()
   disconnect( task, SIGNAL( closed() ), this, SLOT( slotTaskDestroyed() ) );
   disconnect( task, SIGNAL( stateChanged() ), this, SLOT( drawWidgetAndRepaint() ) );
   
-  //if (KomposeViewManager::instance()->hasActiveView())
+  //if (KomposeViewManager::self()->hasActiveView())
   emit requestRemoval(this);
 }
 void KomposeTaskWidget::resizeEvent ( QResizeEvent * e )
@@ -149,7 +149,7 @@ void KomposeTaskWidget::drawWidgetAndRepaint()
 
 void KomposeTaskWidget::drawWidget()
 {
-  if ( !KomposeViewManager::instance()->hasActiveView() || !isShown() )
+  if ( !KomposeViewManager::self()->hasActiveView() || !isShown() )
     return;
   
   pm_dbBackground.resize( width(), height() );
@@ -159,25 +159,26 @@ void KomposeTaskWidget::drawWidget()
 
   int effect = IEFFECT_NONE;
 
-  if ( KomposeSettings::instance()->getShowWindowTitles() && !task->isIconified() )
+  if ( KomposeSettings::self()->showWindowTitles() && !task->isIconified() )
     effect = IEFFECT_TITLE;
-  if ( KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
+  if ( KomposeSettings::self()->showWindowTitles() && task->isIconified() )
     effect = IEFFECT_MINIMIZED_AND_TITLE;
-  if ( !KomposeSettings::instance()->getShowWindowTitles() && task->isIconified() )
+  if ( !KomposeSettings::self()->showWindowTitles() && task->isIconified() )
     effect = IEFFECT_MINIMIZED;
   //   if ( highlight )               // I hate it, so I disable it!
   //     effect = IEFFECT_HIGHLIGHT;
 
   task->getVisualizer()->renderOnPixmap(&pm_dbBackground, effect);
 
+  QFontMetrics fm( KomposeSettings::self()->windowTitleFont() );
   // Icon
-  QPoint titleTextPos( 6, KomposeSettings::instance()->getWindowTitleFontHeight() + 1);
-  if ( KomposeSettings::instance()->getShowIcons() )
+  QPoint titleTextPos( 6, fm.height() + 1);
+  if ( KomposeSettings::self()->showIcons() )
   {
-    QPixmap icon = task->getIcon( KomposeSettings::instance()->getIconSizePixels() );
+    QPixmap icon = task->getIcon( KomposeSettings::self()->iconSize() );
 
     // Place the icon left or under the text, according to it's size
-    if ( KomposeSettings::instance()->getIconSize() < 2 || icon.height() < 50 )
+    if ( KomposeSettings::self()->iconSize() < 2 || icon.height() < 50 )
     {
       // Medium sized or tiny Icon
       p.drawPixmap( QPoint(5, 5), icon );
@@ -192,15 +193,15 @@ void KomposeTaskWidget::drawWidget()
   }
 
   // Title
-  if ( KomposeSettings::instance()->getShowWindowTitles() )
+  if ( KomposeSettings::self()->showWindowTitles() )
   {
     p.setFont(titleFont);
-    if ( KomposeSettings::instance()->getShowWindowTitleShadow() )
+    if ( KomposeSettings::self()->showWindowTitleShadow() )
     {
-      p.setPen( KomposeSettings::instance()->getWindowTitleFontShadowColor() );
+      p.setPen( KomposeSettings::self()->windowTitleShadowColor() );
       p.drawText( titleTextPos, task->visibleNameWithState() );
     }
-    p.setPen( KomposeSettings::instance()->getWindowTitleFontColor() );
+    p.setPen( KomposeSettings::self()->windowTitleFontColor() );
     p.drawText( QPoint( titleTextPos.x()-2, titleTextPos.y()-2 ), task->visibleNameWithState() );
   }
 
@@ -225,7 +226,7 @@ void KomposeTaskWidget::mouseReleaseEvent ( QMouseEvent * e )
 {
   if ( !rect().contains( e->pos() ) )
     return;
-  KomposeViewManager::instance()->activateTask( task );
+  KomposeViewManager::self()->activateTask( task );
 }
 
 void KomposeTaskWidget::mouseMoveEvent ( QMouseEvent * e )
@@ -238,7 +239,7 @@ void KomposeTaskWidget::mouseMoveEvent ( QMouseEvent * e )
 // {
 //   if ( !rect().contains( e->pos() ) )
 //     return;
-//   KomposeTaskManager::instance()->activateTask( task );
+//   KomposeTaskManager::self()->activateTask( task );
 // }
 
 void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
@@ -247,7 +248,7 @@ void KomposeTaskWidget::keyReleaseEvent ( QKeyEvent * e )
   {
     kdDebug() << "KomposeTaskWidget::keyReleaseEvent - activating Task!" << endl;
     e->accept();
-    KomposeViewManager::instance()->activateTask( task );
+    KomposeViewManager::self()->activateTask( task );
     return;
   }
   else if ( e->key() == Qt::Key_C )
@@ -370,9 +371,9 @@ void KomposeTaskWidget::initMenu()
 
   m->insertSeparator();
 
-  for( int i = 1; i <= KomposeTaskManager::instance()->getNumDesktops(); i++ )
+  for( int i = 1; i <= KomposeTaskManager::self()->getNumDesktops(); i++ )
   {
-    QString name = QString( "&%1 %2" ).arg( i ).arg( KomposeTaskManager::instance()->getDesktopName( i ).replace( '&', "&&" ) );
+    QString name = QString( "&%1 %2" ).arg( i ).arg( KomposeTaskManager::self()->getDesktopName( i ).replace( '&', "&&" ) );
     id = m->insertItem( name, task, SLOT( toDesktop(int) ) );
     m->setItemParameter( id, i );
     m->setItemChecked( id, !task->isOnAllDesktops() && task->onDesktop() == i );

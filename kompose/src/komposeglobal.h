@@ -31,6 +31,8 @@ class KWinModule;
 # define COMPOSITE
 #endif
 
+class KGlobalAccel;
+class KConfigDialog;
 /**
 @author Hans Oischinger
 */
@@ -43,11 +45,11 @@ protected:
   ~KomposeGlobal();
 
 public:
-  static KomposeGlobal *instance();
+  static KomposeGlobal *self();
   KomposeSysTray* getSysTray() { return systray; }
   void initGui();
 
-  bool hasAboutDialogOpen() { return aboutDialogOpen; }
+  bool hasDialogOpen() { return m_dialogOpen; }
   void setHideSystray( bool b ) { hideSystray = b; }
   void setSingleShot( bool b ) { singleShot = b; }
   bool getSingleShot() { return singleShot; }
@@ -63,8 +65,15 @@ public:
   KAction *getActAboutDlg() { return actAboutDlg; }
   KAction *getActQuit() { return actQuit; }
 
+  KGlobalAccel *globalAccel() const { return m_globalAccel; }
   KPopupMenu *getViewMenu() { return m_viewMenu; }
   const KSharedPixmap *getDesktopBgPixmap() const { return desktopBgPixmap; }
+
+public slots:
+  void showPreferencesDlg();
+
+signals:
+  void settingsChanged();
 
 protected:
   void initActions();
@@ -79,19 +88,21 @@ protected slots:
   void slotDesktopChanged(int desktop);
   void slotBackgroundChanged(int desktop);
   void refreshSharedPixmaps();
-  
+
   void slotConfigChanged();
   void initCompositeExt();
   void showGlobalShortcutsSettingsDialog();
   void showAboutDlg();
+  void cfgDlgFinished();
 
 private:
-  bool aboutDialogOpen;
+  KGlobalAccel *m_globalAccel;
+  bool m_dialogOpen;
   bool hideSystray;
   bool singleShot;
   bool xcomposite;
   int damageEvent, damageError;
-  
+
   KSharedPixmap *desktopBgPixmap;
   int currentDesktop;
   KomposeSysTray* systray;
@@ -106,6 +117,7 @@ private:
   KAction *actQuit;
 
   KPopupMenu *m_viewMenu;
+  KConfigDialog *m_cfgDialog;
 
   KWinModule* kwin_module;
 };
