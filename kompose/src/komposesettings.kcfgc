@@ -1,0 +1,4 @@
+File=kompose.kcfg
+ClassName=KomposeSettings
+Singleton=true
+Mutators=true

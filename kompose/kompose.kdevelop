@@ -17,11 +17,12 @@
     <description/>
     <ignoreparts/>
     <secondaryLanguages/>
+    <versioncontrol/>
   </general>
   <kdevautoproject>
     <general>
       <activetarget>src/kompose</activetarget>
-      <useconfiguration>debug</useconfiguration>
+      <useconfiguration>default</useconfiguration>
     </general>
     <run>
       <mainprogram>src/kompose</mainprogram>
@@ -62,7 +63,7 @@
       </debug>
       <default>
         <envvars>
-          <envvar value="/usr/kde/3.4" name="KDEDIR" />
+          <envvar value="/usr/kde/devel" name="KDEDIR" />
         </envvars>
         <configargs>--without-arts</configargs>
         <builddir/>
