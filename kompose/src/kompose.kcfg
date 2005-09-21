@@ -80,7 +80,10 @@
       <label>The screen where Kompose should be shown</label>
       <default>0</default>
     </entry>
-
+    <entry name="LayoutSpacing" type="Int"> 
+      <label>Spacing in pixels used in layouts</label>
+      <default>10</default>
+    </entry>
   <entry name="View$(ViewMode)" type="Enum" key="view_$(ViewMode)">
     <parameter name="ViewMode" type="Enum">
       <values>

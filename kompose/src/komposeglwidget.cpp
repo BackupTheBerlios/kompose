@@ -52,7 +52,8 @@ static int nearest_gl_texture_size(int v)
 KomposeGLWidget::KomposeGLWidget( QWidget* parent, int displayType, KomposeLayout *l)
     : QGLWidget(parent),
     m_scale(0.),
-    m_activateLaterTask(0)
+    m_activateLaterTask(0),
+    m_type(displayType)
 {
   m_animTimer = new QTimer(this);
   m_animProgress = new QTime();
@@ -120,11 +121,10 @@ void KomposeGLWidget::resizeGL( int w, int h )
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  if (  KomposeSettings::self()->view( KomposeSettings::EnumViewMode::Default ) ==
-        KomposeSettings::EnumView::VirtualDesktops )
+  if (  m_type == KomposeSettings::EnumView::VirtualDesktops )
   {
+    m_desktopRects.clear();
     int numDesks = KomposeTaskManager::self()->getNumDesktops();
-    int spacing=10; // FIXME: MoveME
     int columns=0;
     int rows=0;
 
@@ -140,16 +140,17 @@ void KomposeGLWidget::resizeGL( int w, int h )
       rows = (int)ceil( sqrt(numDesks) );
       columns = (int)ceil( (double)numDesks / (double)rows );
     }
-    int w = (rect().width() - (columns+1) * spacing ) / columns;
-    int h = (rect().height() - (rows+1) * spacing ) / rows;
+    int w = (rect().width() - (columns+1) * KomposeSettings::self()->layoutSpacing() ) / columns;
+    int h = (rect().height() - (rows+1) * KomposeSettings::self()->layoutSpacing() ) / rows;
 
     for (int i=0; i < numDesks; ++i)
     {
       int row = i / 2;
       int col = i % 2;
-
-      //kdDebug() << "rc %d %d", row, col);
-      rearrangeContents( QRect( col*w, row*h, w, h ), i );
+      m_desktopRects.append( QRect( col*w + (col+1) * KomposeSettings::self()->layoutSpacing(),
+                                    row*h + (row+1) * KomposeSettings::self()->layoutSpacing(),
+                                    w, h ) );
+      rearrangeContents( m_desktopRects.last(), i );
     }
   }
   else
@@ -166,6 +167,13 @@ void KomposeGLWidget::paintGL()
   glColor4f(1.0, 1.0, 1.0, 1.0);
   QSize bgSize = ((QPixmap*)(KomposeGlobal::self()->getDesktopBgPixmap()))->size();
   drawTextureRect( QRect(mapFromGlobal(pos()),bgSize), bgSize );
+
+  if (  m_type == KomposeSettings::EnumView::VirtualDesktops )
+  {
+    QValueList<QRect>::iterator it;
+    for ( it = m_desktopRects.begin(); it != m_desktopRects.end(); ++it )
+      paintDesktop( *it );
+  }
 
   glColor4f(1.0, 1.0, 1.0, 1.0);
   TaskList tl = KomposeTaskManager::self()->getTasks();
@@ -254,6 +262,27 @@ void KomposeGLWidget::drawTextureRect(QRect pos, QSize texSize)
   glEnd();
 
   glDisable(m_target);
+  glPopAttrib();
+}
+
+void KomposeGLWidget::paintDesktop(QRect pos)
+{
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glColor4f(0.0, 0.0, 0.0, 1.0);
+  glPushAttrib(GL_CURRENT_BIT);
+  glEnable(GL_BLEND);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+  glBegin(GL_QUADS);
+  {
+    glVertex2d(pos.x(), pos.y());
+    glVertex2d(pos.x() + pos.width(), pos.y());
+    glVertex2d(pos.x() + pos.width(), pos.y() + pos.height());
+    glVertex2d(pos.x(), pos.y() + pos.height());
+  }
+  glEnd();
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glPopAttrib();
 }
 

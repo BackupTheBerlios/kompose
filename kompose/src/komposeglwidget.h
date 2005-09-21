@@ -16,6 +16,7 @@
 #include <GL/glu.h>
 
 #include <qgl.h>
+#include <qvaluelist.h>
 
 #include "komposesettings.h"
 #include "komposetaskmanager.h"
@@ -35,6 +36,8 @@ public:
   KomposeGLWidget( QWidget* parent, int displayType = KomposeSettings::EnumView::VirtualDesktops ,KomposeLayout *l = 0 );
   virtual ~KomposeGLWidget();
 
+  void setType( int t ) { m_type = t; }
+
 protected:
   enum AnimMode { ANIM_IN, ANIM_OUT };
   void initializeGL();
@@ -43,6 +46,7 @@ protected:
   void showEvent ( QShowEvent * );
   void mouseReleaseEvent (QMouseEvent *);
 
+  void paintDesktop(QRect pos);
   void paintTask(KomposeTask* task);
   void bindTexture( const QPixmap* pixmap, uint& texIDStorage );
   void drawTextureRect(QRect pos, QSize texSize );
@@ -64,6 +68,9 @@ private:
   GLenum m_target;
   AnimMode m_animMode;
   KomposeTask* m_activateLaterTask;
+  int m_type;
+  QValueList<QRect> m_desktopRects;
+
 };
 
 #endif

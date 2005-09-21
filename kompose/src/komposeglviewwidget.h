@@ -30,6 +30,7 @@ public:
   int getHeightForWidth( int w ) const;
   int getWidthForHeight( int h ) const;
   double getAspectRatio();
+  void setType( int t );
 
 protected:
   void resizeEvent ( QResizeEvent * );

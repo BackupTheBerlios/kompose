@@ -105,3 +105,8 @@ void KomposeGLViewWidget::keyReleaseEvent ( QKeyEvent * e )
   }
   KomposeTaskContainerWidget::keyReleaseEvent(e);
 }
+
+void KomposeGLViewWidget::setType( int t )
+{
+  m_glWidget->setType(t);
+}
